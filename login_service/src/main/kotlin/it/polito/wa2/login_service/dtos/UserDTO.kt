@@ -1,14 +1,8 @@
-package it.polito.wa2.lab3group04.dtos
+package it.polito.wa2.login_service.dtos
 
-import it.polito.wa2.lab3group04.annotations.ValidPassword
-import it.polito.wa2.lab3group04.entities.Role
-import it.polito.wa2.lab3group04.entities.User
+import it.polito.wa2.login_service.entities.Role
+import it.polito.wa2.login_service.entities.User
 import org.springframework.security.core.userdetails.UserDetails
-
-import javax.validation.constraints.Email
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.Size
 
 data class UserDTO(
         val userId : Long?,

@@ -1,6 +1,6 @@
-package it.polito.wa2.lab3group04.repositories
+package it.polito.wa2.login_service.repositories
 
-import it.polito.wa2.lab3group04.entities.Activation
+import it.polito.wa2.login_service.entities.Activation
 import java.util.*
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository

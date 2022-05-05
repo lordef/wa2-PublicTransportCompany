@@ -1,11 +1,11 @@
-package it.polito.wa2.lab3group04.controllers
+package it.polito.wa2.login_service.controllers
 
-import it.polito.wa2.lab3group04.dtos.ActivationDTO
-import it.polito.wa2.lab3group04.dtos.LoginRequestDTO
-import it.polito.wa2.lab3group04.dtos.RegistrationRequestDTO
-import it.polito.wa2.lab3group04.exceptions.BadRequestException
-import it.polito.wa2.lab3group04.security.Jwt
-import it.polito.wa2.lab3group04.services.impl.UserServiceImpl
+import it.polito.wa2.login_service.dtos.ActivationDTO
+import it.polito.wa2.login_service.dtos.LoginRequestDTO
+import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.exceptions.BadRequestException
+import it.polito.wa2.login_service.security.Jwt
+import it.polito.wa2.login_service.services.impl.UserServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus

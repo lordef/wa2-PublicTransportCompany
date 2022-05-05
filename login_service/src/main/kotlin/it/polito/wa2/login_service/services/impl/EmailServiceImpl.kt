@@ -1,6 +1,6 @@
-package it.polito.wa2.lab3group04.services.impl
+package it.polito.wa2.login_service.services.impl
 
-import it.polito.wa2.lab3group04.services.EmailService
+import it.polito.wa2.login_service.services.EmailService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.mail.SimpleMailMessage

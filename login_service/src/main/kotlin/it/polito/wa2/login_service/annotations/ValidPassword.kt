@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.annotations
+package it.polito.wa2.login_service.annotations
 
 import javax.validation.Constraint
 import javax.validation.Payload

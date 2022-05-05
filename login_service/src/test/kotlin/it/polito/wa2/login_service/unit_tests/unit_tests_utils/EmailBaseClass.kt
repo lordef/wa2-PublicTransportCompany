@@ -1,7 +1,7 @@
-package it.polito.wa2.lab3group04.unit_tests.unit_tests_utils
+package it.polito.wa2.login_service.unit_tests.unit_tests_utils
 
 import com.sun.mail.util.MailSSLSocketFactory
-import it.polito.wa2.lab3group04.services.impl.EmailServiceImpl
+import it.polito.wa2.login_service.services.impl.EmailServiceImpl
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.TestInstance

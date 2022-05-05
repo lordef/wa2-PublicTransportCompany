@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.entities
+package it.polito.wa2.login_service.entities
 
 import org.springframework.security.core.GrantedAuthority
 

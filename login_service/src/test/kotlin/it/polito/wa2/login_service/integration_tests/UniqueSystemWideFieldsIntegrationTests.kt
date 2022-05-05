@@ -1,8 +1,8 @@
-package it.polito.wa2.lab3group04.integration_tests
+package it.polito.wa2.login_service.integration_tests
 
-import it.polito.wa2.lab3group04.dtos.RegistrationRequestDTO
-import it.polito.wa2.lab3group04.entities.User
-import it.polito.wa2.lab3group04.repositories.UserRepository
+import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.entities.User
+import it.polito.wa2.login_service.repositories.UserRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

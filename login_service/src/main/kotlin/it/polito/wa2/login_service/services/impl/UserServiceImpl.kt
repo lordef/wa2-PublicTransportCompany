@@ -1,15 +1,15 @@
-package it.polito.wa2.lab3group04.services.impl
+package it.polito.wa2.login_service.services.impl
 
-import it.polito.wa2.lab3group04.dtos.ActivationDTO
-import it.polito.wa2.lab3group04.dtos.RegistrationRequestDTO
-import it.polito.wa2.lab3group04.dtos.UserDTO
-import it.polito.wa2.lab3group04.dtos.toDTO
-import it.polito.wa2.lab3group04.entities.Activation
-import it.polito.wa2.lab3group04.entities.User
-import it.polito.wa2.lab3group04.exceptions.*
-import it.polito.wa2.lab3group04.repositories.ActivationRepository
-import it.polito.wa2.lab3group04.repositories.UserRepository
-import it.polito.wa2.lab3group04.services.UserService
+import it.polito.wa2.login_service.dtos.ActivationDTO
+import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.dtos.UserDTO
+import it.polito.wa2.login_service.dtos.toDTO
+import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.User
+import it.polito.wa2.login_service.exceptions.*
+import it.polito.wa2.login_service.repositories.ActivationRepository
+import it.polito.wa2.login_service.repositories.UserRepository
+import it.polito.wa2.login_service.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration
@@ -18,11 +18,9 @@ import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.client.HttpClientErrorException.Unauthorized
 import java.util.*
 
 

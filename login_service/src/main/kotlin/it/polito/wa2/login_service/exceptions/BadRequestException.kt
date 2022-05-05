@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.exceptions
+package it.polito.wa2.login_service.exceptions
 
 open class BadRequestException(val msg: String): Exception(msg) {
 }

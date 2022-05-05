@@ -1,6 +1,6 @@
-package it.polito.wa2.lab3group04.dtos
+package it.polito.wa2.login_service.dtos
 
-import it.polito.wa2.lab3group04.entities.Activation
+import it.polito.wa2.login_service.entities.Activation
 import org.jetbrains.annotations.NotNull
 import java.util.*
 import javax.validation.constraints.Max

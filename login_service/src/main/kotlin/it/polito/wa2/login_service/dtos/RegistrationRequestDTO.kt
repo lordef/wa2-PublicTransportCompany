@@ -1,8 +1,6 @@
-package it.polito.wa2.lab3group04.dtos
+package it.polito.wa2.login_service.dtos
 
-import it.polito.wa2.lab3group04.annotations.ValidPassword
-import it.polito.wa2.lab3group04.entities.Role
-import org.springframework.security.core.userdetails.UserDetails
+import it.polito.wa2.login_service.annotations.ValidPassword
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull

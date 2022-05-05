@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.unit_tests.unit_tests_utils
+package it.polito.wa2.login_service.unit_tests.unit_tests_utils
 
 import org.springframework.beans.factory.annotation.Value
 import javax.mail.Authenticator

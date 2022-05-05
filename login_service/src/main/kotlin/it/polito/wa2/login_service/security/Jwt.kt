@@ -1,8 +1,8 @@
-package it.polito.wa2.lab3group04.security
+package it.polito.wa2.login_service.security
 
 import io.jsonwebtoken.*
 import io.jsonwebtoken.security.Keys
-import it.polito.wa2.lab3group04.dtos.UserDTO
+import it.polito.wa2.login_service.dtos.UserDTO
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication

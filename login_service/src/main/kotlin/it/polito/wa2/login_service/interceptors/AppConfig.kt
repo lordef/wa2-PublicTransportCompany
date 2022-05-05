@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.interceptors
+package it.polito.wa2.login_service.interceptors
 
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration

@@ -1,6 +1,6 @@
-package it.polito.wa2.lab3group04.controllers
+package it.polito.wa2.login_service.controllers
 
-import it.polito.wa2.lab3group04.exceptions.*
+import it.polito.wa2.login_service.exceptions.*
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler

@@ -1,4 +1,4 @@
-package it.polito.wa2.lab3group04.interceptors
+package it.polito.wa2.login_service.interceptors
 
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.ConsumptionProbe

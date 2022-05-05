@@ -1,10 +1,10 @@
-package it.polito.wa2.lab3group04.unit_tests
+package it.polito.wa2.login_service.unit_tests
 
-import it.polito.wa2.lab3group04.dtos.ActivationDTO
-import it.polito.wa2.lab3group04.dtos.RegistrationRequestDTO
-import it.polito.wa2.lab3group04.dtos.toDTO
-import it.polito.wa2.lab3group04.entities.Activation
-import it.polito.wa2.lab3group04.entities.User
+import it.polito.wa2.login_service.dtos.ActivationDTO
+import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.dtos.toDTO
+import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.User
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
