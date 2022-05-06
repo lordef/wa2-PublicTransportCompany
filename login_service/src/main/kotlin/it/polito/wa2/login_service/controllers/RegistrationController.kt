@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -91,6 +90,13 @@ class RegistrationController() {
         response.setHeader("Authorization", "$prefix ${jwt.generateJwt(authentication)}")
 
         //return (authentication.principal as UserDetailsDTO).copy(password = null)*/
+    }
+
+
+    //TODO: test to delete
+    @GetMapping("/user/hello")
+    fun hello() :String {
+        return "hello"
     }
 
 }

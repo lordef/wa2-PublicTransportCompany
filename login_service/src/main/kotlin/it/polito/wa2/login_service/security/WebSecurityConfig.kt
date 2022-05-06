@@ -33,7 +33,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
         http
                 .authorizeRequests()
-                .antMatchers("/user/**")
+                .mvcMatchers("/user/**")
                 .permitAll()
 
 
