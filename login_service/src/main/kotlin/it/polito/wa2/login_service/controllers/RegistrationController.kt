@@ -82,7 +82,18 @@ class RegistrationController() {
         if (bindingResult.hasErrors())
             throw BadRequestException(bindingResult.fieldErrors.joinToString())
 
-
+        /**
+         * La versione del metodo UsernamePasswordAuthenticationToken che riceve solo due parametri
+         * (principal e password) crea un oggetto Authentication (che l'Authentication Manager e Provider
+         * andranno a gestire) che ha un'implementazione del metodo isAuthenticated() che ritorna false :
+         * da quanto si evince l'authentication manager  una volta iniettata l'Authentication nel Security Context sfrutta
+         * questo metodo per capire se è una authentication
+         * non valida (se è false) o è già autenticato (se è true).
+         * Quindi sta ricevendo un Authentication che non è ancora stata processata, e ne fa l'autenticazione
+         * utilizzando in questo caso uno userDetailsService (loadUserByUsername)
+         * Se authenticate fallisce, non ritorna alcuna autenticazione ma lancia l'eccezione; se invece va in porto
+         * , ritorna un Authentication popolata con i dettagli dell'utente autenticato, che sfrutterò per generare il JWT
+         */
         val authentication: Authentication = authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(loginRequest.nickname, loginRequest.password)
         )
@@ -92,12 +103,6 @@ class RegistrationController() {
         //return (authentication.principal as UserDetailsDTO).copy(password = null)*/
     }
 
-
-    //TODO: test to delete
-    @GetMapping("/user/hello")
-    fun hello() :String {
-        return "hello"
-    }
 
 }
 
