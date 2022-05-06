@@ -14,6 +14,13 @@ These two databases have the following names respectively:
 * _postgres_
 * _db2_
 
+Add a new Datasource in the IntelliJ project 
+with username and password (should be _postgres_ and _postgres_ respectively) specified in the
+[application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
+and the host and port (should be _localhost_ and _54320_) specified in the spring.datasource.url of the [application.properties](login_service/src/main/resources/application.properties)
+
+
+
 ## Servers  
 * LoginService server (DB: _postgres_) on port 8081
 * TravelerService server (DB: _db2_) on port 8080
