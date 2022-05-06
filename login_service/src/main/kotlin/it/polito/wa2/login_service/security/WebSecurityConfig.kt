@@ -14,36 +14,34 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 @EnableWebSecurity
-class WebSecurityConfig: WebSecurityConfigurerAdapter() {
+class WebSecurityConfig : WebSecurityConfigurerAdapter() {
 
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
-    @Autowired lateinit var userDetailsService: UserDetailsService
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    lateinit var userDetailsService: UserDetailsService
 
-    override fun configure (auth: AuthenticationManagerBuilder) {
+    override fun configure(auth: AuthenticationManagerBuilder) {
         auth
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder)
+            .userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder)
     }
 
     override fun configure(http: HttpSecurity) {
-
         //without this, always return 403 Forbidden for any request
         http
-                .csrf().disable() // disable csrf
+            .csrf().disable() // disable csrf
 
         http
-                .authorizeRequests()
-                .mvcMatchers("/user/**")
-                .permitAll()
-
-
+            .authorizeRequests()
+            .mvcMatchers("/user/**")
+            .permitAll()
     }
 
     @Bean
     override fun authenticationManagerBean(): AuthenticationManager? {
         return super.authenticationManagerBean()
     }
-
 
 
 }
