@@ -19,11 +19,11 @@ These two databases have the following names respectively:
 * TravelerService server (DB: _db2_) on port 8080
 
 
+
 ### Reference Documentation
 
 For further reference, please consider the following sections:
 
-* [TODO](https://www.google.it)
 * Examples of secured REST API
   * [REST service persisting data in MongoDB](https://medium.com/techwasti/enable-spring-security-using-kotlin-6b9abb36d218)
   * [The kotlin security DSL](https://www.baeldung.com/kotlin/spring-security-dsl)
