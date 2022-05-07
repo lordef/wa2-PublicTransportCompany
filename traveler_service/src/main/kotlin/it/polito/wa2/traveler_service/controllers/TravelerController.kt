@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 class TravelerController {
 
     @GetMapping("/my/profile")
-    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.entities.Role).ADMIN)")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun getMyProfile() {
@@ -24,6 +24,7 @@ class TravelerController {
 
             println("riuscito")
             println(SecurityContextHolder.getContext().authentication.authorities)
+
         }catch (e: Exception){
 
         }

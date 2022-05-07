@@ -39,7 +39,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
         http.authorizeRequests()
                 .anyRequest()
                 .authenticated()
-        //.mvcMatchers("/my/profile").hasRole(Role.CUSTOMER.toString())
+
 
 
         //esplicito che voglio aggiungere un filtro da eseguire prima di un certo filtro
