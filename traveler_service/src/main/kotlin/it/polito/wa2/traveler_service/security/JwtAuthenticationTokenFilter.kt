@@ -81,7 +81,6 @@ class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
             )
 
 
-
             authentication.details = WebAuthenticationDetailsSource()
                     .buildDetails(request)
             //Una volta autenticato, inserisco nel SecurityContext l'autenticazione (l'identità dell'utente), che conterrà i dettagli
@@ -96,7 +95,7 @@ class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
              * utilizzando appunto il SecurityContext
              * */
         }catch (e: Exception){
-            println(e)
+            println(e) //TODO: add exception handler
         }
 
         //richiama il prossimo filtro nella catena/sequenza, o se è lui l'ultimo della catena

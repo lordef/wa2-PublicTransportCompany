@@ -34,6 +34,7 @@ data class UserDetailsDTO(
     //TODO vedere eventuali constraint
     val roles: Set<Role>?=null
 ): org.springframework.security.core.userdetails.UserDetails {
+
     override fun getAuthorities(): MutableSet<Role> {
         return roles!!.toMutableSet()
     }
