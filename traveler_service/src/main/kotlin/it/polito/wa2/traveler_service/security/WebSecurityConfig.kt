@@ -1,5 +1,6 @@
 package it.polito.wa2.traveler_service.security
 
+import it.polito.wa2.traveler_service.dtos.Role
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -38,6 +39,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
         http.authorizeRequests()
                 .anyRequest()
                 .authenticated()
+        //.mvcMatchers("/my/profile").hasRole(Role.CUSTOMER.toString())
 
 
         //esplicito che voglio aggiungere un filtro da eseguire prima di un certo filtro

@@ -20,7 +20,7 @@ class User(
             var active: Boolean = false,
 
         @Column(nullable=false)
-            var roles: String = Role.CUSTOMER.toString()//TODO : è giusto assegnare CUSTOMER di default appena creo l'entity?
+            var roles: String = Role.CUSTOMER.toString()
     ): EntityBase<Long>() {
 
     private fun stringToSet(roleString: String): MutableSet<Role>{

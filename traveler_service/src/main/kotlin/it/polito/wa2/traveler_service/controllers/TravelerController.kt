@@ -1,6 +1,8 @@
 package it.polito.wa2.traveler_service.controllers
 
 
+import it.polito.wa2.traveler_service.dtos.Role
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -9,16 +11,12 @@ class TravelerController {
     @GetMapping("/my/profile")
     fun getMyProfile() {
         try {
-            println("riuscito")
-            /*if (jwt == null) {
-                return ResponseEntity.status(401).body("unauthenticated")
+            if(SecurityContextHolder.getContext().authentication.authorities.contains(Role.CUSTOMER)) {
+                println("riuscito")
+            } else {
+                println("non autorizzato")
             }
-
-            val body = Jwts.parserBuilder().setSigningKey("secretKey").build().parseClaimsJws(jwt)
-
-            return ResponseEntity.ok(body)*/
         }catch (e: Exception){
-            //return ResponseEntity.status(401).body("unauthenticated")
         }
 
     }
