@@ -2,6 +2,7 @@ package it.polito.wa2.traveler_service.controllers
 
 
 import it.polito.wa2.traveler_service.dtos.Role
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
@@ -9,13 +10,12 @@ import org.springframework.web.bind.annotation.*
 class TravelerController {
 
     @GetMapping("/my/profile")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     fun getMyProfile() {
         try {
-            if(SecurityContextHolder.getContext().authentication.authorities.contains(Role.CUSTOMER)) {
+
                 println("riuscito")
-            } else {
-                println("non autorizzato")
-            }
+
         }catch (e: Exception){
         }
 
