@@ -35,7 +35,7 @@ class JwtUtils {
             return true
         } catch (ex: Exception) {
             // we *cannot* use the JWT as authentication
-            println(ex.message)
+            println(ex.message) //TODO: retrieve from lab03
             return false
         }
     }
@@ -45,20 +45,16 @@ class JwtUtils {
 
         val jwtBody = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken).body
 
-        val userDetails = userDetailsRepository.findById(jwtBody.subject)
+        val bodySub = jwtBody.subject
+        val bodyRoles = jwtBody["roles"]
 
-        if(userDetails == null)
+        if(bodySub == null || bodyRoles== null)
             throw Exception() //TODO creare una exception specifica magari
-
-        val bodyRoles = jwtBody.get("roles")
-
-        if( bodyRoles== null)
-            throw Exception() //TODO creare una exception specifica magari
-
 
         val roles = ( bodyRoles as List<String>).map { Role.valueOf(it) }.toSet()
 
-        return UserDetailsDTO(userDetails.id,userDetails.name,userDetails.address,userDetails.telephon_number,userDetails.date_of_birth,roles)
+        return UserDetailsDTO(bodySub, roles = roles)
+
     }
 
 }

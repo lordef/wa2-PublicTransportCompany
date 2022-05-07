@@ -9,6 +9,6 @@ import org.springframework.transaction.annotation.Transactional
 interface UserDetailsRepository : CrudRepository<UserDetails, Long> {
 
     @Transactional(readOnly = true)
-    fun findById(nickname: String): UserDetails?
+    fun findByUsername(nickname: String): UserDetails?
 
 }

@@ -14,22 +14,22 @@ data class UserDetailsDTO(
     @field:Size(max = 30, message = "name is too long")
     @field:NotEmpty(message = "name must not be empty")
     @field:NotNull
-    var name: String,
+    var name: String? = null,
 
     @field:Size(max = 30, message = "address is too long")
     @field:NotEmpty(message = "address must not be empty")
     @field:NotNull
-    var address: String,
+    var address: String? = null,
 
     @field:Size(max = 10, message = "telephon_number is too long")
     @field:NotEmpty(message = "telephon_number must not be empty")
     @field:NotNull
-    var telephon_number: String,
+    var telephon_number: String? = null,
 
     //contraints for date
     @field:NotEmpty(message = "telephon_number must not be empty")
     @field:NotNull
-    var date_of_birth: String,
+    var date_of_birth: String? = null,
 
     //TODO vedere eventuali constraint
     val roles: Set<Role>?=null
@@ -64,5 +64,5 @@ data class UserDetailsDTO(
 }
 
 fun UserDetails.toDTO(): UserDetailsDTO {
-    return UserDetailsDTO(id, name, address, telephon_number, date_of_birth,null)
+    return UserDetailsDTO(username, name, address, telephon_number, date_of_birth,null)
 }

@@ -7,7 +7,7 @@ import javax.persistence.*
 class UserDetails(
     @Id
     @Column(updatable = false, nullable = false)
-    val id: String, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
+    val username: String, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
 
     @Column(nullable = false, unique = true)
     var name: String = "",
