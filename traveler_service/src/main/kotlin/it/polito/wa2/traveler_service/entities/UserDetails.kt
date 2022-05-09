@@ -1,5 +1,6 @@
 package it.polito.wa2.traveler_service.entities
 
+import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import javax.persistence.*
 
 @Entity
@@ -24,5 +25,4 @@ class UserDetails(
     @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)
     val tickets: List<TicketPurchased>? = null
 
-) {
-}
+)

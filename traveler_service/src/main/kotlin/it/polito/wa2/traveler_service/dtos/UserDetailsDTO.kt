@@ -30,39 +30,8 @@ data class UserDetailsDTO(
     @field:NotEmpty(message = "telephon_number must not be empty")
     @field:NotNull
     var date_of_birth: String? = null,
-
-    //TODO vedere eventuali constraint
-    val roles: Set<Role>?=null
-): org.springframework.security.core.userdetails.UserDetails {
-    override fun getAuthorities(): MutableSet<Role> {
-        return roles!!.toMutableSet()
-    }
-
-    override fun getPassword(): String {
-        return ""
-    }
-
-    override fun getUsername(): String {
-        return userDetailsId
-    }
-
-    override fun isAccountNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isAccountNonLocked(): Boolean {
-        return true
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        return true
-    }
-
-    override fun isEnabled(): Boolean {
-        return true
-    }
-}
+) {}
 
 fun UserDetails.toDTO(): UserDetailsDTO {
-    return UserDetailsDTO(username, name, address, telephon_number, date_of_birth,null)
+    return UserDetailsDTO(username, name, address, telephon_number, date_of_birth)
 }
