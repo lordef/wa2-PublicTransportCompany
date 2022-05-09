@@ -10,7 +10,6 @@ interface UserDetailsService {
     fun getUserTickets(username: String) : List<TicketPurchasedDTO>
     fun postUserTickets(tickets : List<TicketPurchasedDTO>) : List<TicketPurchasedDTO>
 
-
     //admin services
     fun getTravelers()
     fun getTravelerProfile()

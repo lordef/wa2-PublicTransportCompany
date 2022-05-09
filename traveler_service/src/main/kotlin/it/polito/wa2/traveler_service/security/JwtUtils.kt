@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.security.Key
+import java.util.*
 
 @Component
 class JwtUtils {
@@ -41,7 +42,7 @@ class JwtUtils {
     }
 
 
-    fun getDetailsJwt(authToken: String): UserDetailsDTO {
+    fun getDetailsJwt(authToken: String): UserDetailsJwt {
 
         val jwtBody = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken).body
 
@@ -53,8 +54,10 @@ class JwtUtils {
 
         val roles = ( bodyRoles as List<String>).map { Role.valueOf(it) }.toSet()
 
-        return UserDetailsDTO(bodySub, roles = roles)
+        return UserDetailsJwt(bodySub, roles = roles)
 
     }
 
 }
+
+data class UserDetailsJwt( val subject : String, val roles : Set<Role> )

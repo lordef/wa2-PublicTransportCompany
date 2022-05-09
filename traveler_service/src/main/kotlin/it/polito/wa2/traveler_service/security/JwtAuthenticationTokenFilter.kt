@@ -77,7 +77,7 @@ class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
             val authentication = UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
-                    userDetails.authorities
+                    userDetails.roles
             )
 
 

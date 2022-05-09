@@ -7,7 +7,8 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 data class UserDetailsDTO(
-    val userDetailsId: String,
+    @field:Size(max = 30, message = "name is too long")
+    var username: String? = null,
 
     //TODO check contraints
 
@@ -24,7 +25,7 @@ data class UserDetailsDTO(
     @field:Size(max = 10, message = "telephon_number is too long")
     @field:NotEmpty(message = "telephon_number must not be empty")
     @field:NotNull
-    var telephon_number: String? = null,
+    var telephone_number: String? = null,
 
     //contraints for date
     @field:NotEmpty(message = "telephon_number must not be empty")
@@ -33,5 +34,5 @@ data class UserDetailsDTO(
 ) {}
 
 fun UserDetails.toDTO(): UserDetailsDTO {
-    return UserDetailsDTO(username, name, address, telephon_number, date_of_birth)
+    return UserDetailsDTO(username, name, address, telephone_number, date_of_birth)
 }

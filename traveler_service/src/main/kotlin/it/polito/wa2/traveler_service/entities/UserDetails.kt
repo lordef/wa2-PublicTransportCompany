@@ -1,6 +1,5 @@
 package it.polito.wa2.traveler_service.entities
 
-import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import javax.persistence.*
 
 @Entity
@@ -8,19 +7,19 @@ import javax.persistence.*
 class UserDetails(
     @Id
     @Column(updatable = false, nullable = false)
-    val username: String, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
+    val username: String? = null, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
 
     @Column(nullable = false, unique = true)
-    var name: String = "",
+    var name: String? = null,
 
     @Column(nullable = false, unique = true)
-    var address: String = "",
+    var address: String? = null,
 
     @Column(nullable = false, unique = true)
-    var date_of_birth: String = "",
+    var date_of_birth: String? = null,
 
     @Column(nullable = false, unique = true)
-    var telephon_number: String = "",
+    var telephone_number: String? = null,
 
     @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)
     val tickets: List<TicketPurchased>? = null
