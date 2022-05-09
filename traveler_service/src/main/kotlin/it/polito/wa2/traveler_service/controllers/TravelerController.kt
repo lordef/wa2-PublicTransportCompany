@@ -2,33 +2,32 @@ package it.polito.wa2.traveler_service.controllers
 
 
 import it.polito.wa2.traveler_service.dtos.Role
+import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
+import it.polito.wa2.traveler_service.services.impl.UserDetailsServiecImpl
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @RestController
 class TravelerController {
+
+    @Autowired
+    lateinit var userDetailsService: UserDetailsServiecImpl
 
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun getMyProfile() {
-        try {
-            /*if(SecurityContextHolder.getContext().authentication.authorities.contains(Role.CUSTOMER)) {
-                println("riuscito")
-            } else {
-                println("non autorizzato")
-            }*/
+    fun getMyProfile() : GetMyProfileResponseBody {
 
-            println("riuscito")
-            println(SecurityContextHolder.getContext().authentication.authorities)
-        }catch (e: Exception){
+            val userName = SecurityContextHolder.getContext().authentication.name
+            val userDetailsDTO = userDetailsService.getUserProfile(userName)
 
-        }
-
-        return
+            return GetMyProfileResponseBody(userDetailsDTO)
     }
 
     @PutMapping("/my/profile")
@@ -73,5 +72,9 @@ class TravelerController {
 
     }
 
+
+}
+
+data class GetMyProfileResponseBody(val userDetailsDTO: UserDetailsDTO) {
 
 }

@@ -18,9 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 @EnableAsync
 class UserDetailsServiecImpl : UserDetailsService {
 
-    @Autowired lateinit var userDetailsRepository: UserDetailsRepository
-
     override fun getUserProfile (username: String) : UserDetailsDTO {
+
       return UserDetailsDTO("TODO")
     }
 
