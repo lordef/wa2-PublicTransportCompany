@@ -1,8 +1,6 @@
 package it.polito.wa2.traveler_service.services.impl
 
-import it.polito.wa2.traveler_service.dtos.TicketPurchasedDTO
-import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
-import it.polito.wa2.traveler_service.dtos.toDTO
+import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import it.polito.wa2.traveler_service.services.UserDetailsService
@@ -13,6 +11,12 @@ import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
+import java.util.*
+import it.polito.wa2.traveler_service.entities.TicketPurchased
+import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
+import it.polito.wa2.traveler_service.security.JwtUtils
+import org.springframework.beans.factory.annotation.Value
+
 
 @Service
 @Transactional
@@ -24,33 +28,69 @@ class UserDetailsServiceImpl : UserDetailsService {
     @Autowired
     lateinit var userDetailsRepository: UserDetailsRepository
 
-    override fun getUserProfile (username: String) : UserDetailsDTO {
-      val userDetailsDTO = userDetailsRepository.findByUsername(username)?.toDTO()
+    @Autowired
+    lateinit var ticketPurchasedRepository: TicketPurchasedRepository
 
-      if(userDetailsDTO==null) {
-          throw NotFoundException("Username not found")
-      }
+    @Autowired
+    lateinit var jwtUtils: JwtUtils
 
-      return userDetailsDTO
+    @Value("\${application.jwt.jwtExpirationMs}")
+    val ticketExpirationMs: Long = -1
+
+    override fun getUserProfile(username: String): UserDetailsDTO {
+        val userDetailsDTO = userDetailsRepository.findByUsername(username)?.toDTO()
+
+        if (userDetailsDTO == null) {
+            throw NotFoundException("Username not found")
+        }
+
+        return userDetailsDTO
     }
 
-    override fun putUserProfile (userDetailsDTO: UserDetailsDTO) : UserDetailsDTO {
-        val userDetailsEntity = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address, userDetailsDTO.date_of_birth, userDetailsDTO.telephone_number)
+    override fun putUserProfile(userDetailsDTO: UserDetailsDTO): UserDetailsDTO {
+        val userDetailsEntity = UserDetails(
+            userDetailsDTO.username,
+            userDetailsDTO.name,
+            userDetailsDTO.address,
+            userDetailsDTO.date_of_birth,
+            userDetailsDTO.telephone_number
+        )
         return userDetailsRepository.save(userDetailsEntity).toDTO()
     }
 
-    override fun getUserTickets (username: String) : List<TicketPurchasedDTO> {
+    override fun getUserTickets(username: String): List<TicketPurchasedDTO> {
         return mutableListOf()
     }
 
-    override fun postUserTickets(tickets : List<TicketPurchasedDTO>) : List<TicketPurchasedDTO> {
-        return mutableListOf()
+    override fun postUserTickets(username: String, purchasedDTO: PurchaseTicketDTO): List<TicketPurchasedDTO> {
+        var numberOfTickets = purchasedDTO.quantity
+        val ticketsList = mutableListOf<TicketPurchasedDTO>()
+        val userDetails = userDetailsRepository.findByUsername(username)
+
+        if(userDetails==null){
+            throw NotFoundException("Username not found")
+        }
+
+        //ticket creation
+        do {
+            val ticket = TicketPurchased(
+                Date(),
+                Date(Date().time + ticketExpirationMs),
+                purchasedDTO.zone,
+                userDetails
+            )
+            ticketsList.add(ticketPurchasedRepository.save(ticket).toDTO(jwtUtils))
+
+            numberOfTickets--
+        } while (numberOfTickets > 0)
+
+        return ticketsList
     }
 
-    override fun getTravelers(){
+    override fun getTravelers() {
     }
 
-    override fun getTravelerProfile(){
+    override fun getTravelerProfile() {
     }
 
     override fun getTravelerTickets() {

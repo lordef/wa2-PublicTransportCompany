@@ -1,6 +1,8 @@
 package it.polito.wa2.traveler_service.controllers
 
 
+import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
+import it.polito.wa2.traveler_service.dtos.TicketPurchasedDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
@@ -56,10 +58,18 @@ class TravelerController {
     }
 
     @PostMapping("/my/tickets")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun postMyTickets() {
+    fun postMyTickets(
+        @RequestBody @Valid purchaseTicketDTO: PurchaseTicketDTO,
+        bindingResult: BindingResult
+    ) : List<TicketPurchasedDTO>{
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
 
+        //posting tickets in the db
+        return userDetailsService.postUserTickets(SecurityContextHolder.getContext().authentication.name, purchaseTicketDTO)
     }
 
     @GetMapping("/admin/travelers")

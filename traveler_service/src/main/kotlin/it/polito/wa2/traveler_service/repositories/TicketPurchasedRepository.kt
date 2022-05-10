@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TicketPurchasedRepository : CrudRepository<TicketPurchased, Long> {
-
-
 }
