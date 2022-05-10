@@ -60,4 +60,4 @@ class JwtUtils {
 
 }
 
-data class UserDetailsJwt( val subject : String, val roles : Set<Role> )
+data class UserDetailsJwt( val username : String, val roles : Set<Role> )
