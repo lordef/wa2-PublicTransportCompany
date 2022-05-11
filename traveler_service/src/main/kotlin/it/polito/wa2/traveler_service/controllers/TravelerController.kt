@@ -81,7 +81,9 @@ class TravelerController {
         return userDetailsService.postUserTickets(SecurityContextHolder.getContext().authentication.name, purchaseTicketDTO)
     }
 
+    //TODO è una bozza, aspettando la risposta del prof
     @GetMapping("/admin/travelers")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun getAdminTravelers() {
@@ -89,17 +91,19 @@ class TravelerController {
     }
 
     @GetMapping("/admin/traveler/{userID}/profile")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun getAdminProfile(@PathVariable userID: String) {
-
+    fun getAdminProfile(@PathVariable("userID") userID: String): UserDetailsDTO {
+        return userDetailsService.getUserProfile(userID)
     }
 
     @GetMapping("/admin/traveler/{userID}/tickets")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun getAdminTickets(@PathVariable userID: String) {
-
+    fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketPurchasedDTO> {
+        return userDetailsService.getUserTickets(userID)
     }
 
     private fun validDate(date: String): Boolean{

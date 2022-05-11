@@ -1,6 +1,6 @@
 package it.polito.wa2.traveler_service.security
 
-import it.polito.wa2.traveler_service.dtos.Role
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -27,11 +27,11 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
 
         //without this, always return 403 Forbidden for any request
-        http
-                .csrf().disable() // disable csrf //TODO da vedere se serve
+        http.csrf().disable() // disable csrf
+
+        http.cors()
 
 
-        //TODO servono i cookie? Se si, vanno sul login?
         http
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

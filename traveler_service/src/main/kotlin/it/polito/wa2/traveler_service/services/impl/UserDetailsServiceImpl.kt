@@ -5,9 +5,6 @@ import it.polito.wa2.traveler_service.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import it.polito.wa2.traveler_service.services.UserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableAsync
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
@@ -84,8 +81,8 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     }
 
-    override fun postUserTickets(username: String, purchasedDTO: PurchaseTicketDTO): List<TicketPurchasedDTO> {
-        var numberOfTickets = purchasedDTO.quantity
+    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO): List<TicketPurchasedDTO> {
+        var numberOfTickets = purchasedTicketDTO.quantity
         val ticketsList = mutableListOf<TicketPurchasedDTO>()
         val userDetails = userDetailsRepository.findByUsername(username)
 
@@ -93,7 +90,7 @@ class UserDetailsServiceImpl : UserDetailsService {
             throw NotFoundException("Username not found")
 
 
-        if(purchasedDTO.quantity<1)
+        if(purchasedTicketDTO.quantity<1)
             throw BadRequestException("Cannot request a not positive number of tickets")
 
         //ticket creation
@@ -101,7 +98,7 @@ class UserDetailsServiceImpl : UserDetailsService {
             val ticket = TicketPurchased(
                 Date(),
                 Date(Date().time + ticketExpirationMs),
-                purchasedDTO.zone,
+                purchasedTicketDTO.zone,
                 userDetails
             )
             ticketsList.add(ticketPurchasedRepository.save(ticket).toDTO(jwtUtils))
@@ -113,12 +110,6 @@ class UserDetailsServiceImpl : UserDetailsService {
     }
 
     override fun getTravelers() {
-    }
-
-    override fun getTravelerProfile() {
-    }
-
-    override fun getTravelerTickets() {
     }
 
 }
