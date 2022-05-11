@@ -12,7 +12,10 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.validation.Valid
+
 
 @RestController
 class TravelerController {
@@ -43,6 +46,10 @@ class TravelerController {
     ){
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
+
+        if(userDetailsDTO.date_of_birth!=null && !validDate(userDetailsDTO.date_of_birth as String))
+            throw BadRequestException("Wrong json date field")
+
 
         //adding username to the DTO
         userDetailsDTO.username = SecurityContextHolder.getContext().authentication.name
@@ -94,6 +101,67 @@ class TravelerController {
 
     }
 
+    private fun validDate(date: String): Boolean{
+        val stringParsed = date.split("-")
+        val day = stringParsed.get(0).toInt()
+        val month = stringParsed.get(1).toInt()
+        val year = stringParsed.get(2).substring(2,4).toInt()
+        println(day)
+        println(month)
+        println(year)
+        val firstCheck = when(month){
+            //if February
+            2 ->{
+                if(year%4==0){//se bisestile (if leap)
+                    if(day>29)
+                        false
+                    else true
+                }else{
+                    if(day>28)
+                        false
+                    else true
+                }
+
+            }
+            //if April
+            4 -> {
+                if(day>30)
+                    false
+                else true
+            }
+            //if June
+            6 -> {
+                if(day>30)
+                    false
+                else true
+            }
+            //if September
+            9 -> {
+                if(day>30)
+                    false
+                else true
+            }
+            //if November
+            11 -> {
+                if(day>30)
+                    false
+                else true
+            }
+            else -> true
+        }
+        if(firstCheck && notFutureDate(date))
+            return true
+        else return false
+    }
+
+    private fun notFutureDate(date: String):Boolean{
+        val formatter = SimpleDateFormat("dd-MM-yyyy")
+        val date = formatter.parse(date)
+
+        if(date.compareTo(formatter.parse(formatter.format(Date()))) <=0)
+            return true
+        else return false
+    }
 
 }
 

@@ -14,7 +14,7 @@ class TicketPurchased(
     @Column(nullable = false)
     var zoneId: String = "",
 
-    @ManyToOne()
+    @ManyToOne(fetch=FetchType.LAZY)
     val userDetails: UserDetails
 
 ) : EntityBase<Long>() {}

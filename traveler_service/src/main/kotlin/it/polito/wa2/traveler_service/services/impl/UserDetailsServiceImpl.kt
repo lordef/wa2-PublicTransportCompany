@@ -16,6 +16,7 @@ import it.polito.wa2.traveler_service.entities.TicketPurchased
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
 import org.springframework.beans.factory.annotation.Value
+import java.text.SimpleDateFormat
 
 
 @Service
@@ -48,14 +49,24 @@ class UserDetailsServiceImpl : UserDetailsService {
     }
 
     override fun putUserProfile(userDetailsDTO: UserDetailsDTO): UserDetailsDTO {
-        val userDetailsEntity = UserDetails(
-            userDetailsDTO.username,
-            userDetailsDTO.name,
-            userDetailsDTO.address,
-            userDetailsDTO.date_of_birth,
-            userDetailsDTO.telephone_number
-        )
-        return userDetailsRepository.save(userDetailsEntity).toDTO()
+        try {
+            val formatter = SimpleDateFormat("dd-MM-yyyy")
+            val date = formatter.parse(userDetailsDTO.date_of_birth)
+
+            val userDetailsEntity = UserDetails(
+                    userDetailsDTO.username,
+                    userDetailsDTO.name,
+                    userDetailsDTO.address,
+                    date,
+                    userDetailsDTO.telephone_number
+            )
+
+            return userDetailsRepository.save(userDetailsEntity).toDTO()
+        }catch(ex: Exception){
+            //TODO mettere un eccezione specifica
+            throw Exception()
+        }
+
     }
 
     override fun getUserTickets(username: String): List<TicketPurchasedDTO> {
