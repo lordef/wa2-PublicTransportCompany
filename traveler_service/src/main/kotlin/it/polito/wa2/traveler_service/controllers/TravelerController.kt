@@ -47,7 +47,7 @@ class TravelerController {
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
 
-        if(userDetailsDTO.date_of_birth!=null && !validDate(userDetailsDTO.date_of_birth as String))
+        if(/*userDetailsDTO.date_of_birth!=null &&*/ !validDate(userDetailsDTO.date_of_birth as String))
             throw BadRequestException("Wrong json date field")
 
 
@@ -59,10 +59,11 @@ class TravelerController {
     }
 
     @GetMapping("/my/tickets")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
-    fun getMyTickets() {
-
+    fun getMyTickets(): List<TicketPurchasedDTO>{
+        return userDetailsService.getUserTickets(SecurityContextHolder.getContext().authentication.name)
     }
 
     @PostMapping("/my/tickets")

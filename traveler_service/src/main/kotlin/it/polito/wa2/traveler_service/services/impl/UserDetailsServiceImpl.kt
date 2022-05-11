@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
 import java.util.*
 import it.polito.wa2.traveler_service.entities.TicketPurchased
+import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
 import org.springframework.beans.factory.annotation.Value
@@ -21,9 +22,6 @@ import java.text.SimpleDateFormat
 
 @Service
 @Transactional
-@Configuration
-@EnableScheduling
-@EnableAsync
 class UserDetailsServiceImpl : UserDetailsService {
 
     @Autowired
@@ -50,8 +48,16 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     override fun putUserProfile(userDetailsDTO: UserDetailsDTO): UserDetailsDTO {
         try {
-            val formatter = SimpleDateFormat("dd-MM-yyyy")
-            val date = formatter.parse(userDetailsDTO.date_of_birth)
+            /*var date : Date?
+            var formatter: SimpleDateFormat
+            if(userDetailsDTO.date_of_birth==null)
+                date= null
+            else {*/
+                val formatter = SimpleDateFormat("dd-MM-yyyy")
+                val date = formatter.parse(userDetailsDTO.date_of_birth)
+            //}
+
+
 
             val userDetailsEntity = UserDetails(
                     userDetailsDTO.username,
@@ -63,14 +69,19 @@ class UserDetailsServiceImpl : UserDetailsService {
 
             return userDetailsRepository.save(userDetailsEntity).toDTO()
         }catch(ex: Exception){
-            //TODO mettere un eccezione specifica
-            throw Exception()
+            throw BadRequestException("Problems during insertion of User Details")
         }
 
     }
 
     override fun getUserTickets(username: String): List<TicketPurchasedDTO> {
-        return mutableListOf()
+        val userDetails = userDetailsRepository.findByUsername(username)
+
+        if(userDetails==null)
+            throw NotFoundException("Username not found")
+
+        return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map{it->it.toDTO(jwtUtils)}
+
     }
 
     override fun postUserTickets(username: String, purchasedDTO: PurchaseTicketDTO): List<TicketPurchasedDTO> {
@@ -78,9 +89,12 @@ class UserDetailsServiceImpl : UserDetailsService {
         val ticketsList = mutableListOf<TicketPurchasedDTO>()
         val userDetails = userDetailsRepository.findByUsername(username)
 
-        if(userDetails==null){
+        if(userDetails==null)
             throw NotFoundException("Username not found")
-        }
+
+
+        if(purchasedDTO.quantity<1)
+            throw BadRequestException("Cannot request a not positive number of tickets")
 
         //ticket creation
         do {

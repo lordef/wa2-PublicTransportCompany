@@ -5,23 +5,22 @@ import java.util.Date
 import javax.persistence.*
 
 @Entity
-@Table(name = "users")
 class UserDetails(
         @Id
-    @Column(updatable = false, nullable = false)
+    @Column(updatable = false, nullable = false, unique = true)
     val username: String? = null, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
 
-        @Column(nullable = false, unique = true)
+        @Column(nullable = true, updatable = true)
     var name: String? = null,
 
-        @Column(nullable = false, unique = true)
+        @Column(nullable = true, updatable = true)
     var address: String? = null,
 
-        @Column(nullable = false, unique = true)
-        @DateTimeFormat(pattern="dd/MM/yyyy")
+        @Column(nullable = true, updatable = true)
+        //@DateTimeFormat(pattern="dd/MM/yyyy")
     var date_of_birth: Date? = null,
 
-        @Column(nullable = false, unique = true)
+        @Column(nullable = true, updatable = true)
     var telephone_number: String? = null,
 
         @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)

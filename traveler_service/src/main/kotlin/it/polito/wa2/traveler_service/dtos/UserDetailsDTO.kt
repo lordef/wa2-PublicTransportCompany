@@ -31,7 +31,7 @@ data class UserDetailsDTO(
     var telephone_number: String? = null,
 
     //contraints for date
-    @field:NotEmpty(message = "telephon_number must not be empty")
+    @field:NotEmpty(message = "date of birth must not be empty")
     @field:NotNull
     @field:Pattern(regexp = "([0-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}")
     /*@field:Pattern(regexp = """
