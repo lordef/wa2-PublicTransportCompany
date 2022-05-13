@@ -5,6 +5,7 @@ import it.polito.wa2.login_service.entities.User
 import org.springframework.security.core.userdetails.UserDetails
 
 data class UserDTO(
+    //TODO constraints
         val userId : Long?,
         var nickname : String,
         private val password : String?,

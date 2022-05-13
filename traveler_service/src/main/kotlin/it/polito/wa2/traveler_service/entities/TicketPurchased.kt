@@ -1,22 +1,20 @@
 package it.polito.wa2.traveler_service.entities
 
+import java.util.Date
 import javax.persistence.*
 
 @Entity
 class TicketPurchased(
     @Column(nullable = false)
-    var issuedAt: String = "",
+    var issuedAt: Date,
 
     @Column(nullable = false)
-    var expiry: String = "",
+    var expiry: Date,
 
     @Column(nullable = false)
     var zoneId: String = "",
 
-    @Column(nullable = false)
-    var sign: String = "",
-
-    @ManyToOne()
+    @ManyToOne(fetch=FetchType.LAZY)
     val userDetails: UserDetails
 
 ) : EntityBase<Long>() {}

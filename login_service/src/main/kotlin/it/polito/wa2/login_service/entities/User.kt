@@ -27,7 +27,7 @@ class User(
         //TODO commentato perchè non dovrebbe mai essere vuoto il ruolo
         //if (roleString == "") return mutableSetOf() : it can never be empty, at least CUSTOMER
 
-        return roleString.split(" ").map{
+        return roleString.split(",").map{
             Role.valueOf(it)
         }.toMutableSet()
     }
@@ -39,15 +39,16 @@ class User(
         return stringToSet(roles)
     }
 
+    //TODO per ora non mi pare che serva qualcosa del genere
+    /*
     private fun setToString(roleSet: Set<Role>): String{
-        return roleSet.joinToString(" ")
+        return roleSet.joinToString(",")
     }
 
 
 
 
-    //TODO per ora non mi pare che serva qualcosa del genere
-    /*
+
     fun addRole(newRole:Role){
         val tmpSet = stringToSet(roles)
         tmpSet.add(newRole)

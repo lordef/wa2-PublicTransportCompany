@@ -7,8 +7,10 @@ import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import java.security.Key
+import java.util.*
 
 @Component
 class JwtUtils {
@@ -20,6 +22,13 @@ class JwtUtils {
 
     private val key: Key by lazy {
         Keys.hmacShaKeyFor(jwtSecret.toByteArray())
+    }
+
+    @Value("\${application.jwt.jwtSecretTicket}")
+    private lateinit var jwtSecretTicket: String
+
+    private val keyTicket: Key by lazy {
+        Keys.hmacShaKeyFor(jwtSecretTicket.toByteArray())
     }
 
     fun validateJwt(authToken: String): Boolean {
@@ -41,7 +50,7 @@ class JwtUtils {
     }
 
 
-    fun getDetailsJwt(authToken: String): UserDetailsDTO {
+    fun getDetailsJwt(authToken: String): UserDetailsJwt {
 
         val jwtBody = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken).body
 
@@ -53,8 +62,20 @@ class JwtUtils {
 
         val roles = ( bodyRoles as List<String>).map { Role.valueOf(it) }.toSet()
 
-        return UserDetailsDTO(bodySub, roles = roles)
+        return UserDetailsJwt(bodySub, roles = roles)
 
     }
 
+    fun generateJwt(sub : Long, iat : Date, exp : Date, zid : String): String {
+        return Jwts.builder()
+            .setSubject(sub.toString())
+            .setIssuedAt(iat)
+            .setExpiration(exp)
+            .claim("zid", zid)
+            .signWith(keyTicket)
+            .compact()
+    }
+
 }
+
+data class UserDetailsJwt( val username : String, val roles : Set<Role> )
