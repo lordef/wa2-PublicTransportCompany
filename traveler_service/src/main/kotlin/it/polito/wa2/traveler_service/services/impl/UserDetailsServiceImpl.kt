@@ -77,7 +77,7 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(userDetails==null)
             throw NotFoundException("Username not found")
 
-        return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map{it->it.toDTO(jwtUtils)}
+        return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map{it->it.toDTO()}
 
     }
 
@@ -95,13 +95,24 @@ class UserDetailsServiceImpl : UserDetailsService {
 
         //ticket creation
         do {
-            val ticket = TicketPurchased(
+            val ticketWithoutJws = TicketPurchased(
                 Date(),
                 Date(Date().time + ticketExpirationMs),
                 purchasedTicketDTO.zone,
+                    "",
                 userDetails
             )
-            ticketsList.add(ticketPurchasedRepository.save(ticket).toDTO(jwtUtils))
+
+           ticketPurchasedRepository.save(ticketWithoutJws)
+
+            ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.expiry, ticketWithoutJws.zoneId)
+
+            val ticketWithJws = ticketPurchasedRepository.save(ticketWithoutJws)
+
+            ticketsList.add(ticketWithJws.toDTO())
+
+
+
 
             numberOfTickets--
         } while (numberOfTickets > 0)

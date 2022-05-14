@@ -5,14 +5,17 @@ import javax.persistence.*
 
 @Entity
 class TicketPurchased(
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     var issuedAt: Date,
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     var expiry: Date,
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     var zoneId: String = "",
+
+    @Column(nullable = false, updatable = true)
+    var jws: String = "",
 
     @ManyToOne(fetch=FetchType.LAZY)
     val userDetails: UserDetails
