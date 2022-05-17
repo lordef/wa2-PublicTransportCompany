@@ -1,6 +1,6 @@
 package it.polito.wa2.traveler_service.entities
 
-import org.springframework.format.annotation.DateTimeFormat
+
 import java.util.Date
 import javax.persistence.*
 
@@ -8,7 +8,7 @@ import javax.persistence.*
 class UserDetails(
         @Id
     @Column(updatable = false, nullable = false, unique = true)
-    val username: String? = null, //TODO per ora utilizziamo il nickname come chiave primaria, da chidedere
+    val username: String? = null,
 
         @Column(nullable = true, updatable = true)
     var name: String? = null,
@@ -17,7 +17,6 @@ class UserDetails(
     var address: String? = null,
 
         @Column(nullable = true, updatable = true)
-        //@DateTimeFormat(pattern="dd/MM/yyyy")
     var date_of_birth: Date? = null,
 
         @Column(nullable = true, updatable = true)

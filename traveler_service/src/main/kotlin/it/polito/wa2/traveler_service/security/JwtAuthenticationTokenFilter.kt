@@ -53,6 +53,7 @@ class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
                 return
             }
 
+
             /** So what is happening is that when a request is received , the JWT is extracted from the header, the signature
             is verified, and they fits correct, and so the content of the JWT body is trusted and used for populating
             the authentication*/
@@ -95,7 +96,7 @@ class JwtAuthenticationTokenFilter : OncePerRequestFilter() {
              * utilizzando appunto il SecurityContext
              * */
         }catch (e: Exception){
-            println(e) //TODO: add exception handler
+            println(e.message)
         }
 
         //richiama il prossimo filtro nella catena/sequenza, o se è lui l'ultimo della catena

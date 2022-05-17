@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
@@ -15,6 +16,9 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
     @Autowired
     lateinit var authenticationJwtTokenFilter: JwtAuthenticationTokenFilter
+
+    @Autowired
+    lateinit var unauthorizedHandler: AuthenticationEntryPoint
 
 
     /**
@@ -25,8 +29,6 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
      */
     override fun configure(http: HttpSecurity) {
 
-
-        //without this, always return 403 Forbidden for any request
         http.csrf().disable() // disable csrf
 
         http.cors()
@@ -39,6 +41,11 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
         http.authorizeRequests()
                 .anyRequest()
                 .authenticated()
+
+        /**
+         *
+         * **/
+        http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
 
 
 

@@ -7,7 +7,6 @@ import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
@@ -26,7 +25,6 @@ class TravelerController {
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     fun getMyProfile() : GetMyProfileResponseBody {
 
             val userName = SecurityContextHolder.getContext().authentication.name
@@ -38,7 +36,6 @@ class TravelerController {
     @PutMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     //TODO controllare la validazione sul formato data ricevuta
     fun putMyProfile(
         @RequestBody @Valid userDetailsDTO : UserDetailsDTO,
@@ -47,7 +44,8 @@ class TravelerController {
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
 
-        if(/*userDetailsDTO.date_of_birth!=null &&*/ !validDate(userDetailsDTO.date_of_birth as String))
+        //if date not null and not empty , the only valid format is dd-MM-yyyy
+        if((userDetailsDTO.date_of_birth!=null && userDetailsDTO.date_of_birth!="") && !validDate(userDetailsDTO.date_of_birth as String))
             throw BadRequestException("Wrong json date field")
 
 
@@ -61,7 +59,6 @@ class TravelerController {
     @GetMapping("/my/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     fun getMyTickets(): List<TicketPurchasedDTO>{
         return userDetailsService.getUserTickets(SecurityContextHolder.getContext().authentication.name)
     }
@@ -69,7 +66,6 @@ class TravelerController {
     @PostMapping("/my/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     fun postMyTickets(
         @RequestBody @Valid purchaseTicketDTO: PurchaseTicketDTO,
         bindingResult: BindingResult
@@ -81,19 +77,17 @@ class TravelerController {
         return userDetailsService.postUserTickets(SecurityContextHolder.getContext().authentication.name, purchaseTicketDTO)
     }
 
-    //TODO è una bozza, aspettando la risposta del prof
+
     @GetMapping("/admin/travelers")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    fun getAdminTravelers() {
-
+    fun getAdminTravelers(): List<String>  {
+        return userDetailsService.getTravelers()
     }
 
     @GetMapping("/admin/traveler/{userID}/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     fun getAdminProfile(@PathVariable("userID") userID: String): UserDetailsDTO {
         return userDetailsService.getUserProfile(userID)
     }
@@ -101,19 +95,16 @@ class TravelerController {
     @GetMapping("/admin/traveler/{userID}/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
-    @ResponseStatus(HttpStatus.ACCEPTED)
     fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketPurchasedDTO> {
         return userDetailsService.getUserTickets(userID)
     }
 
+    //the only valid format is dd-MM-yyyy
     private fun validDate(date: String): Boolean{
         val stringParsed = date.split("-")
         val day = stringParsed.get(0).toInt()
         val month = stringParsed.get(1).toInt()
         val year = stringParsed.get(2).substring(2,4).toInt()
-        println(day)
-        println(month)
-        println(year)
         val firstCheck = when(month){
             //if February
             2 ->{

@@ -12,6 +12,6 @@ interface UserDetailsService {
     fun postUserTickets(username: String, purchaseTicketDTO: PurchaseTicketDTO) : List<TicketPurchasedDTO>
 
     //admin services
-    fun getTravelers()
+    fun getTravelers(): List<String>
 
 }

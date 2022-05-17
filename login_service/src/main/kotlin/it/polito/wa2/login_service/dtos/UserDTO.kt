@@ -5,12 +5,11 @@ import it.polito.wa2.login_service.entities.User
 import org.springframework.security.core.userdetails.UserDetails
 
 data class UserDTO(
-    //TODO constraints
         val userId : Long?,
         var nickname : String,
         private val password : String?,
         var email : String,
-        private val roles: Set<Role>, //TODO deve essere per forza un set?
+        private val roles: Set<Role>,
         val active: Boolean
 ): UserDetails {
     override fun getAuthorities(): MutableSet<Role> {

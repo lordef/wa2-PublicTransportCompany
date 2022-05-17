@@ -4,8 +4,6 @@ import it.polito.wa2.traveler_service.entities.TicketPurchased
 
 
 data class TicketPurchasedDTO(
-    //TODO adding contraints
-
         val sub: Long?,
         var iat: String,
         var exp: String,

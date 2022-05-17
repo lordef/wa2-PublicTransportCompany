@@ -45,16 +45,12 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     override fun putUserProfile(userDetailsDTO: UserDetailsDTO): UserDetailsDTO {
         try {
-            /*var date : Date?
-            var formatter: SimpleDateFormat
-            if(userDetailsDTO.date_of_birth==null)
-                date= null
-            else {*/
-                val formatter = SimpleDateFormat("dd-MM-yyyy")
-                val date = formatter.parse(userDetailsDTO.date_of_birth)
-            //}
 
+            val formatter = SimpleDateFormat("dd-MM-yyyy")
+            var date : Date? = null
 
+            if(userDetailsDTO.date_of_birth!=null && userDetailsDTO.date_of_birth!="")
+                date = formatter.parse(userDetailsDTO.date_of_birth)
 
             val userDetailsEntity = UserDetails(
                     userDetailsDTO.username,
@@ -89,9 +85,11 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(userDetails==null)
             throw NotFoundException("Username not found")
 
-
         if(purchasedTicketDTO.quantity<1)
             throw BadRequestException("Cannot request a not positive number of tickets")
+
+        if(purchasedTicketDTO.cmd!="buy_tickets")
+            throw BadRequestException("Invalid Post Command")
 
         //ticket creation
         do {
@@ -120,7 +118,8 @@ class UserDetailsServiceImpl : UserDetailsService {
         return ticketsList
     }
 
-    override fun getTravelers() {
+    override fun getTravelers(): List<String> {
+        return userDetailsRepository.findUsernames()
     }
 
 }
