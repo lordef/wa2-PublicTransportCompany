@@ -85,6 +85,7 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(userDetails==null)
             throw NotFoundException("Username not found")
 
+
         if(purchasedTicketDTO.quantity<1)
             throw BadRequestException("Cannot request a not positive number of tickets")
 

@@ -12,8 +12,8 @@ data class UserDTO(
         private val roles: Set<Role>,
         val active: Boolean
 ): UserDetails {
-    override fun getAuthorities(): MutableSet<Role> {
-        return roles.toMutableSet()
+    override fun getAuthorities(): MutableSet<ERole?> {
+        return roles.map { it.name }.toMutableSet()
     }
 
     override fun getPassword(): String? {
@@ -42,7 +42,7 @@ data class UserDTO(
 }
 
 fun User.toDTO() : UserDTO {
-    return UserDTO(getId(), nickname, password, email,this.getRoles(),active)
+    return UserDTO(getId(), nickname, password, email, roles, active)
 }
 
 

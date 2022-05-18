@@ -3,40 +3,38 @@ package it.polito.wa2.login_service.entities
 import javax.persistence.*
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 class User(
 
-        @Column(nullable = false, unique = true)
-           var nickname : String = "",
-        @Column(nullable = false)
-           var password : String = "",
-        @Column(nullable = false, unique = true)
-            var email : String = "",
+    @Column(nullable = false, unique = true)
+    var nickname: String = "",
+    @Column(nullable = false)
+    var password: String = "",
+    @Column(nullable = false, unique = true)
+    var email: String = "",
 
-        @OneToOne( mappedBy = "user",fetch=FetchType.LAZY, optional = true)
-            var activation:Activation? = null,
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, optional = true)
+    var activation: Activation? = null,
 
-        @Column(nullable = false)
-            var active: Boolean = false,
+    @Column(nullable = false)
+    var active: Boolean = false,
 
-        @Column(nullable=false)
-            var roles: String = Role.CUSTOMER.toString()
-    ): EntityBase<Long>() {
+    @ManyToMany
+    @JoinTable(
+        name = "user_role",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "role_id")]
+    )
+    var roles: MutableSet<Role> = mutableSetOf(Role(1,ERole.CUSTOMER))
 
-    private fun stringToSet(roleString: String): MutableSet<Role>{
+
+) : EntityBase<Long>() {
 
 
-        return roleString.split(",").map{
-            Role.valueOf(it)
-        }.toMutableSet()
-    }
-
-    fun getRoles(): Set<Role>{
-        // stringToSet returns a mutable set, but when returned by getRoles, the result is not mutable anymore
-        return stringToSet(roles)
-    }
-
-    }
+    fun addRole(role: Role) {
+        roles.add(role)
+        role.users.add(this)
+}
 
 
 
