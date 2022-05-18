@@ -3,8 +3,11 @@ package it.polito.wa2.login_service.integration_tests
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
 import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.repositories.ActivationRepository
+import it.polito.wa2.login_service.repositories.RoleRepository
 import it.polito.wa2.login_service.repositories.UserRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -60,6 +63,9 @@ class ValidationIntegrationTests {
     @Autowired
     private lateinit var activationRepository: ActivationRepository
 
+    @Autowired
+    lateinit var roleRepository: RoleRepository
+
 
     /*
     * Integration test for validation
@@ -67,6 +73,7 @@ class ValidationIntegrationTests {
     * */
     @Test
     fun correctValReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         //creating user to validate his account
         val userDTO = RegistrationRequestDTO( null, "username_ValTest1", "Username@2021!", "email_ValTest1@gmail.com")
         val user = User(userDTO.nickname, userDTO.password as String, userDTO.email, null, false)
@@ -100,6 +107,7 @@ class ValidationIntegrationTests {
 
     @Test
     fun codeNotMatchValReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         //creating user to validate his account
         val userDTO = RegistrationRequestDTO( null, "username_ValTest2", "Username@2021!", "email_ValTest2@gmail.com")
         val user = User(userDTO.nickname, userDTO.password as String, userDTO.email, null, false)
@@ -121,6 +129,7 @@ class ValidationIntegrationTests {
 
     @Test
     fun expiredCodeValReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         //creating user to validate his account
         val userDTO = RegistrationRequestDTO( null, "username_ValTest3", "Username@2021!", "email_ValTest3@gmail.com")
         val user = User(userDTO.nickname, userDTO.password as String, userDTO.email, null, false)

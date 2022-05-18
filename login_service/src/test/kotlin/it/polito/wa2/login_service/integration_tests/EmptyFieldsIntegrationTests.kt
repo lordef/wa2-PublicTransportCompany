@@ -1,6 +1,9 @@
 package it.polito.wa2.login_service.integration_tests
 
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
+import it.polito.wa2.login_service.repositories.RoleRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,10 +45,13 @@ class EmptyFieldsIntegrationTests {
     }
 
     @LocalServerPort
-    protected var port: Int = 8080
+    protected var port: Int = 8081
 
     @Autowired
     lateinit var restTemplate: TestRestTemplate
+
+    @Autowired
+    lateinit var roleRepository: RoleRepository
 
 
     /*
@@ -55,6 +61,7 @@ class EmptyFieldsIntegrationTests {
     */
     @Test
     fun correctRegReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         val newUser = RegistrationRequestDTO(null, "username_RegTest1", "Username@2022!", "username_RegTest1@gmail.com")
         val baseUrl = "http://localhost:$port/user"
         val request = HttpEntity(newUser)

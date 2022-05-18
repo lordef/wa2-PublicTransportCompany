@@ -35,6 +35,12 @@ class SpringTestBase {
     protected lateinit var user4: User
     protected lateinit var activation4: Activation
 
+    protected lateinit var user5: User
+    protected lateinit var activation5: Activation
+
+    protected lateinit var user6: User
+
+    protected lateinit var user7: User
 
     @BeforeAll
     fun setup(){
@@ -95,6 +101,31 @@ class SpringTestBase {
 
         activation4 = Activation(user4)
         activation4 = activationRepository.save(activation4)
+
+
+        user5 = User(
+                "prova5",
+                "password5",
+                "polito5@gmail.com",
+                null,
+                false
+        )
+
+        user5 = userRepository.save(user5)
+
+        activation5 = Activation(user5)
+        activation5 = activationRepository.save(activation5)
+
+
+        user6 = User(
+                "prova6",
+                "password6",
+                "polito6@gmail.com",
+                null,
+                true
+        )
+
+        user6 = userRepository.save(user6)
     }
 
     @AfterAll

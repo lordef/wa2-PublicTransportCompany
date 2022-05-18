@@ -2,6 +2,7 @@ package it.polito.wa2.login_service.unit_tests
 
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.dtos.UserDTO
 import it.polito.wa2.login_service.exceptions.*
 import it.polito.wa2.login_service.services.UserService
 import org.junit.jupiter.api.Assertions
@@ -45,7 +46,7 @@ class UserServiceUnitTests : SpringTestBase() {
     fun successfulValidateUser() {
         val activation = ActivationDTO(activation1.provisionalUserId, activation1.activationCode)
 
-        Assertions.assertInstanceOf(RegistrationRequestDTO::class.java, userService.validateUser(activation))
+        Assertions.assertInstanceOf(UserDTO::class.java, userService.validateUser(activation))
     }
 
     @Test

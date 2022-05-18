@@ -41,6 +41,7 @@ dependencies {
     implementation("com.github.vladimir-bukhtoyarov:bucket4j-core:7.3.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+
     // dependencies for testcontainers implementation
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation("org.testcontainers:postgresql:1.16.3")

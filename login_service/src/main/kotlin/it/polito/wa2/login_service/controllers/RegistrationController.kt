@@ -78,7 +78,7 @@ class RegistrationController() {
     fun login(
             @RequestBody @Valid loginRequest: LoginRequestDTO, bindingResult: BindingResult,
             response: HttpServletResponse
-    )/*: UserDetails*/ {
+    ){
         if (bindingResult.hasErrors())
             throw BadRequestException(bindingResult.fieldErrors.joinToString())
 
