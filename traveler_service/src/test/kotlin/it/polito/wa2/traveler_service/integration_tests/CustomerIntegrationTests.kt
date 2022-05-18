@@ -54,6 +54,8 @@ class CustomerIntegrationTests {
     lateinit var userDetailsRepository: UserDetailsRepository
 
 
+    /** GET /my/profile  **/
+
     @Test
     fun validGetMyProfileTest() {
         val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
@@ -76,13 +78,23 @@ class CustomerIntegrationTests {
 
     }
 
+    @Test
+    fun noDataForUserdetailsGetMyProfileTest() {
+        val baseUrl = "http://localhost:$port/my/profile"
 
-    /*
-    1) GET /my/profile (body vuoto)
-			1.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
-			1.2) caso in cui l'utente che ha fatto la GET non è ancora nel db userDetails (non ha ancora fatto una PUT) : torna 404
-			1.3) caso in cui va tutto liscio (è sufficiente che l'utente abbia già fatto la prima put, gli altri campi possono anche essere vuoti) : ritorna solo 200 OK
-    */
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+
+    }
 
 
     /*
