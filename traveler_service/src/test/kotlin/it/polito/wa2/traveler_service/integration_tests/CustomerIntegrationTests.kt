@@ -64,8 +64,10 @@ class CustomerIntegrationTests {
 
         val headers = HttpHeaders()
 
-        headers.setBearerAuth("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g")
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
 
         val entity = HttpEntity("", headers)
         val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
@@ -73,5 +75,26 @@ class CustomerIntegrationTests {
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
 
     }
+
+
+    /*
+    1) GET /my/profile (body vuoto)
+			1.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
+			1.2) caso in cui l'utente che ha fatto la GET non è ancora nel db userDetails (non ha ancora fatto una PUT) : torna 404
+			1.3) caso in cui va tutto liscio (è sufficiente che l'utente abbia già fatto la prima put, gli altri campi possono anche essere vuoti) : ritorna solo 200 OK
+    */
+
+
+    /*
+    2) PUT /my/profile (il body può anche essere o completamente vuoto, o solo con alcuni campi : tanto lo username lo recupera dal jwt, e non dal body,
+    mentre tutti i campi non specificati vengono messi a null nel db)
+
+    2.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
+    2.2) caso in cui, se presente la data nel body, il formato data non è valido (formato ammesso dd-MM-yyyy e basta) (il campo date_of_birth assente, o presente ma messo a null o a "" nel body, è valido : viene messo a null in automatico nel db) : se fallisce torna 400
+    2.3) caso in cui, se presente la data nel body e non sia null o "", la data sia corretta (es 31-04 o 29-02 in anni non bisestili): se fallisce torna 400
+    2.4) validazione campi UserDetailsDTO ricevuto (i campi non possono essere NotNull o NotEmpty : possono anche essere assenti e vengono messi a null nel db (controlalre questo con un test)): se fallisce torna 400
+    2.5) caso in cui è tutto ok (ritorna solo 200 OK)
+
+     */
 
 }
