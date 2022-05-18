@@ -34,6 +34,7 @@ class User(
     fun addRole(role: Role) {
         roles.add(role)
         role.users.add(this)
+    }
 }
 
 

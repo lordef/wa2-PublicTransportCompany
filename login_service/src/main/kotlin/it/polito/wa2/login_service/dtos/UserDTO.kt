@@ -1,5 +1,6 @@
 package it.polito.wa2.login_service.dtos
 
+import it.polito.wa2.login_service.entities.ERole
 import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import org.springframework.security.core.userdetails.UserDetails
