@@ -3,6 +3,7 @@ package it.polito.wa2.traveler_service.integration_tests
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
+import org.hibernate.annotations.common.util.impl.Log
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +20,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.*
 
 
 @Testcontainers
@@ -109,24 +111,29 @@ class CustomerIntegrationTests {
 
      */
 
-    @Test
-    fun codeNotMatchValReqTest() {
-        //creating user to validate his account
-        val userDTO = UserDTO( null, "username_ValTest2", "Username@2021!", "email_ValTest2@gmail.com")
-        val user = User(userDTO.nickname, userDTO.password as String, userDTO.email, null, false)
-        userRepository.save(user)
-        //creating provisionalID and activation code
-        val activation = Activation(user)
-        val activationSaved = activationRepository.save(activation)
-
-        //Creating client validation request
-        val activationRequest = ActivationDTO( activationSaved.provisionalUserId,123456)
-
-        val baseUrl = "http://localhost:$port/user"
-        val request = HttpEntity(activationRequest)
-        val response = restTemplate.postForEntity<Unit>("$baseUrl/validate", request)
-
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
-    }
-
+    //TODO it raises an error
+//    @Test
+//    fun validPutMyProfileTest() {
+//        //creating userdetailsDTO to validate his account
+//        val userDetailsDTO = UserDetailsDTO( null, "name", "address", "3774632969", "04-04-1998" )
+//
+//
+//        val userDetailsEntity = UserDetails(
+//            userDetailsDTO.username,
+//            userDetailsDTO.name,
+//            userDetailsDTO.address,
+//            null,
+//            userDetailsDTO.telephone_number
+//        )
+//
+//        userDetailsRepository.save(userDetailsEntity)
+//
+//
+//        val baseUrl = "http://localhost:$port/my/profile"
+//        val request = HttpEntity(userDetailsEntity)
+//        val response = restTemplate.put("$baseUrl", request)
+//
+//        Assertions.assertEquals(true, true)
+//    }
+//
 }
