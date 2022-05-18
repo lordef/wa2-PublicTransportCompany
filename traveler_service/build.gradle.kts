@@ -16,6 +16,13 @@ repositories {
     mavenCentral()
 }
 
+
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:1.16.3")
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -30,8 +37,16 @@ dependencies {
     runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.11.2")
     runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.2")
     testImplementation("org.springframework.security:spring-security-test")
+    // dependency for the rate limiter implementation
+    implementation("com.github.vladimir-bukhtoyarov:bucket4j-core:7.3.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // dependencies for testcontainers implementation
+    testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
+    testImplementation("org.testcontainers:postgresql:1.16.3")
+    runtimeOnly("org.postgresql:postgresql")
 
     implementation("org.postgresql:postgresql:42.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
 }
 
 tasks.withType<KotlinCompile> {
