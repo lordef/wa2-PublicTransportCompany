@@ -109,4 +109,24 @@ class CustomerIntegrationTests {
 
      */
 
+    @Test
+    fun codeNotMatchValReqTest() {
+        //creating user to validate his account
+        val userDTO = UserDTO( null, "username_ValTest2", "Username@2021!", "email_ValTest2@gmail.com")
+        val user = User(userDTO.nickname, userDTO.password as String, userDTO.email, null, false)
+        userRepository.save(user)
+        //creating provisionalID and activation code
+        val activation = Activation(user)
+        val activationSaved = activationRepository.save(activation)
+
+        //Creating client validation request
+        val activationRequest = ActivationDTO( activationSaved.provisionalUserId,123456)
+
+        val baseUrl = "http://localhost:$port/user"
+        val request = HttpEntity(activationRequest)
+        val response = restTemplate.postForEntity<Unit>("$baseUrl/validate", request)
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+    }
+
 }
