@@ -87,7 +87,7 @@ class AuthenticationIntegrationTests {
 
         val headers = HttpHeaders()
 
-        val entity = HttpEntity("")
+        val entity = HttpEntity("", headers)
 
         headers.setBasicAuth("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
                 "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g")
