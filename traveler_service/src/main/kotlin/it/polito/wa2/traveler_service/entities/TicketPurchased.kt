@@ -14,6 +14,9 @@ class TicketPurchased(
     @Column(nullable = false)
     var zoneId: String = "",
 
+    @Column(nullable = false, updatable = true)
+    var jws: String = "",
+
     @ManyToOne(fetch=FetchType.LAZY)
     val userDetails: UserDetails
 

@@ -99,6 +99,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                 Date(),
                 Date(Date().time + ticketExpirationMs),
                 purchasedTicketDTO.zone,
+                    "",//TODO merging with master
                 userDetails
             )
             ticketsList.add(ticketPurchasedRepository.save(ticket).toDTO(jwtUtils))
