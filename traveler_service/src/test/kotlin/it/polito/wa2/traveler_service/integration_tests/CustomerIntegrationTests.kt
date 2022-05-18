@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -25,7 +24,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class EmptyFieldsIntegrationTests {
+class CustomerIntegrationTests {
 
     companion object {
         @Container
@@ -55,17 +54,6 @@ class EmptyFieldsIntegrationTests {
     lateinit var userDetailsRepository: UserDetailsRepository
 
 
-    /*
-    * Integration test for registration
-    * RegReqTest = Registration Request Test
-    *
-    */
-    @Test
-    fun correctRegReqTest() {
-        Assertions.assertEquals(true, true)
-    }
-
-
     @Test
     fun validGetMyProfileTest() {
         val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
@@ -85,7 +73,5 @@ class EmptyFieldsIntegrationTests {
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
 
     }
-
-
 
 }
