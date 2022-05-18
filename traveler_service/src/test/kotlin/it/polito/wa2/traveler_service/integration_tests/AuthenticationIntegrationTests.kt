@@ -59,8 +59,10 @@ class AuthenticationIntegrationTests {
         val headers = HttpHeaders()
 
         // JWT key = "wrong"
-        headers.setBearerAuth("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9N" +
-                "RVIiXX0.2acWHnDKsstQpwAY5GBPkGuy5Vu0eJN8nun1vAdeWKUQvrCB1GLJy6UwItz3A2drVeQAlE6x9KXjhE0_3C5sPw")
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9N" +
+                    "RVIiXX0.2acWHnDKsstQpwAY5GBPkGuy5Vu0eJN8nun1vAdeWKUQvrCB1GLJy6UwItz3A2drVeQAlE6x9KXjhE0_3C5sPw"
+        )
 
 
         val entity = HttpEntity("", headers)
@@ -70,6 +72,92 @@ class AuthenticationIntegrationTests {
 
     }
 
+    @Test
+    fun timeExpiredJwtTest() {
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        /*
+                {
+          "sub": "customer1",
+          "iat": 1621356862,
+          "exp": 1716051262,
+          "roles": [
+            "CUSTOMER"
+          ]
+        }
+         */
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2MjEzNTY4NjIsImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9NRVIiXX0.E" +
+                    "X4wlAWdJuu7KV-FtuSq5PkzvZSdY3pyEoeMGrxJ4_mVcterbw4KQbR2a5CuilailQyqRYtQe_XCTem3b6ZP_A"
+        )
+
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+
+    }
+
+    @Test
+    fun wrongSubJwtTest() {
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        /*
+                {
+          "sub": "",
+          "iat": 1621356862,
+          "exp": 1716051262,
+          "roles": [
+            "CUSTOMER"
+          ]
+        }
+         */
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIiLCJpYXQiOjE2MjEzNTY4NjIsImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9NRVIiXX0" +
+                    ".UrHUX6DRD6o3kCV2Us5eqUPghF2Nf27fi9IXyh-0mc7rlaNwVu1RfRYzyah8_uVFSULDdJNAJoewUlyxzVMVFg"
+        )
+
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+
+    }
+
+    @Test
+    fun emptyRolesJwtTest() {
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        /*
+                {
+          "sub": "customer1",
+          "iat": 1621356862,
+          "exp": 1716051262,
+          "roles": [
+
+          ]
+        }
+         */
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2MjEzNTY4NjIsImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOltdf" +
+                    "Q.vtrsIzMvJx7XG9PoSEQHyFrUF0YS_hkjDYY24ZymbVmEGduJGMNk8L6_6gCJJCiPreCPOFk0_EfjDpMZ20ro8Q"
+        )
+
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+
+    }
 
     @Test
     fun absentHeaderJwtTest() {
