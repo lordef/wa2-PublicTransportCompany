@@ -2,8 +2,11 @@ package it.polito.wa2.login_service.unit_tests
 
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.dtos.UserDTO
 import it.polito.wa2.login_service.dtos.toDTO
 import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -17,7 +20,7 @@ class DtosUnitTests {
     fun matchingUserToDto() {
         val userEntity = User("jack", "passW0rD", "email@gmail.com")
 
-        val expectedUserDto = RegistrationRequestDTO(null, "jack", null, "email@gmail.com")
+        val expectedUserDto = UserDTO(null, "jack", "passW0rD", "email@gmail.com",userEntity.roles,false)
 
         Assertions.assertEquals(expectedUserDto, userEntity.toDTO())
     }
