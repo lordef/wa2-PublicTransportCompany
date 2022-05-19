@@ -1,8 +1,11 @@
 package it.polito.wa2.traveler_service.integration_tests
 
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
+import it.polito.wa2.traveler_service.entities.TicketPurchased
 import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
+import it.polito.wa2.traveler_service.security.JwtUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +22,7 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.*
 
 
 @Testcontainers
@@ -54,26 +58,123 @@ class AdminIntegrationTests {
     lateinit var userDetailsRepository: UserDetailsRepository
 
 
-    //TODO use the template to build other tests
-    @Test
-    fun validGetMyProfileTest() {
-        val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
-        val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
-        userDetailsRepository.save(userDetails)
 
-        val baseUrl = "http://localhost:$port/my/profile"
+    /*
+    GET /admin/travelers
+     */
+    @Test
+    fun validGetMyAdminTravelersTest() {
+        val userDetailsDTO = UserDetailsDTO("customer21", "name", "address")
+        val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
+
+        val userDetailsDTO2 = UserDetailsDTO("customer22", "name2", "address2")
+        val userDetails2 = UserDetails(userDetailsDTO2.username, userDetailsDTO2.name, userDetailsDTO2.address)
+
+        userDetailsRepository.save(userDetails)
+        userDetailsRepository.save(userDetails2)
+
+        val baseUrl = "http://localhost:$port/admin/travelers"
 
         val headers = HttpHeaders()
 
-        headers.setBearerAuth("eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g")
+        headers.setBearerAuth(
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIwIiwiaWF0IjoxNjUyODkxODc5LCJleHAiOjE3MTYwNTEyNjIsInJvbGVzI" +
+                        "jpbIkNVU1RPTUVSIiwiQURNSU4iXX0.cJ9OjS-ojAz46YUbWQw5vrj4mQ_QQ1kv7UAuG3JZ7e5tahtm0z39ruFfnmKUmUmHn4d11NrHPYso0AKsuPPY_Q"
+        )
 
         val entity = HttpEntity("", headers)
         val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
 
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+        Assertions.assertEquals(true, (response.body?.toString()!!.contains("customer22") && response.body?.toString()!!.contains("customer21")))
 
     }
 
+
+    @Test
+    fun unauthorizedGetMyAdminTravelersTest() {
+
+        val baseUrl = "http://localhost:$port/admin/travelers"
+
+        val headers = HttpHeaders()
+
+        /*doesn't have role ADMIN*/
+        headers.setBearerAuth(
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIwIiwiaWF0IjoxNjUyODkxODc5LCJleHAiOjE3MTYwNTEyNjIsInJvbGVzI" +
+                        "jpbIkNVU1RPTUVSIl19.wFmHAikBsfAxXas3Cnn_D0-2FRU629vhVXPdEpmBIj_EmE_EsJKcpNXk0ikXyELoI7zeK8eqrgJSOLq_6p1vkw"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.statusCode)
+
+    }
+
+
+    /*
+        GET /admin/traveler/{userID}/tickets
+         */
+    @Test
+    fun unauthorizedAdminGetUserTicketsTest() {
+
+        val baseUrl = "http://localhost:$port/admin/traveler/customer21/tickets"
+
+        val headers = HttpHeaders()
+
+        /*doesn't have role ADMIN*/
+        headers.setBearerAuth(
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIwIiwiaWF0IjoxNjUyODkxODc5LCJleHAiOjE3MTYwNTEyNjIsInJvbGVzI" +
+                        "jpbIkNVU1RPTUVSIl19.wFmHAikBsfAxXas3Cnn_D0-2FRU629vhVXPdEpmBIj_EmE_EsJKcpNXk0ikXyELoI7zeK8eqrgJSOLq_6p1vkw"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.FORBIDDEN,response.statusCode)
+
+    }
+
+
+    @Test
+    fun validAdminGetUserTicketsTest() {
+        val userDetailsDTO = UserDetailsDTO("customer23", "name23", "address")
+        val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
+        userDetailsRepository.save(userDetails)
+
+        val baseUrl = "http://localhost:$port/admin/traveler/customer23/tickets"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIwIiwiaWF0IjoxNjUyODkxODc5LCJleHAiOjE3MTYwNTEyNjIsInJvbGVzI" +
+                        "jpbIkNVU1RPTUVSIiwiQURNSU4iXX0.cJ9OjS-ojAz46YUbWQw5vrj4mQ_QQ1kv7UAuG3JZ7e5tahtm0z39ruFfnmKUmUmHn4d11NrHPYso0AKsuPPY_Q"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals("[]", response.body.toString())
+
+    }
+
+
+    @Test
+    fun adminGetUserTicketsWithNoUserTest() {
+
+        val baseUrl = "http://localhost:$port/admin/traveler/customer24/tickets"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIwIiwiaWF0IjoxNjUyODkxODc5LCJleHAiOjE3MTYwNTEyNjIsInJvbGVzI" +
+                        "jpbIkNVU1RPTUVSIiwiQURNSU4iXX0.cJ9OjS-ojAz46YUbWQw5vrj4mQ_QQ1kv7UAuG3JZ7e5tahtm0z39ruFfnmKUmUmHn4d11NrHPYso0AKsuPPY_Q"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+
+    }
 
 }
