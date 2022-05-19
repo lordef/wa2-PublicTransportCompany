@@ -1,8 +1,13 @@
 package it.polito.wa2.traveler_service.integration_tests
 
+import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
+import it.polito.wa2.traveler_service.dtos.TicketPurchasedDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
+import it.polito.wa2.traveler_service.entities.TicketPurchased
 import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
+import it.polito.wa2.traveler_service.security.JwtUtils
 import org.hibernate.annotations.common.util.impl.Log
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -53,7 +58,13 @@ class CustomerIntegrationTests {
     lateinit var restTemplate: TestRestTemplate
 
     @Autowired
+    lateinit var jwtUtils: JwtUtils
+
+    @Autowired
     lateinit var userDetailsRepository: UserDetailsRepository
+
+    @Autowired
+    lateinit var ticketPurchasedRepository: TicketPurchasedRepository
 
 
     /** GET /my/profile  **/
@@ -82,6 +93,8 @@ class CustomerIntegrationTests {
 
     @Test
     fun noDataForUserdetailsGetMyProfileTest() {
+        userDetailsRepository.deleteAll()
+
         val baseUrl = "http://localhost:$port/my/profile"
 
         val headers = HttpHeaders()
@@ -99,41 +112,161 @@ class CustomerIntegrationTests {
     }
 
 
-    /*
-    2) PUT /my/profile (il body può anche essere o completamente vuoto, o solo con alcuni campi : tanto lo username lo recupera dal jwt, e non dal body,
-    mentre tutti i campi non specificati vengono messi a null nel db)
+    /** 2) PUT /my/profile **/
 
-    2.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
-    2.2) caso in cui, se presente la data nel body, il formato data non è valido (formato ammesso dd-MM-yyyy e basta) (il campo date_of_birth assente, o presente ma messo a null o a "" nel body, è valido : viene messo a null in automatico nel db) : se fallisce torna 400
-    2.3) caso in cui, se presente la data nel body e non sia null o "", la data sia corretta (es 31-04 o 29-02 in anni non bisestili): se fallisce torna 400
-    2.4) validazione campi UserDetailsDTO ricevuto (i campi non possono essere NotNull o NotEmpty : possono anche essere assenti e vengono messi a null nel db (controlalre questo con un test)): se fallisce torna 400
-    2.5) caso in cui è tutto ok (ritorna solo 200 OK)
+    @Test
+    fun validPutMyProfileTest() {
 
-     */
+        val userDetailsDTO = UserDetailsDTO(null, "name", "address", "3774632969", "29-02-2020")
 
-    //TODO it raises an error
-//    @Test
-//    fun validPutMyProfileTest() {
-//        //creating userdetailsDTO to validate his account
-//        val userDetailsDTO = UserDetailsDTO( null, "name", "address", "3774632969", "04-04-1998" )
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+        val entity = HttpEntity(userDetailsDTO, headers)
+
+        val response = restTemplate.exchange(baseUrl, HttpMethod.PUT, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+
+    }
+
+
+    @Test
+    fun invalidLeapYearPutMyProfileTest() {
+
+        val userDetailsDTO = UserDetailsDTO(null, "name", "address", "3774632969", "29-02-1998")
+
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+        val entity = HttpEntity(userDetailsDTO, headers)
+
+        val response = restTemplate.exchange(baseUrl, HttpMethod.PUT, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+
+    }
+
+    @Test
+    fun validEmptyDtoPutMyProfileTest() {
+
+        val userDetailsDTO = UserDetailsDTO(null, null, null, null, null)
+
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+        val entity = HttpEntity(userDetailsDTO, headers)
+
+        val response = restTemplate.exchange(baseUrl, HttpMethod.PUT, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+
+    }
+
+    @Test
+    fun invalidDataFormatPutMyProfileTest() {
+
+        val userDetailsDTO = UserDetailsDTO(null, "name", "address", "3774632969", "04/04/1998")
+
+        val baseUrl = "http://localhost:$port/my/profile"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+        val entity = HttpEntity(userDetailsDTO, headers)
+
+        val response = restTemplate.exchange(baseUrl, HttpMethod.PUT, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+
+    }
+
+//    3) GET /my/tickets/
+//    3.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
+//    3.2) caso in cui l'utente che ha fatto la GET non è ancora nel db userDetails (non ha ancora fatto una PUT per inserire nel db il suo username (basta sia presente il record con il suo username)) : torna 404
+//    3.3) caso in cui va tutto liscio : torna 200 OK e la lista di tickets comprati da quello user
+
+    @Test
+    fun validGetMyTicketTest() {
+        val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
+        val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
+        userDetailsRepository.save(userDetails)
+
+        val ticketWithoutJws = TicketPurchased(
+            Date(),
+            Date(Date().time + 3600000),
+            "ABC",
+            "",
+            userDetails
+        )
+
+        ticketPurchasedRepository.save(ticketWithoutJws)
+
+        ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.expiry, ticketWithoutJws.zoneId)
+
+
+
+        val baseUrl = "http://localhost:$port/my/tickets"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+
+    }
+
+    @Test
+    fun noUserDetailsGetMyTicketTest() {
+        val baseUrl = "http://localhost:$port/my/tickets"
+
+        val headers = HttpHeaders()
+
+        headers.setBearerAuth(
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
+                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+        )
+
+        val entity = HttpEntity("", headers)
+        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
+
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
+
+    }
+
+//    4) POST /my/tickets
 //
-//
-//        val userDetailsEntity = UserDetails(
-//            userDetailsDTO.username,
-//            userDetailsDTO.name,
-//            userDetailsDTO.address,
-//            null,
-//            userDetailsDTO.telephone_number
-//        )
-//
-//        userDetailsRepository.save(userDetailsEntity)
-//
-//
-//        val baseUrl = "http://localhost:$port/my/profile"
-//        val request = HttpEntity(userDetailsEntity)
-//        val response = restTemplate.put("$baseUrl", request)
-//
-//        Assertions.assertEquals(true, true)
-//    }
-//
+//    4.1) Autorizzazione fallita nel caso di : jwt errato, jwt scaduto e ruolo customer non presente : se fallisce torna 401 (forse 403 se il ruolo è assente)
+//    4.2) caso in cui l'utente che ha fatto la POST non è ancora nel db userDetails (non ha ancora fatto una PUT per inserire nel db il suo username (basta sia presente il record con il suo username)) : torna 404
+//    4.3) caso in cui la quantity nel body è <1 (torna 400)
+//    4.4) caso in cui cmd è diverso da "buy_tickets" (torna 400)
+//    4.5) caso in cui va tutto bene : ritorna una lista di tot biglietti come body, e 200 OK
+
+
+
+
 }
