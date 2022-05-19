@@ -20,5 +20,11 @@ class ControllerAdvice {
         println(ex.msg)
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(UnauthorizedException::class)
+    fun unauthorizedExceptionHandler(ex: UnauthorizedException){
+        println(ex.msg)
+    }
+
 }
 
