@@ -15,7 +15,7 @@ import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-open class SpringTestBase {
+class SpringTestBase {
 
     @Autowired lateinit var userDetailsRepository: UserDetailsRepository
     @Autowired lateinit var  ticketPurchasedRepository: TicketPurchasedRepository
@@ -33,14 +33,14 @@ open class SpringTestBase {
             "username1",
             "name1",
             "via test 1",
-            Date(950965440000), // 2024/02/19
+            Date(950965440000), // 2000/02/19
             "3687000432"
         )
         userDetails = userDetailsRepository.save(userDetails)
 
         ticketPurchased = TicketPurchased(
             Date(System.currentTimeMillis()),
-            Date(1708347840000), // 2000/02/19
+            Date(1708347840000), // 2024/02/19
             "1",
             "eyJhbGciOiJIUzUxMiJ9." +
                     "eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9NRVIiXX0." +
