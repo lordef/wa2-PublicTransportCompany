@@ -19,25 +19,27 @@ with username and password (should be _postgres_ and _postgres_ respectively) sp
 [application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
 and the host and port (should be _localhost_ and _54320_) specified in the spring.datasource.url of the [application.properties](login_service/src/main/resources/application.properties)
 
+In addition, to successfully run the app, execute the following steps:
+1. build and run the [LoginServiceApplication.kt](login_service/src/main/kotlin/it/polito/wa2/login_service/LoginServiceApplication.kt) with the parameter _spring.jpa.hibernate.ddl-auto_ setted to _**create**_ in the file [application.properties](login_service/src/main/resources/application.properties)
+2. manually insert the subsequent occurrences in the _roles_ table:
+
+| id  | name     |
+|-----|----------|
+| 1   | CUSTOMER |
+| 2   | ADMIN    |
+3. re-build and run the [LoginServiceApplication.kt](login_service/src/main/kotlin/it/polito/wa2/login_service/LoginServiceApplication.kt) with the parameter _spring.jpa.hibernate.ddl-auto_ setted to _**validate**_ in the file [application.properties](login_service/src/main/resources/application.properties)
 
 
 ## Servers  
+
 * LoginService server (DB: _postgres_) on port 8081
 * TravelerService server (DB: _db2_) on port 8080
 
+## Unit tests
+To run unit tests of the login and traveler service, 
+it is necessary to run the command for **creating** the required **container** explained above in this README.md
+and run it during the test
 
-
-### Reference Documentation
-
-For further reference, please consider the following sections:
-
-* Examples of secured REST API
-  * [REST service persisting data in MongoDB](https://medium.com/techwasti/enable-spring-security-using-kotlin-6b9abb36d218)
-  * [The kotlin security DSL](https://www.baeldung.com/kotlin/spring-security-dsl)
-  * [Turning Kotlin applications into secure native executables](  https://tanzu.vmware.com/developer/tv/tanzu-tuesdays/0046/)
-* Implementing a SpringBoot JWT server
-  * [Spring Boot Token based Authentication with Spring Security & JWT](https://bezkoder.com/spring-boot-jwt-authentication)
-    * A detailed tutorial (in Java)
-  * [Kotlin API Authentication using JWT]( https://morioh.com/p/c630eaa08d00)
-    * A slightly different one, relying on http-only cookies
+## Integration tests
+To run integrations tests, it is sufficient to run the command for **creating** the required **container** explained above in this README.md
       
