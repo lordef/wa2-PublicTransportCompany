@@ -1,6 +1,8 @@
 package it.polito.wa2.traveler_service.unit_tests
 
+import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
+import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
 import it.polito.wa2.traveler_service.services.UserDetailsService
 import it.polito.wa2.traveler_service.unit_tests.unit_tests_utils.SpringTestBase
@@ -28,6 +30,7 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
             userDetailsService.getUserProfile("nickname_not_exist")
         }
     }
+
 
     @Test
     fun validPutUserProfile() {
@@ -73,10 +76,6 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
         )
     }
 
-    @Test
-    fun failPutUserProfile() {
-        // TODO forzare l'eccezione BadRequestException se possibile
-    }
 
     @Test
     fun validGetUserTickets() {
@@ -95,16 +94,57 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
 
 
     @Test
-    fun postUserTickets() {
-        //TODO
+    fun validPostUserTickets() {
+        val purchasedTicketDTO = PurchaseTicketDTO(
+            "buy_tickets",
+            1,
+            "1"
+        )
+        Assertions.assertInstanceOf(List::class.java,
+            userDetails.username?.let { userDetailsService.postUserTickets(it, purchasedTicketDTO) })
 
+    }
+
+    @Test
+    fun nullUserDetailsPostUserTickets() {
+        val purchasedTicketDTO = PurchaseTicketDTO(
+            "buy_tickets",
+            1,
+            "1"
+        )
+        Assertions.assertThrows(NotFoundException::class.java) {
+            userDetailsService.postUserTickets("null username", purchasedTicketDTO)
+        }
+    }
+
+    @Test
+    fun quantityLessThan1PostUserTickets() {
+        val purchasedTicketDTO = PurchaseTicketDTO(
+            "buy_tickets",
+            0,
+            "1"
+        )
+        Assertions.assertThrows(BadRequestException::class.java) {
+            userDetails.username?.let { userDetailsService.postUserTickets(it, purchasedTicketDTO) }
+
+        }
+    }
+
+    @Test
+    fun wrongCMDPostUserTickets() {
+        val purchasedTicketDTO = PurchaseTicketDTO(
+            "wrong_command",
+            1,
+            "1"
+        )
+        Assertions.assertThrows(NotFoundException::class.java) {
+            userDetailsService.postUserTickets("null username", purchasedTicketDTO)
+        }
     }
 
     //admin services
     @Test
-    fun getTravelers() {
-        //TODO
-
-
+    fun validGetTravelers() {
+        Assertions.assertInstanceOf(List::class.java, userDetailsService.getTravelers())
     }
 }
