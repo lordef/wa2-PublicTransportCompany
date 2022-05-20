@@ -15,7 +15,7 @@ import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class SpringTestBase {
+open class SpringTestBase {
 
     @Autowired lateinit var userDetailsRepository: UserDetailsRepository
     @Autowired lateinit var  ticketPurchasedRepository: TicketPurchasedRepository
