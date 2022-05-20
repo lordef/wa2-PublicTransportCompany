@@ -4,6 +4,9 @@
 The following guides illustrate how to set up the two modules concretely:
 - [Set up Databases](#databases)
 - [Set up Servers](#servers)
+- [Run Unit tests](#unit-tests)
+- [Run Integration tests](#integration-tests)
+
 
 
 ## Databases
