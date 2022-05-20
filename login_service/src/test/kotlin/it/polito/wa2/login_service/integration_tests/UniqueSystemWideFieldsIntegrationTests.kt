@@ -1,7 +1,10 @@
 package it.polito.wa2.login_service.integration_tests
 
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
+import it.polito.wa2.login_service.repositories.RoleRepository
 import it.polito.wa2.login_service.repositories.UserRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -53,6 +56,9 @@ class UniqueSystemWideFieldsIntegrationTests {
     @Autowired
     lateinit var userRepository: UserRepository
 
+    @Autowired
+    lateinit var roleRepository: RoleRepository
+
 
     /*
     * Integration test for registration
@@ -65,6 +71,7 @@ class UniqueSystemWideFieldsIntegrationTests {
     */
     @Test
     fun notUniqueUsernameRegReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         val baseUrl = "http://localhost:$port/user"
         //Inserting a new user in DB
         val user = User("username_RegTest8", "Username@2022!", "username_RegTest8@gmail.com", null, false)
@@ -82,6 +89,7 @@ class UniqueSystemWideFieldsIntegrationTests {
 
     @Test
     fun notUniqueEmailRegReqTest() {
+        roleRepository.save(Role(1, ERole.CUSTOMER))
         //Inserting a new user in DB
         val user = User("username_RegTest9", "Username@2022!", "username_RegTest9@gmail.com", null, false)
         userRepository.save(user)
