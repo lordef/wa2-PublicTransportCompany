@@ -1,4 +1,4 @@
-# Lab5-Group04
+# Lab5-Group04 - TODO: info related to the previous lab
 
 ### Guides
 The following guides illustrate how to set up the two modules concretely:
