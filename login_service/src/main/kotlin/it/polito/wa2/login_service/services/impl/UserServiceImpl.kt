@@ -38,6 +38,7 @@ class UserServiceImpl: UserDetailsService,UserService {
     @Autowired lateinit var passwordEncoder: PasswordEncoder
 
 
+
     override fun loadUserByUsername(username: String): UserDTO {
         val user = userRepository.findByNickname(username) ?: throw UnauthorizedException("Username not found")
         if(!user.active) throw UnauthorizedException("User not active")

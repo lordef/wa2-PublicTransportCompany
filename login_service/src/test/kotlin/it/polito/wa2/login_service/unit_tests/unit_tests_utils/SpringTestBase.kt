@@ -1,8 +1,11 @@
 package it.polito.wa2.login_service.unit_tests
 
 import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.repositories.ActivationRepository
+import it.polito.wa2.login_service.repositories.RoleRepository
 import it.polito.wa2.login_service.repositories.UserRepository
 
 import org.junit.jupiter.api.AfterAll
@@ -22,6 +25,8 @@ class SpringTestBase {
 
     @Autowired lateinit var userRepository: UserRepository
     @Autowired lateinit var  activationRepository: ActivationRepository
+    @Autowired lateinit var roleRepository: RoleRepository
+
 
     protected lateinit var user1: User
     protected lateinit var activation1: Activation
@@ -46,6 +51,8 @@ class SpringTestBase {
     fun setup(){
         activationRepository.deleteAll()
         userRepository.deleteAll()
+
+        roleRepository.save(Role(1, ERole.CUSTOMER))
 
         user1 = User(
                 "prova1",
