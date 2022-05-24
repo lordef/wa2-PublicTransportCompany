@@ -35,6 +35,7 @@ dependencies {
     testImplementation("io.projectreactor:reactor-test")
     //testImplementation("org.springframework.security:spring-security-test")
 
+    implementation("org.hibernate.validator:hibernate-validator")
 }
 
 tasks.withType<KotlinCompile> {

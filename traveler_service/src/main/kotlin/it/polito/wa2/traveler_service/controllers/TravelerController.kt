@@ -41,7 +41,6 @@ class TravelerController {
     @PutMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    //TODO controllare la validazione sul formato data ricevuta
     fun putMyProfile(
         @RequestBody @Valid userDetailsDTO: UserDetailsDTO,
         bindingResult: BindingResult
