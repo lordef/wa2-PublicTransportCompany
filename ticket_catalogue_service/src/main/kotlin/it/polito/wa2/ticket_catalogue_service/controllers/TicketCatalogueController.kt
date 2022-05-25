@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Component
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
@@ -42,6 +43,12 @@ class TicketCatalogueController {
 
         catalogueService.purchaseTickets(purchaseRequestDTO)
         //return
+    }
+
+    @PostMapping("/admin/tickets")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
+    suspend fun addTicket(){
+        println("aggiunto!!")
     }
 
 
