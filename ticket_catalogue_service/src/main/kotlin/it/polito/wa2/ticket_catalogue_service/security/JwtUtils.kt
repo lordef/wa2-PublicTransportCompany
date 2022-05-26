@@ -18,12 +18,6 @@ class JwtUtils {
         Keys.hmacShaKeyFor(jwtSecret.toByteArray())
     }
 
-    /*@Value("\${application.jwt.jwtSecretTicket}")
-    private lateinit var jwtSecretTicket: String
-
-    private val keyTicket: Key by lazy {
-        Keys.hmacShaKeyFor(jwtSecretTicket.toByteArray())
-    }*/
 
     fun validateJwt(authToken: String): Boolean {
         try {
@@ -68,15 +62,15 @@ class JwtUtils {
 
     }
 
-    /*fun generateJwt(sub : Long, iat : Date, exp : Date, zid : String): String {
+    fun generateJwt(sub : String, iat : Date, exp : Date): String {
         return Jwts.builder()
             .setSubject(sub.toString())
             .setIssuedAt(iat)
             .setExpiration(exp)
-            .claim("zid", zid)
-            .signWith(keyTicket)
+            .claim("roles", listOf(Role.SERVICE.toString(),Role.ADMIN.toString()))
+            .signWith(key)
             .compact()
-    }*/
+    }
 
     fun getJwtTokenFromHeader(header: String): String{
         return header.split(" ")[1]
