@@ -11,7 +11,7 @@ import java.util.*
 @Component
 class JwtUtils {
 
-    @Value("\${application.jwt.jwtSecret}")
+    @Value("\${application.jwt.jwtSecretAuthentication}")
     private lateinit var jwtSecret: String
 
     private val key: Key by lazy {
@@ -68,12 +68,14 @@ class JwtUtils {
 
     }
 
-    fun generateJwt(sub : Long, iat : Date, exp : Date, zid : String): String {
+    fun generateJwt(sub : Long, iat : Date, nbf: Date, exp : Date, zid : String, type: String): String {
         return Jwts.builder()
             .setSubject(sub.toString())
             .setIssuedAt(iat)
             .setExpiration(exp)
+            .setNotBefore(nbf)
             .claim("zid", zid)
+            .claim("type",type)
             .signWith(keyTicket)
             .compact()
     }

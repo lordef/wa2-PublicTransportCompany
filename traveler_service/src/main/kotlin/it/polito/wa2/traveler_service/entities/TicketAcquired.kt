@@ -4,15 +4,21 @@ import java.util.Date
 import javax.persistence.*
 
 @Entity
-class TicketPurchased(
+class TicketAcquired(
     @Column(nullable = false, updatable = false)
     var issuedAt: Date,
+
+    @Column(nullable = false, updatable = false)
+    var validFrom: Date,
 
     @Column(nullable = false, updatable = false)
     var expiry: Date,
 
     @Column(nullable = false, updatable = false)
-    var zoneId: String = "",
+    var zoneId: String,
+
+    @Column(nullable = false, updatable = false)
+    var type: String,
 
     @Column(nullable = false, updatable = true)
     var jws: String = "",

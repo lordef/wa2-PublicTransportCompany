@@ -2,7 +2,7 @@ package it.polito.wa2.traveler_service.controllers
 
 
 import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
-import it.polito.wa2.traveler_service.dtos.TicketPurchasedDTO
+import it.polito.wa2.traveler_service.dtos.TicketAcquiredDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
@@ -63,17 +63,17 @@ class TravelerController {
     @GetMapping("/my/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
     @ResponseBody
-    fun getMyTickets(): List<TicketPurchasedDTO> {
+    fun getMyTickets(): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(SecurityContextHolder.getContext().authentication.name)
     }
 
     @PostMapping("/my/tickets")
-    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).SERVICE)")
     @ResponseBody
     fun postMyTickets(
         @RequestBody @Valid purchaseTicketDTO: PurchaseTicketDTO,
         bindingResult: BindingResult
-    ): List<TicketPurchasedDTO> {
+    ): List<TicketAcquiredDTO> {
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
 
@@ -102,7 +102,7 @@ class TravelerController {
     @GetMapping("/admin/traveler/{userID}/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
     @ResponseBody
-    fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketPurchasedDTO> {
+    fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(userID)
     }
 

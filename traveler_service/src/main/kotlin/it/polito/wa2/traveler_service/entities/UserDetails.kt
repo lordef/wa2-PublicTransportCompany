@@ -23,6 +23,6 @@ class UserDetails(
     var telephone_number: String? = null,
 
         @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)
-    val tickets: List<TicketPurchased>? = null
+    val tickets: List<TicketAcquired>? = null
 
 )

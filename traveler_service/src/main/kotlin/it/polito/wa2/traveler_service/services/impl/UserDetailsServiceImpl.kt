@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
 import java.util.*
-import it.polito.wa2.traveler_service.entities.TicketPurchased
+import it.polito.wa2.traveler_service.entities.TicketAcquired
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
@@ -67,7 +67,7 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     }
 
-    override fun getUserTickets(username: String): List<TicketPurchasedDTO> {
+    override fun getUserTickets(username: String): List<TicketAcquiredDTO> {
         val userDetails = userDetailsRepository.findByUsername(username)
 
         if(userDetails==null)
@@ -77,34 +77,33 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     }
 
-    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO): List<TicketPurchasedDTO> {
+    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO): List<TicketAcquiredDTO> {
         var numberOfTickets = purchasedTicketDTO.quantity
-        val ticketsList = mutableListOf<TicketPurchasedDTO>()
+        val ticketsList = mutableListOf<TicketAcquiredDTO>()
         val userDetails = userDetailsRepository.findByUsername(username)
 
         if(userDetails==null)
             throw NotFoundException("Username not found")
 
 
-        if(purchasedTicketDTO.quantity<1)
-            throw BadRequestException("Cannot request a not positive number of tickets")
-
         if(purchasedTicketDTO.cmd!="buy_tickets")
             throw BadRequestException("Invalid Post Command")
 
         //ticket creation
         do {
-            val ticketWithoutJws = TicketPurchased(
+            val ticketWithoutJws = TicketAcquired(
                 Date(),
-                Date(Date().time + ticketExpirationMs),
+                Date(purchasedTicketDTO.validFrom.toEpochSecond()),
+                Date(Date().time + purchasedTicketDTO.duration),
                 purchasedTicketDTO.zone,
+                purchasedTicketDTO.type,
                     "",
                 userDetails
             )
 
            ticketPurchasedRepository.save(ticketWithoutJws)
 
-            ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.expiry, ticketWithoutJws.zoneId)
+            ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.validFrom, ticketWithoutJws.expiry, ticketWithoutJws.zoneId, ticketWithoutJws.type)
 
             val ticketWithJws = ticketPurchasedRepository.save(ticketWithoutJws)
 

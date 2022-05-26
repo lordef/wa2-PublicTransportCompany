@@ -1,11 +1,8 @@
 package it.polito.wa2.traveler_service.integration_tests
 
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
-import it.polito.wa2.traveler_service.entities.TicketPurchased
 import it.polito.wa2.traveler_service.entities.UserDetails
-import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
-import it.polito.wa2.traveler_service.security.JwtUtils
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,7 +19,6 @@ import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.util.*
 
 
 @Testcontainers
