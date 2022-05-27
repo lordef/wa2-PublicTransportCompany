@@ -67,7 +67,7 @@ class JwtUtils {
             .setSubject(sub.toString())
             .setIssuedAt(iat)
             .setExpiration(exp)
-            .claim("roles", listOf(Role.SERVICE.toString(),Role.ADMIN.toString()))
+            .claim("roles", listOf(Role.SERVICE.toString(),Role.ADMIN.toString(), Role.CUSTOMER.toString()))
             .signWith(key)
             .compact()
     }

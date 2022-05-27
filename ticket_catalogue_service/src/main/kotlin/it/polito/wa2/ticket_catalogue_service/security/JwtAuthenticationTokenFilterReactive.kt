@@ -19,6 +19,9 @@ class JwtAuthenticationManager : ReactiveAuthenticationManager {
 @Component
 class JwtServerAuthenticationConverter(private val jwtUtils: JwtUtils) : ServerAuthenticationConverter {
     override fun convert(exchange: ServerWebExchange?): Mono<Authentication> {
+
+
+
         val result = exchange?.request?.headers?.get("Authorization")
             ?.firstOrNull {
                 it.startsWith("Bearer")
@@ -34,3 +37,4 @@ class JwtServerAuthenticationConverter(private val jwtUtils: JwtUtils) : ServerA
             .map { UsernamePasswordAuthenticationToken(it.username, null, it.roles) }
     }
 }
+

@@ -1,6 +1,6 @@
 package it.polito.wa2.ticket_catalogue_service.services.impl
 
-import com.sun.org.apache.xalan.internal.lib.ExsltDatetime.time
+
 import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.toDTO
@@ -10,7 +10,7 @@ import it.polito.wa2.ticket_catalogue_service.security.JwtUtils
 import it.polito.wa2.ticket_catalogue_service.services.TicketCatalogueService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.reactivestreams.Publisher
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -18,8 +18,8 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
-import java.lang.System.err
+import java.time.LocalDate
+import java.time.Period
 import java.util.*
 
 
@@ -48,12 +48,16 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         if(ticket==null)
             throw BadRequestException("Invalid ticketID")
 
-        //generating jwt for the authentication with Traveler Service
+        //generating jwt for the authentication with Traveler Service and Payment Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
 
 
-        val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
-                .header("Authorization", "Bearer "+jwt)
+        //se è necessario controllare l'età...
+        if(ticket.maxAge!= null || ticket.minAge!=null) {
+
+            //TODO si potrebbe mettere questo pezzo di codice in una funzione a cui passiamo solo il web client
+            val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
+                .header("Authorization", "Bearer " + jwt)
                 .accept(MediaType.APPLICATION_JSON)
                 .exchangeToMono { response ->
 
@@ -63,7 +67,40 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
                         println(response.statusCode())
                         throw BadRequestException("User Info are not available")
                     }
-                }.subscribe({ //subscribe serve per "registrarsi" al Mono, e, appena disponibile, esegurire la callback
+                }.awaitSingleOrNull()
+
+            if (userInfo == null )
+                throw BadRequestException("User Info are not available")
+
+            if(userInfo.date_of_birth == null)
+                throw BadRequestException("Date of Birth is not available")
+
+            val date = (userInfo.date_of_birth as String).split("-")
+            val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
+
+            val currentDate = LocalDate.of(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH)
+
+            //TODO da testare
+            val currentNumberOfYears = calculateAge(userLocalDate, currentDate)
+
+            if (currentNumberOfYears == 0)
+                throw BadRequestException("Invalid Age for this ticket type")
+
+            if (ticket.maxAge!=null)
+                if(currentNumberOfYears>ticket.maxAge)
+                    throw BadRequestException("Invalid Age for this ticket type")
+
+            if (ticket.minAge!=null)
+                if(currentNumberOfYears<ticket.minAge)
+                    throw BadRequestException("Invalid Age for this ticket type")
+
+        }
+
+        //TODO contattare il Payment Service
+
+
+
+            /*.subscribe({ //subscribe serve per "registrarsi" al Mono, e, appena disponibile, esegurire la callback
                     it -> println(it)
 
                     //suppongo vada fatto qui dentro il tutto : cioè solo una volta ricevuta risposta, procedo a fare il resto
@@ -71,7 +108,7 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
                     //TODO qui va implementato la verifica sull'età
 
                     //TODO qui va poi verificata la disponibilità economica invocando il payment service
-                })
+                })*/
 
     }
 
@@ -106,13 +143,21 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
             returnValue
     }*/
 
+    fun calculateAge(birthDate: LocalDate?, currentDate: LocalDate?): Int {
+        return if (birthDate != null && currentDate != null) {
+            Period.between(birthDate, currentDate).getYears()
+        } else {
+            0
+        }
+    }
+
 
 }
 
 data class UserDetailsDTO(
         var username: String,
-        var name: String,
-        var address: String,
-        var telephone_number: String,
-        var date_of_birth: String
+        var name: String?,
+        var address: String?,
+        var telephone_number: String?,
+        var date_of_birth: String?
 )
