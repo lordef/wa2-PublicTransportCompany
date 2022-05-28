@@ -1,5 +1,6 @@
 package it.polito.wa2.ticket_catalogue_service.security
 
+import it.polito.wa2.ticket_catalogue_service.dtos.Role
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -19,7 +20,6 @@ class JwtAuthenticationManager : ReactiveAuthenticationManager {
 @Component
 class JwtServerAuthenticationConverter(private val jwtUtils: JwtUtils) : ServerAuthenticationConverter {
     override fun convert(exchange: ServerWebExchange?): Mono<Authentication> {
-
 
 
         val result = exchange?.request?.headers?.get("Authorization")

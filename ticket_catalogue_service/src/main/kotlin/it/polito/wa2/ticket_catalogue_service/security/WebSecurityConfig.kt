@@ -39,11 +39,21 @@ class WebSecurityConfig {
 
         http
             .authorizeExchange()
-            .pathMatchers("/**")
-            //.pathMatchers("/admin/tickets")
-            //.authenticated()
-            .permitAll()
+            .pathMatchers("/admin/**")
+            .authenticated()
             .and()
+            .authorizeExchange()
+            .pathMatchers("/orders/**")
+            .authenticated()
+            .and()
+            .authorizeExchange()
+            .pathMatchers("/shop/**")
+            .authenticated()
+            .and()
+            .authorizeExchange()
+            .anyExchange()
+            .permitAll()
+
 
 
 

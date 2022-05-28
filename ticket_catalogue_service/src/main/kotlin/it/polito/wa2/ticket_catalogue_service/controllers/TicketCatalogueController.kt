@@ -11,12 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
 import org.springframework.validation.BindingResult
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
+import java.security.Principal
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.validation.Valid
@@ -36,16 +38,17 @@ class TicketCatalogueController {
     }
 
     @PostMapping("/shop/{ticketId}")
-    suspend fun purchaseTickets(@AuthenticationPrincipal  principal : Mono<UserDetails>,  @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO )/*: ProductDTO*/{
+    suspend fun purchaseTickets(principal : Mono<Principal>, @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO ):Mono<String>/*: ProductDTO*/{
 
-        val user = principal.map{ it.getUsername()}.block()
+        //val user = principal.map{ it.getUsername()}.block()
+        return principal.map{it.name}
 
-        if(!validDate(purchaseRequestDTO.expirationDate))
+        /*if(!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
         println(purchaseRequestDTO)
 
-        catalogueService.purchaseTickets(user as String, purchaseRequestDTO)
+        catalogueService.purchaseTickets(user as String, purchaseRequestDTO)*/
         //return
     }
 
