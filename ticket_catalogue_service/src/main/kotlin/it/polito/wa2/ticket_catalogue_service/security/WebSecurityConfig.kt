@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono
 class WebSecurityConfig {
 
     fun configure(web: WebSecurity) {
-        web.ignoring().antMatchers("/tickets")
+        web.ignoring().antMatchers("/tickets", "/todo") //TODO: delete TODO
     }
 
     @Bean
@@ -39,11 +39,21 @@ class WebSecurityConfig {
 
         http
             .authorizeExchange()
-            .pathMatchers("/**")
-            //.pathMatchers("/admin/tickets")
-            //.authenticated()
-            .permitAll()
+            .pathMatchers("/admin/")
+            .authenticated()
             .and()
+            .authorizeExchange()
+            .pathMatchers("/orders/")
+            .authenticated()
+            .and()
+            .authorizeExchange()
+            .pathMatchers("/shop/**")
+            .authenticated()
+            .and()
+            .authorizeExchange()
+            .anyExchange()
+            .permitAll()
+
 
 
 
@@ -65,6 +75,8 @@ class WebSecurityConfig {
     }
 
 }
+
+
 
 private val handler = {
         swe: ServerWebExchange, e : Exception ->

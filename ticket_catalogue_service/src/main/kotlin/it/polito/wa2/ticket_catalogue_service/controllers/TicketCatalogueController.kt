@@ -11,17 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.authority.AuthorityUtils
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.stereotype.Component
-import org.springframework.validation.BindingResult
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.function.Function
 import javax.validation.Valid
-import javax.validation.constraints.Min
-
 
 
 @RestController
@@ -48,6 +45,22 @@ class TicketCatalogueController {
         catalogueService.purchaseTickets(user as String, purchaseRequestDTO)
         //return
     }
+
+
+
+    /***** TODO: consuming mono *****+*/
+    @GetMapping("/todo")
+    suspend fun current(@AuthenticationPrincipal principal: Mono<UserDetails>): Mono<Map<String, Any>> {
+        return principal.map { user ->
+            java.util.Map.of(
+                "name", user.username,
+                "roles", AuthorityUtils.authorityListToSet(user.authorities)
+            )
+
+        }
+    }
+    /***** end - TODO: consuming mono *****+*/
+
 
     @PostMapping("/admin/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
