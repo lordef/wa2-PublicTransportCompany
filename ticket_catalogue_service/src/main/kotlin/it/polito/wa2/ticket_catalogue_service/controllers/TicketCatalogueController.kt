@@ -3,7 +3,9 @@ package it.polito.wa2.ticket_catalogue_service.controllers
 import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
+import it.polito.wa2.ticket_catalogue_service.security.UserDetailsJwt
 import it.polito.wa2.ticket_catalogue_service.services.impl.TicketCatalogueServiceImpl
+import it.polito.wa2.ticket_catalogue_service.services.impl.UserDetailsDTO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.onEach
@@ -11,13 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.authority.AuthorityUtils
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.stereotype.Component
-import org.springframework.validation.BindingResult
-import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
+import reactor.core.publisher.Signal
 import java.security.Principal
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,18 +42,21 @@ class TicketCatalogueController {
     }
 
     @PostMapping("/shop/{ticketId}")
-    suspend fun purchaseTickets(principal : Mono<Principal>, @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO ):Mono<String>/*: ProductDTO*/{
+    suspend fun purchaseTickets(
+        principal: Principal,
+        @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO
+    )/*: ProductDTO*/ {
 
-        //val user = principal.map{ it.getUsername()}.block()
-        return principal.map{it.name}
+        println(principal.name)
 
-        /*if(!validDate(purchaseRequestDTO.expirationDate))
+        if (!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
         println(purchaseRequestDTO)
 
-        catalogueService.purchaseTickets(user as String, purchaseRequestDTO)*/
-        //return
+        catalogueService.purchaseTickets(principal.name, purchaseRequestDTO)
+
+
     }
 
     @PostMapping("/admin/tickets")

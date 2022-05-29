@@ -23,27 +23,21 @@ import reactor.core.publisher.Mono
 @EnableWebFluxSecurity
 class WebSecurityConfig {
 
-    fun configure(web: WebSecurity) {
-        web.ignoring().antMatchers("/tickets")
-    }
 
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity,
-                                  jwtAuthenticationManager: ReactiveAuthenticationManager,
-                                  jwtAuthenticationConverter: ServerAuthenticationConverter
+                                  jwtReactiveAuthenticationFilter: JwtReactiveAuthenticationFilter
     ): SecurityWebFilterChain {
 
-        val authenticationWebFilter = AuthenticationWebFilter(jwtAuthenticationManager)
-        authenticationWebFilter.setServerAuthenticationConverter(jwtAuthenticationConverter)
 
 
         http
             .authorizeExchange()
-            .pathMatchers("/admin/**")
+            .pathMatchers("/admin/")
             .authenticated()
             .and()
             .authorizeExchange()
-            .pathMatchers("/orders/**")
+            .pathMatchers("/orders/")
             .authenticated()
             .and()
             .authorizeExchange()
@@ -53,6 +47,7 @@ class WebSecurityConfig {
             .authorizeExchange()
             .anyExchange()
             .permitAll()
+
 
 
 
@@ -68,7 +63,7 @@ class WebSecurityConfig {
 
         http
             .addFilterAt(
-                authenticationWebFilter,
+                jwtReactiveAuthenticationFilter,
                 SecurityWebFiltersOrder.AUTHENTICATION)
 
         return http.build()
