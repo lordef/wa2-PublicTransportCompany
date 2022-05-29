@@ -21,8 +21,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
+
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -60,10 +59,9 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         //generating jwt for the authentication with Traveler Service and Payment Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
 
-        orderRepository.save(Order(null,Status.PENDING,1,3,2.84, principal))
-
         //se è necessario controllare l'età...
         if(ticket.maxAge!= null || ticket.minAge!=null) {
+
 
             //TODO si potrebbe mettere questo pezzo di codice in una funzione a cui passiamo solo il web client
             val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
@@ -88,9 +86,8 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
             val date = (userInfo.date_of_birth as String).split("-")
             val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
 
-            val currentDate = LocalDate.of(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH)
+            val currentDate = LocalDate.now()
 
-            //TODO da testare
             val currentNumberOfYears = calculateAge(userLocalDate, currentDate)
 
             if (currentNumberOfYears == 0)
@@ -105,6 +102,9 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
                     throw BadRequestException("Invalid Age for this ticket type")
 
         }
+
+        //TODO va salvato già qui??
+        orderRepository.save(Order(null,Status.PENDING,1,3,2.84, principal))
 
         //TODO contattare il Payment Service
 
