@@ -11,8 +11,8 @@ import java.util.*
 @Component
 class JwtUtils {
 
-    @Value("\${application.jwt.jwtSecret}")
-    private lateinit var jwtSecret: String
+    //@Value("\${application.jwt.jwtSecret}")
+    private var jwtSecret: String = "Loremipsumdolorsitamet,consecteturadipiscingelit.Aliquamestex,accumsansitametmollisid,posuerevitaeurna.Inhachabitasseplatea dictumst.Vestibulumelitvelit,condimentumnonsapiensed,eleifendauctoraugue."
 
     private val key: Key by lazy {
         Keys.hmacShaKeyFor(jwtSecret.toByteArray())

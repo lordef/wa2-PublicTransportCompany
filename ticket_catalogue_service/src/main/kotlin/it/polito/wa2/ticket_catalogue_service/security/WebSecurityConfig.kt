@@ -23,18 +23,12 @@ import reactor.core.publisher.Mono
 @EnableWebFluxSecurity
 class WebSecurityConfig {
 
-    fun configure(web: WebSecurity) {
-        web.ignoring().antMatchers("/tickets", "/todo") //TODO: delete TODO
-    }
 
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity,
-                                  jwtAuthenticationManager: ReactiveAuthenticationManager,
-                                  jwtAuthenticationConverter: ServerAuthenticationConverter
+                                  jwtReactiveAuthenticationFilter: JwtReactiveAuthenticationFilter
     ): SecurityWebFilterChain {
 
-        val authenticationWebFilter = AuthenticationWebFilter(jwtAuthenticationManager)
-        authenticationWebFilter.setServerAuthenticationConverter(jwtAuthenticationConverter)
 
 
         http
@@ -57,6 +51,7 @@ class WebSecurityConfig {
 
 
 
+
         http
             .cors().disable()
             .csrf().disable()
@@ -68,7 +63,7 @@ class WebSecurityConfig {
 
         http
             .addFilterAt(
-                authenticationWebFilter,
+                jwtReactiveAuthenticationFilter,
                 SecurityWebFiltersOrder.AUTHENTICATION)
 
         return http.build()

@@ -4,7 +4,10 @@ package it.polito.wa2.ticket_catalogue_service.services.impl
 import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.toDTO
+import it.polito.wa2.ticket_catalogue_service.entities.Order
+import it.polito.wa2.ticket_catalogue_service.entities.Status
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
+import it.polito.wa2.ticket_catalogue_service.repositories.OrderRepository
 import it.polito.wa2.ticket_catalogue_service.repositories.TicketRepository
 import it.polito.wa2.ticket_catalogue_service.security.JwtUtils
 import it.polito.wa2.ticket_catalogue_service.services.TicketCatalogueService
@@ -18,6 +21,8 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -30,6 +35,9 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
     @Autowired
     private lateinit var ticketRepository: TicketRepository
 
+    @Autowired
+    private lateinit var orderRepository: OrderRepository
+
     @Value("\${application.jwt.jwtExpirationMs}")
     var jwtExpirationMs: Long = -1
 
@@ -41,6 +49,7 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         return ticketRepository.findAll().map { it.toDTO() }
     }
 
+
     override suspend fun purchaseTickets(principal: String, purchaseTicketsRequestDTO: PurchaseTicketsRequestDTO) {
 
         val ticket = ticketRepository.findById(purchaseTicketsRequestDTO.ticketId)
@@ -51,6 +60,7 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         //generating jwt for the authentication with Traveler Service and Payment Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
 
+        orderRepository.save(Order(null,Status.PENDING,1,3,2.84, principal))
 
         //se è necessario controllare l'età...
         if(ticket.maxAge!= null || ticket.minAge!=null) {
