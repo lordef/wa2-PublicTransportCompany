@@ -6,6 +6,7 @@ import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.toDTO
 import it.polito.wa2.ticket_catalogue_service.entities.Order
 import it.polito.wa2.ticket_catalogue_service.entities.Status
+import it.polito.wa2.ticket_catalogue_service.entities.Ticket
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
 import it.polito.wa2.ticket_catalogue_service.repositories.OrderRepository
 import it.polito.wa2.ticket_catalogue_service.repositories.TicketRepository
@@ -77,30 +78,8 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
                     }
                 }.awaitSingleOrNull()
 
-            if (userInfo == null )
-                throw BadRequestException("User Info are not available")
-
-            if(userInfo.date_of_birth == null)
-                throw BadRequestException("Date of Birth is not available")
-
-            val date = (userInfo.date_of_birth as String).split("-")
-            val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
-
-            val currentDate = LocalDate.now()
-
-            val currentNumberOfYears = calculateAge(userLocalDate, currentDate)
-
-            if (currentNumberOfYears == 0)
-                throw BadRequestException("Invalid Age for this ticket type")
-
-            if (ticket.maxAge!=null)
-                if(currentNumberOfYears>ticket.maxAge)
-                    throw BadRequestException("Invalid Age for this ticket type")
-
-            if (ticket.minAge!=null)
-                if(currentNumberOfYears<ticket.minAge)
-                    throw BadRequestException("Invalid Age for this ticket type")
-
+            //throw an exception if age constraints are not satisfied
+            checkAgeConstraints(userInfo,ticket)
         }
 
         //TODO va salvato già qui??
@@ -159,6 +138,32 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         } else {
             0
         }
+    }
+
+    fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket){
+        if (userInfo == null )
+            throw BadRequestException("User Info are not available")
+
+        if(userInfo.date_of_birth == null)
+            throw BadRequestException("Date of Birth is not available")
+
+        val date = (userInfo.date_of_birth as String).split("-")
+        val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
+
+        val currentDate = LocalDate.now()
+
+        val currentNumberOfYears = calculateAge(userLocalDate, currentDate)
+
+        if (currentNumberOfYears == 0)
+            throw BadRequestException("Invalid Age for this ticket type")
+
+        if (ticket.maxAge!=null)
+            if(currentNumberOfYears>ticket.maxAge)
+                throw BadRequestException("Invalid Age for this ticket type")
+
+        if (ticket.minAge!=null)
+            if(currentNumberOfYears<ticket.minAge)
+                throw BadRequestException("Invalid Age for this ticket type")
     }
 
 
