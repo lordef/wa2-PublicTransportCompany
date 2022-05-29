@@ -46,3 +46,35 @@ class JwtReactiveAuthenticationFilter : WebFilter {
 
 }
 
+
+//BEFORE WAS :
+/*
+@Component
+class JwtAuthenticationManager : ReactiveAuthenticationManager {
+    override fun authenticate(authentication: Authentication): Mono<Authentication> {
+        return Mono.just(authentication)
+    }
+}
+@Component
+class JwtServerAuthenticationConverter(private val jwtUtils: JwtUtils) : ServerAuthenticationConverter {
+    override fun convert(exchange: ServerWebExchange?): Mono<Authentication> {
+
+
+
+        val result = exchange?.request?.headers?.get("Authorization")
+            ?.firstOrNull {
+                it.startsWith("Bearer")
+            }
+            ?.let {
+                val jwt = jwtUtils.getJwtTokenFromHeader(it)
+                if (jwtUtils.validateJwt(jwt))
+                    jwtUtils.getDetailsJwt(jwt)
+                else
+                    null
+            }
+        return Mono.justOrEmpty(result)
+            .map { UsernamePasswordAuthenticationToken(it.username, null, it.roles) }
+    }
+}
+ */
+

@@ -69,21 +69,52 @@ class WebSecurityConfig {
         return http.build()
     }
 
+    private val handler = {
+            swe: ServerWebExchange, e : Exception ->
+        println(e)
+        println(e.message)
+        swe.response.statusCode = HttpStatus.UNAUTHORIZED
+        swe.response.headers.contentType = MediaType.APPLICATION_JSON
+        swe.response.writeWith(
+            Jackson2JsonEncoder().encode(
+                Mono.just("Not Authorized User"),
+                swe.response.bufferFactory(),
+                ResolvableType.forInstance("Not Authorized User"),
+                MediaType.APPLICATION_JSON,
+                Hints.from(Hints.LOG_PREFIX_HINT, swe.logPrefix)
+            )
+        )
+    }
+
+
 }
 
-private val handler = {
-        swe: ServerWebExchange, e : Exception ->
-    println(e)
-    println(e.message)
-    swe.response.statusCode = HttpStatus.UNAUTHORIZED
-    swe.response.headers.contentType = MediaType.APPLICATION_JSON
-    swe.response.writeWith(
-        Jackson2JsonEncoder().encode(
-            Mono.just("Not Authorized User"),
-            swe.response.bufferFactory(),
-            ResolvableType.forInstance("Not Authorized User"),
-            MediaType.APPLICATION_JSON,
-            Hints.from(Hints.LOG_PREFIX_HINT, swe.logPrefix)
-        )
-    )
+
+//BEFORE WAS :
+/*
+@EnableReactiveMethodSecurity
+@EnableWebFluxSecurity
+class WebSecurityConfig {
+
+
+    @Bean
+    fun springSecurityFilterChain(
+        http: ServerHttpSecurity,
+        jwtAuthenticationManager: ReactiveAuthenticationManager,
+        jwtAuthenticationConverter: ServerAuthenticationConverter
+    ): SecurityWebFilterChain {
+        val authenticationWebFilter = AuthenticationWebFilter(jwtAuthenticationManager)
+        authenticationWebFilter.setServerAuthenticationConverter(jwtAuthenticationConverter)
+
+        //...the same http rules above
+
+
+        http
+            .addFilterAt(
+                authenticationWebFilter,
+                SecurityWebFiltersOrder.AUTHENTICATION
+            )
+        return http.build()
+    }
 }
+ */

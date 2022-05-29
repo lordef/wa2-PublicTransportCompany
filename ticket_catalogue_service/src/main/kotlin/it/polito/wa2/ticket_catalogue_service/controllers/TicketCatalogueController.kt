@@ -38,7 +38,7 @@ class TicketCatalogueController {
 
     @GetMapping("/tickets", produces = [MediaType.APPLICATION_NDJSON_VALUE])
     fun getTickets() : Flow<TicketDTO> {
-        return catalogueService.getAllTickets().onEach { delay(5000) }
+        return catalogueService.getAllTickets()
     }
 
     @PostMapping("/shop/{ticketId}")
@@ -50,12 +50,12 @@ class TicketCatalogueController {
 
         println(principal.name)
 
-        if (!validDate(purchaseRequestDTO.expirationDate))
+        /*if (!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
         println(purchaseRequestDTO)
 
-        catalogueService.purchaseTickets(principal.name, purchaseRequestDTO)
+        catalogueService.purchaseTickets(principal.name, purchaseRequestDTO)*/
 
 
     }
