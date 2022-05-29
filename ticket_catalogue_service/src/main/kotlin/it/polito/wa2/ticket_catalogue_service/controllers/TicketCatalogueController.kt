@@ -42,6 +42,7 @@ class TicketCatalogueController {
     }
 
     @PostMapping("/shop/{ticketId}")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
     suspend fun purchaseTickets(
         principal: Principal,
         @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO
