@@ -10,7 +10,7 @@ import org.springframework.data.relational.core.mapping.Table
 @Table("tickets")
 data class Ticket(
         @Id
-        val ticketId: Long,
+        val ticketId: Long?,
         val price : Float,
         val type : String,
         val minAge: Int?,

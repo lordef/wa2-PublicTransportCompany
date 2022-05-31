@@ -18,6 +18,8 @@ class JwtReactiveAuthenticationFilter : WebFilter {
     @Autowired
     lateinit var jwtUtils : JwtUtils
 
+
+
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
 
         //this endpoint doesn't require any jwt authentication

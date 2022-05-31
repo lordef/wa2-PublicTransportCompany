@@ -1,18 +1,17 @@
 package it.polito.wa2.ticket_catalogue_service.controllers
 
+import it.polito.wa2.ticket_catalogue_service.dtos.OrderDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
 import it.polito.wa2.ticket_catalogue_service.services.impl.TicketCatalogueServiceImpl
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
-import reactor.core.publisher.Mono
+import org.springframework.web.bind.annotation.*
 import java.security.Principal
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,33 +30,62 @@ class TicketCatalogueController {
         return catalogueService.getAllTickets()
     }
 
-    @PostMapping("/shop/{ticketId}")
+    @PostMapping("/shop")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
     suspend fun purchaseTickets(
         principal: Principal,
         @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO
-    ): Mono<Long> {
-
-        println(principal.name)
+    ): Long {
 
         if (!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
         println(purchaseRequestDTO)
 
-        return catalogueService.purchaseTickets(principal.name, purchaseRequestDTO).map {
-            println(it); it
-        }
+        val res = catalogueService.purchaseTickets(principal.name, purchaseRequestDTO).awaitSingle()
+        return res
 
+    }
 
+    // GET /orders →Get list of all user orders
+    @GetMapping("/orders", produces = [MediaType.APPLICATION_NDJSON_VALUE])
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
+    fun getOrders(principal: Principal): Flow<OrderDTO> {
+        return catalogueService.getOrdersByUserId(principal.name)
+    }
+
+    // GET /orders/{order-id} →Get a specific order
+    @GetMapping("/orders/{orderId}", produces = [MediaType.APPLICATION_NDJSON_VALUE])
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
+    suspend fun getOrder(principal: Principal, @PathVariable("orderId") orderId: Long): OrderDTO {
+        val res = catalogueService.getOrderByOrderIdAndUserId(principal.name, orderId).awaitSingleOrNull()
+        if(res==null)
+            throw BadRequestException("User and/or Order Not Present")
+        else return res
     }
 
     @PostMapping("/admin/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
-    suspend fun addTicket(){
-        println("aggiunto!!")
+    suspend fun addTicket(
+        @RequestBody @Valid ticketDTO: TicketDTO
+    ) {
+        /*if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")*/
+
+        catalogueService.addTicket(ticketDTO)
     }
 
+    @GetMapping("/admin/orders")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
+    fun getOrdersByAllUsers(): Flow<OrderDTO> {
+        return catalogueService.getAllOrdersByAllUsers()
+    }
+
+    @GetMapping("/admin/orders/{userId}")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
+    fun getOrderBySpecificUser(@PathVariable("userId") userId: String): Flow<OrderDTO> {
+        return catalogueService.getOrdersByUserId(userId)
+    }
 
 
     //the only valid format is dd-MM-yyyy

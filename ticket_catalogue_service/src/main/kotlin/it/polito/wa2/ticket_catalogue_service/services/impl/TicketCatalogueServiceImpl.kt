@@ -1,10 +1,7 @@
 package it.polito.wa2.ticket_catalogue_service.services.impl
 
 
-import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoDTO
-import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
-import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
-import it.polito.wa2.ticket_catalogue_service.dtos.toDTO
+import it.polito.wa2.ticket_catalogue_service.dtos.*
 import it.polito.wa2.ticket_catalogue_service.entities.Order
 import it.polito.wa2.ticket_catalogue_service.entities.Status
 import it.polito.wa2.ticket_catalogue_service.entities.Ticket
@@ -116,36 +113,27 @@ class TicketCatalogueServiceImpl(
 
     }
 
-    //TODO l'idea è creare una funzione generica per get e post, che ritorni un Publisher a cui basta fare subscribe
-    //TODO in tal modo codice più leggibile e pulito, altrimenti esce una cosa abnorme
-    /*fun <T> doGetReactive(uri: String, className: Class<T>, single: Boolean = false): Publisher<T> {
-        val returnValue: Publisher<T>
+    //TODO occhio che le funzioni ritornanti Mono non sono suspend qui, da modificare
+    override fun getOrdersByUserId(userId: String): Flow<OrderDTO> {
+        return orderRepository.findByUserId(userId).map { it.toDTO() }
+    }
 
-        try {
-            returnValue = if (single)
-                webClientBuilder.build()
-                    .get()
-                    .uri(uri)
-                    .retrieve()
-                    .bodyToMono(className)
-            else
-                webClientBuilder.build()
-                    .get()
-                    .uri(uri)
-                    .retrieve()
-                    .bodyToFlux(className)
-        }
-        catch (e: Exception){
-            return Mono.error(ServiceUnavailable("Error during connection with other server"))
-        }
+    override suspend fun getOrderByOrderIdAndUserId(userId: String, orderId: Long): Mono<OrderDTO> {
+        return orderRepository.findOrderByOrderIdAndUserId(orderId,userId).map {
+            if(it==null)
+                null
+            else it.toDTO() }
+    }
 
+    override fun getAllOrdersByAllUsers(): Flow<OrderDTO> {
+        return orderRepository.findAll().map { it.toDTO() }
+    }
 
-        return if (returnValue is Mono)
-            returnValue.switchIfEmpty (
-                Mono.error(ServiceUnavailable("No response from other server")))
-        else
-            returnValue
-    }*/
+    override suspend fun addTicket(ticket: TicketDTO) {
+        val ticketEntity = Ticket(null,ticket.price,ticket.type,ticket.minAge,ticket.maxAge)
+        ticketRepository.save(ticketEntity)
+    }
+    //
 
     fun calculateAge(birthDate: LocalDate?, currentDate: LocalDate?): Int {
         return if (birthDate != null && currentDate != null) {

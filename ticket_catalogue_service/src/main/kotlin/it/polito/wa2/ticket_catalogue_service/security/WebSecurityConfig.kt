@@ -6,15 +6,11 @@ import org.springframework.core.codec.Hints
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.codec.json.Jackson2JsonEncoder
-import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
-import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter
-import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
@@ -33,11 +29,11 @@ class WebSecurityConfig {
 
         http
             .authorizeExchange()
-            .pathMatchers("/admin/")
+            .pathMatchers("/admin/**")
             .authenticated()
             .and()
             .authorizeExchange()
-            .pathMatchers("/orders/")
+            .pathMatchers("/orders/**")
             .authenticated()
             .and()
             .authorizeExchange()
