@@ -1,6 +1,7 @@
 package it.polito.wa2.ticket_catalogue_service.services.impl
 
 
+import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketsRequestDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.TicketDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.toDTO
@@ -15,13 +16,20 @@ import it.polito.wa2.ticket_catalogue_service.services.TicketCatalogueService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
+import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.support.KafkaHeaders
+import org.springframework.messaging.Message
+import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 
 import java.time.LocalDate
 import java.time.Period
@@ -30,7 +38,17 @@ import java.util.*
 
 @Service
 @Transactional
-class TicketCatalogueServiceImpl() : TicketCatalogueService {
+class TicketCatalogueServiceImpl(
+    @Value("\${kafka.topics.bank_check}") val topic: String,
+    @Autowired
+    private val kafkaTemplate: KafkaTemplate<String, Any>) : TicketCatalogueService {
+
+
+
+
+    val log = LoggerFactory.getLogger(javaClass)
+
+
 
     @Autowired
     private lateinit var ticketRepository: TicketRepository
@@ -50,14 +68,14 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
     }
 
 
-    override suspend fun purchaseTickets(principal: String, purchaseTicketsRequestDTO: PurchaseTicketsRequestDTO) {
+    override suspend fun purchaseTickets(principal: String, purchaseTicketsRequestDTO: PurchaseTicketsRequestDTO) : Mono<Long> {
 
         val ticket = ticketRepository.findById(purchaseTicketsRequestDTO.ticketId)
 
         if(ticket==null)
             throw BadRequestException("Invalid ticketID")
 
-        //generating jwt for the authentication with Traveler Service and Payment Service
+        //generating jwt for the authentication with Traveler Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
 
         //se è necessario controllare l'età...
@@ -82,22 +100,19 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
             checkAgeConstraints(userInfo,ticket)
         }
 
-        //TODO va salvato già qui??
-        orderRepository.save(Order(null,Status.PENDING,1,3,2.84, principal))
+        val totalAmount = (ticket.price*purchaseTicketsRequestDTO.quantity)
 
-        //TODO contattare il Payment Service
+        //Save Pending Order
+        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId,purchaseTicketsRequestDTO.quantity,totalAmount, principal)
+        orderRepository.save(order)
 
 
 
-            /*.subscribe({ //subscribe serve per "registrarsi" al Mono, e, appena disponibile, esegurire la callback
-                    it -> println(it)
+        //Contacting Payment Service
+        val request = PaymentInfoDTO(totalAmount,purchaseTicketsRequestDTO.creditCardNumber,purchaseTicketsRequestDTO.expirationDate,purchaseTicketsRequestDTO.cvv,purchaseTicketsRequestDTO.cardHolder, principal,order.orderId as Long)
+        contactPaymentService(request)
 
-                    //suppongo vada fatto qui dentro il tutto : cioè solo una volta ricevuta risposta, procedo a fare il resto
-
-                    //TODO qui va implementato la verifica sull'età
-
-                    //TODO qui va poi verificata la disponibilità economica invocando il payment service
-                })*/
+        return Mono.just(order.orderId as Long)
 
     }
 
@@ -140,7 +155,7 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         }
     }
 
-    fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket){
+    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket){
         if (userInfo == null )
             throw BadRequestException("User Info are not available")
 
@@ -164,6 +179,25 @@ class TicketCatalogueServiceImpl() : TicketCatalogueService {
         if (ticket.minAge!=null)
             if(currentNumberOfYears<ticket.minAge)
                 throw BadRequestException("Invalid Age for this ticket type")
+    }
+
+
+    private fun contactPaymentService(request: PaymentInfoDTO ){
+        try {
+            log.info("Receiving product request")
+            log.info("Sending message to Kafka {}", request)
+            val message: Message<PaymentInfoDTO> = MessageBuilder
+                .withPayload(request)
+                .setHeader(KafkaHeaders.TOPIC, topic)
+                .setHeader("X-Custom-Header", "Custom header here")
+                .build()
+            kafkaTemplate.send(message)
+            log.info("Message sent with success")
+            //ResponseEntity.ok().build()
+        } catch (e: Exception) {
+            log.error("Exception: {}",e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
+        }
     }
 
 

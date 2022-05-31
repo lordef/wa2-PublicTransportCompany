@@ -10,6 +10,6 @@ data class Order(
     var status: Status = Status.PENDING,
     val ticketType: Long, //references Tickets table
     val quantity: Long,
-    val totalPrice: Double,
+    val totalPrice: Float,
     val userId: String
 )

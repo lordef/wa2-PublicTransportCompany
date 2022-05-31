@@ -7,5 +7,6 @@ create table if not exists  transactions (
                                         order_id BIGINT NOT NULL,
                                         date DATE NOT NULL,
                                         status VARCHAR(255) NOT NULL,
+                                        card_holder VARCHAR(255) NOT NULL,
                                         PRIMARY KEY (transaction_id)
                                         );

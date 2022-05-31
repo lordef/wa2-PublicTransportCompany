@@ -8,10 +8,11 @@ import java.util.*
 data class Transaction (
     @Id
     val transactionId: Long?=null,
-    val amount: Double,
+    val amount: Float,
     val customer: String,
     val orderId: Long?=null,
     val date: Date,
-    var status: Status = Status.PENDING
+    var status: Status = Status.PENDING,
+    val cardHolder: String
 
         )
