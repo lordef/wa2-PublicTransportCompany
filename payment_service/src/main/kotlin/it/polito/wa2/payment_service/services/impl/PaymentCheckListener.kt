@@ -19,6 +19,7 @@ import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 import java.util.*
 
 @Component
@@ -49,8 +50,11 @@ class PaymentCheckListener(
             message.totalAmount,
             message.username,
             message.orderId,
-            Date(),
+            LocalDateTime.now(),
             Status.PENDING,
+            message.creditCardNumber,
+            message.expirationDate,
+            message.cvv,
             message.cardHolder
         )
 

@@ -2,6 +2,7 @@ package it.polito.wa2.ticket_catalogue_service.services.impl
 
 import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoAnswerDTO
 import it.polito.wa2.ticket_catalogue_service.entities.Order
+import it.polito.wa2.ticket_catalogue_service.entities.Status
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
 import it.polito.wa2.ticket_catalogue_service.repositories.OrderRepository
 import kotlinx.coroutines.runBlocking
@@ -41,6 +42,12 @@ class PaymentAnswerListener {
         runBlocking {
             orderRepository.save(orderEntity)
         }
+
+        if(order.status==Status.ACCEPTED){
+            //TODO contattare il traveler service per mandare le info sulla tipologia di biglietti
+            //TODO e farglieli generare
+        }
+
     }
 
 }
