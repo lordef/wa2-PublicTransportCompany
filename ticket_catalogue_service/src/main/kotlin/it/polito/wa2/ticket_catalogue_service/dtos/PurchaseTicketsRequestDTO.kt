@@ -15,6 +15,13 @@ data class PurchaseTicketsRequestDTO(
         @field:Min(1)
         val ticketId: Long,
 
+        @field:NotNull
+        val zoneId: String,
+
+        @field:NotNull
+        val notBefore: String,
+
+        /** Payment info*/
         @field:NotBlank(message = "credit card number cannot be null or empty")
         @field:Size(min=13,max = 16, message = "credit card number has wrong number of digits")
         val creditCardNumber: String,

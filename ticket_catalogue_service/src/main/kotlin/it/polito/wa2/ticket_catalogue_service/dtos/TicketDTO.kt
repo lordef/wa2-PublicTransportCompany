@@ -16,8 +16,11 @@ data class TicketDTO(
 
     val minAge: Int?,
     val maxAge: Int?,
+
+    @field:NotNull
+    val duration: Long? //validity of ticket expressed in minutes
 )
 
 fun Ticket.toDTO() : TicketDTO {
-    return TicketDTO(price,ticketId,type, minAge, maxAge)
+    return TicketDTO(price,ticketId,type, minAge, maxAge, duration)
 }

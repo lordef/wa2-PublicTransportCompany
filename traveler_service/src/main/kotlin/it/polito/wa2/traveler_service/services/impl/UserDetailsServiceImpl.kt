@@ -89,12 +89,18 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(purchasedTicketDTO.cmd!="buy_tickets")
             throw BadRequestException("Invalid Post Command")
 
+
+        val formatter = SimpleDateFormat("dd-MM-yyyy")
+        var date : Date? = null
+
+        if(purchasedTicketDTO.validFrom!=null && purchasedTicketDTO.validFrom!="")
+            date = formatter.parse(purchasedTicketDTO.validFrom)
         //ticket creation
         do {
             val ticketWithoutJws = TicketAcquired(
                 Date(),
-                Date(purchasedTicketDTO.validFrom.toEpochSecond()),
-                Date(Date().time + purchasedTicketDTO.duration),
+                date as Date,
+                Date(Date().time + purchasedTicketDTO.duration*60000),
                 purchasedTicketDTO.zone,
                 purchasedTicketDTO.type,
                     "",
@@ -108,9 +114,6 @@ class UserDetailsServiceImpl : UserDetailsService {
             val ticketWithJws = ticketPurchasedRepository.save(ticketWithoutJws)
 
             ticketsList.add(ticketWithJws.toDTO())
-
-
-
 
             numberOfTickets--
         } while (numberOfTickets > 0)
