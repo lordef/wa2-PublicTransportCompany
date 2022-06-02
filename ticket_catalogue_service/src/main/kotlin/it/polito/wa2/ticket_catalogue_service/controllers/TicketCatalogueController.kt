@@ -44,6 +44,7 @@ class TicketCatalogueController {
             throw BadRequestException("Wrong json date field")
 
 
+
         println(purchaseRequestDTO)
 
         val res = catalogueService.purchaseTickets(principal.name, purchaseRequestDTO).awaitSingle()
@@ -73,8 +74,9 @@ class TicketCatalogueController {
     suspend fun addTicket(
         @RequestBody @Valid ticketDTO: TicketDTO
     ) {
-        /*if (bindingResult.hasErrors())
-            throw BadRequestException("Wrong json fields")*/
+        if(ticketDTO.type!="seasonal")
+            throw BadRequestException("Bad Type Inserted")
+
 
         catalogueService.addTicket(ticketDTO)
     }
@@ -147,7 +149,7 @@ class TicketCatalogueController {
         val formatter = SimpleDateFormat("dd-MM-yyyy")
         val date = formatter.parse(date)
 
-        if (date.compareTo(formatter.parse(formatter.format(Date()))) > 0)
+        if (date.compareTo(formatter.parse(formatter.format(Date()))) >= 0)
             return true
         else return false
     }

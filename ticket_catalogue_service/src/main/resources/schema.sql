@@ -5,8 +5,10 @@ create table if not exists  tickets (
     ticket_id BIGINT GENERATED ALWAYS AS IDENTITY,
     price DECIMAL(10,2) NOT NULL ,
     type VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     min_age INT,
     max_age INT,
+    duration INT,
     PRIMARY KEY (ticket_id)
     );
 
@@ -30,10 +32,10 @@ create table if not exists  orders (
 
 );
 
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 1.70, 'ordinary',NULL,NULL);             --1
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 3.00, 'daily',NULL,NULL);                --2
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 10.00, 'weekly',NULL,NULL);              --3
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 24.00, 'monthly',NULL,NULL);             --4
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 60.00, 'biannually',NULL,NULL);          --5
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 110.00, 'yearly',NULL,NULL);             --6
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 3.80, 'weekend_pass', NULL, 27);         --7
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 1.70, 'ordinal', '70 minutes',NULL,NULL,NULL);             --1
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.00, 'ordinal', 'daily',NULL,NULL,NULL);                --2
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 10.00, 'ordinal', 'weekly',NULL,NULL,NULL);              --3
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 24.00, 'ordinal', 'monthly',NULL,NULL,NULL);             --4
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 60.00, 'ordinal', 'biannually',NULL,NULL,NULL);          --5
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 110.00, 'ordinal', 'yearly',NULL,NULL,NULL);             --6
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.80, 'ordinal', 'weekend_pass', NULL, 27,NULL);         --7

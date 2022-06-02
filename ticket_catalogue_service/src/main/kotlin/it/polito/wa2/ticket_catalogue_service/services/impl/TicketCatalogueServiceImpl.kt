@@ -74,7 +74,7 @@ class TicketCatalogueServiceImpl(
             throw BadRequestException("Invalid ticketID")
 
 
-        checkValidityOfValidFrom(ticket.type,purchaseTicketsRequestDTO.notBefore)
+        checkValidityOfValidFrom(ticket.type,ticket.name,purchaseTicketsRequestDTO.notBefore)
 
 
         //generating jwt for the authentication with Traveler Service
@@ -134,8 +134,13 @@ class TicketCatalogueServiceImpl(
         return orderRepository.findAll().map { it.toDTO() }
     }
 
-    override suspend fun addTicket(ticket: TicketDTO) {
-        val ticketEntity = Ticket(null,ticket.price,ticket.type,ticket.minAge,ticket.maxAge)
+    override suspend fun addTicket(ticketDTO: TicketDTO) {
+        val ticket = ticketRepository.findByName(ticketDTO.name)
+
+        if(ticket!=null)
+            throw BadRequestException("Invalid ticket name")
+
+        val ticketEntity = Ticket(null,ticketDTO.price,ticketDTO.type,ticketDTO.name,ticketDTO.minAge,ticketDTO.maxAge, ticketDTO.duration)
         ticketRepository.save(ticketEntity)
     }
     //
@@ -194,70 +199,73 @@ class TicketCatalogueServiceImpl(
     }
 
 
-    private fun checkValidityOfValidFrom(type: String, validFrom : String){
+    private fun checkValidityOfValidFrom(type: String, name: String, validFrom : String) {
 
         val formatter = SimpleDateFormat("dd-MM-yyyy")
 
-         when(type){
-            "ordinary"->{
+        if (type == "ordinal") {
 
+            when (name) {
+                "ordinary" -> {
+
+                }
+                "daily" -> {
+
+                }
+                "weekly" -> {
+                    val cal = Calendar.getInstance()
+
+                    //check if validFrom is a Monday
+                    val validFromDate = formatter.parse(validFrom)
+                    cal.setTime(validFromDate)
+                    if (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+                        throw BadRequestException("Invalid ValidFrom field")
+
+                }
+                "monthly" -> {
+                    val cal = Calendar.getInstance()
+
+                    //check if validFrom is the first of Any Month
+                    val validFromDate = formatter.parse(validFrom)
+                    cal.setTime(validFromDate)
+                    if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                        throw BadRequestException("Invalid ValidFrom field")
+                }
+                "biannually" -> {
+                    val cal = Calendar.getInstance()
+
+                    //check if validFrom is the first of Any Month
+                    val validFromDate = formatter.parse(validFrom)
+                    cal.setTime(validFromDate)
+                    if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                        throw BadRequestException("Invalid ValidFrom field")
+
+                }
+                "yearly" -> {
+                    val cal = Calendar.getInstance()
+
+                    //check if validFrom is the first of Any Month
+                    val validFromDate = formatter.parse(validFrom)
+                    cal.setTime(validFromDate);
+                    if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                        throw BadRequestException("Invalid ValidFrom field")
+
+                }
+                "weekend_pass" -> {
+                    val cal = Calendar.getInstance()
+
+                    //check if validFrom is a Saturday or a Sunday
+                    val validFromDate = formatter.parse(validFrom)
+                    cal.setTime(validFromDate)
+                    val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+                    if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY)
+                        throw BadRequestException("Invalid ValidFrom field")
+
+                }
+                else -> throw BadRequestException("Invalid Ticket Type")
             }
-            "daily"->{
 
-            }
-            "weekly"->{
-                val cal = Calendar.getInstance()
-
-                //check if validFrom is a Monday
-                val validFromDate = formatter.parse(validFrom)
-                cal.setTime(validFromDate)
-                if(cal.get(Calendar.DAY_OF_WEEK)!=Calendar.MONDAY)
-                    throw BadRequestException("Invalid ValidFrom field")
-
-            }
-            "monthly"->{
-                val cal = Calendar.getInstance()
-
-                //check if validFrom is the first of Any Month
-                val validFromDate = formatter.parse(validFrom)
-                cal.setTime(validFromDate)
-                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
-                    throw BadRequestException("Invalid ValidFrom field")
-            }
-            "biannually"->{
-                val cal = Calendar.getInstance()
-
-                //check if validFrom is the first of Any Month
-                val validFromDate = formatter.parse(validFrom)
-                cal.setTime(validFromDate)
-                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
-                    throw BadRequestException("Invalid ValidFrom field")
-
-            }
-            "yearly"->{
-                val cal = Calendar.getInstance()
-
-                //check if validFrom is the first of Any Month
-                val validFromDate = formatter.parse(validFrom)
-                cal.setTime(validFromDate);
-                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
-                    throw BadRequestException("Invalid ValidFrom field")
-
-            }
-            "weekend_pass"->{
-                val cal = Calendar.getInstance()
-
-                //check if validFrom is a Saturday or a Sunday
-                val validFromDate = formatter.parse(validFrom)
-                cal.setTime(validFromDate)
-                val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
-                if(dayOfWeek!=Calendar.SATURDAY && dayOfWeek!=Calendar.SUNDAY)
-                    throw BadRequestException("Invalid ValidFrom field")
-
-            }
-            else -> throw BadRequestException("Invalid Ticket Type")
         }
-
     }
 
 

@@ -22,7 +22,6 @@ data class PurchaseTicketsRequestDTO(
 
         //contraints for date
         @field:Pattern(regexp = "([0-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}")
-        @field:NotNull
         val notBefore: String,
 
         /** Payment info*/
@@ -38,6 +37,7 @@ data class PurchaseTicketsRequestDTO(
         @field:NotBlank(message = "cvv cannot be null or empty")
         @field:Size(min=3,max = 3, message = "cvv has wrong number of digits")
         val cvv : String,
+
 
         @field:NotBlank(message = "card holder cannot be null or empty")
         val cardHolder: String
