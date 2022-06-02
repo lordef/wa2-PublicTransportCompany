@@ -99,14 +99,14 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(purchasedTicketDTO.validFrom!=null && purchasedTicketDTO.validFrom!="")
             date = formatter.parse(purchasedTicketDTO.validFrom)
 
-        //TODO implementare logica e controllo sul validFrom in base al type
+        //TODO implementare logica e controllo sul expiration in base al type
 
         //ticket creation
         do {
             val ticketWithoutJws = TicketAcquired(
                 Date(),
                 date as Date,
-                Date(Date().time + purchasedTicketDTO.duration*60000),
+                Date(Date().time), //TODO : expiration must be computed
                 purchasedTicketDTO.zone,
                 purchasedTicketDTO.type,
                     "",

@@ -15,5 +15,4 @@ data class Ticket(
         val type : String,
         val minAge: Int?,
         val maxAge: Int?,
-        val duration: Long? // validity of the ticket expressed in minutes
 )

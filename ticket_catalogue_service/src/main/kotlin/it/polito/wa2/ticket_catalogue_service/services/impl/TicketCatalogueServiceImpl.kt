@@ -100,7 +100,7 @@ class TicketCatalogueServiceImpl(
         val totalAmount = (ticket.price*purchaseTicketsRequestDTO.quantity)
 
         //Save Pending Order
-        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId, purchaseTicketsRequestDTO.notBefore, purchaseTicketsRequestDTO.quantity,totalAmount, principal, purchaseTicketsRequestDTO.zoneId)
+        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId, purchaseTicketsRequestDTO.notBefore, purchaseTicketsRequestDTO.quantity,totalAmount, principal, purchaseTicketsRequestDTO.zoneId, false)
         orderRepository.save(order)
 
 
@@ -130,7 +130,7 @@ class TicketCatalogueServiceImpl(
     }
 
     override suspend fun addTicket(ticket: TicketDTO) {
-        val ticketEntity = Ticket(null,ticket.price,ticket.type,ticket.minAge,ticket.maxAge, ticket.duration)
+        val ticketEntity = Ticket(null,ticket.price,ticket.type,ticket.minAge,ticket.maxAge)
         ticketRepository.save(ticketEntity)
     }
     //

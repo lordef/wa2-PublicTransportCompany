@@ -8,10 +8,6 @@ import javax.validation.constraints.NotNull
 data class PurchaseTicketDTO(
     val cmd: String,
 
-    @field:Min(1)
-    @field:NotNull
-    val duration: Long, //validity of the ticket in minutes
-
     @field:NotBlank(message = "Type cannot be empty or null")
     val type: String,
 
