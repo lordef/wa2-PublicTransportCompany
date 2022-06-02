@@ -1,7 +1,7 @@
-/*package it.polito.wa2.payment_service.integration_tests
+package it.polito.wa2.payment_service.integration_tests
 
 
-import com.baeldung.kafka.embedded.KafkaProducerConsumerApplication
+import it.polito.wa2.payment_service.services.impl.PaymentCheckListener
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -9,6 +9,10 @@ import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.hamcrest.CoreMatchers
+import org.junit.ClassRule
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,6 +24,7 @@ import org.springframework.kafka.core.*
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.junit4.SpringRunner
 import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.utility.DockerImageName
 import java.util.concurrent.TimeUnit
 
 
@@ -31,8 +36,8 @@ import java.util.concurrent.TimeUnit
  *
  */
 @RunWith(SpringRunner::class)
-@Import(com.baeldung.kafka.testcontainers.KafkaTestContainersLiveTest.KafkaTestContainersConfiguration::class)
-@SpringBootTest(classes = [KafkaProducerConsumerApplication::class])
+@Import(it.polito.wa2.payment_service.integration_tests.KafkaTestContainersLiveTest::class)
+@SpringBootTest(classes = [PaymentCheckListener::class])
 @DirtiesContext
 class KafkaTestContainersLiveTest {
     @Autowired
@@ -46,35 +51,27 @@ class KafkaTestContainersLiveTest {
 
     @Value("\${test.topic}")
     private val topic: String? = null
-    @org.junit.Test
-    @Throws(Exception::class)
+    @Test
     fun givenKafkaDockerContainer_whenSendingtoDefaultTemplate_thenMessageReceived() {
+        //TODO try implement this function
         template!!.send(topic!!, "Sending with default template")
         consumer.getLatch().await(10000, TimeUnit.MILLISECONDS)
         assertThat(consumer.getLatch().getCount(), CoreMatchers.equalTo(0L))
         assertThat(consumer.getPayload(), CoreMatchers.containsString("embedded-test-topic"))
     }
 
-    @org.junit.Test
-    @Throws(Exception::class)
-    fun givenKafkaDockerContainer_whenSendingtoSimpleProducer_thenMessageReceived() {
-        producer!!.send(topic, "Sending with own controller")
-        consumer.getLatch().await(10000, TimeUnit.MILLISECONDS)
-        assertThat(consumer.getLatch().getCount(), CoreMatchers.equalTo(0L))
-        assertThat(consumer.getPayload(), CoreMatchers.containsString("embedded-test-topic"))
-    }
 
     @TestConfiguration
     internal class KafkaTestContainersConfiguration {
         @Bean
-        fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<Int, String> {
-            val factory = ConcurrentKafkaListenerContainerFactory<Int, String>()
-            factory.setConsumerFactory(consumerFactory())
+        fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Any> {
+            val factory = ConcurrentKafkaListenerContainerFactory<String, Any>()
+            factory.consumerFactory = consumerFactory()
             return factory
         }
 
         @Bean
-        fun consumerFactory(): ConsumerFactory<Int, String> {
+        fun consumerFactory(): ConsumerFactory<in String, in Any> {
             return DefaultKafkaConsumerFactory(consumerConfigs())
         }
 
@@ -82,9 +79,9 @@ class KafkaTestContainersLiveTest {
         fun consumerConfigs(): Map<String, Any> {
             val props: MutableMap<String, Any> = HashMap()
             props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] =
-                kafka.getBootstrapServers()
+                kafka.bootstrapServers
             props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-            props[ConsumerConfig.GROUP_ID_CONFIG] = "baeldung"
+            props[ConsumerConfig.GROUP_ID_CONFIG] = "pbc"
             props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
             props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
             return props
@@ -94,7 +91,7 @@ class KafkaTestContainersLiveTest {
         fun producerFactory(): ProducerFactory<String, String> {
             val configProps: MutableMap<String, Any> = HashMap()
             configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] =
-                kafka.getBootstrapServers()
+                kafka.bootstrapServers
             configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
             configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
             return DefaultKafkaProducerFactory(configProps)
@@ -108,8 +105,8 @@ class KafkaTestContainersLiveTest {
 
     companion object {
         @ClassRule
-        var kafka: KafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.4.3"))
+        var kafka: KafkaContainer = KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:5.4.3")) //TODO try with :latest
+        //TODO try to create zookeper
     }
 }
 
- */
