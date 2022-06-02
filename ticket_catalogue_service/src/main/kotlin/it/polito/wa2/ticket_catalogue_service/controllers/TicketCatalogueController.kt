@@ -27,6 +27,22 @@ class TicketCatalogueController {
 
     @GetMapping("/tickets", produces = [MediaType.APPLICATION_NDJSON_VALUE])
     fun getTickets() : Flow<TicketDTO> {
+
+
+
+        //TODO rimuovere parte commentata
+        /*val currentDate = Date()
+        val iat = currentDate.time
+        val nbf = iat
+        val cal = Calendar.getInstance()
+        //val y = cal.get(Calendar.DAY_OF_MONTH)
+        cal.setTime(currentDate);
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        println(cal.time.time)*/
         return catalogueService.getAllTickets()
     }
 
@@ -42,6 +58,7 @@ class TicketCatalogueController {
 
         if (!validDate(purchaseRequestDTO.notBefore) || !notFutureDate(purchaseRequestDTO.notBefore))
             throw BadRequestException("Wrong json date field")*/
+
 
         println(purchaseRequestDTO)
 

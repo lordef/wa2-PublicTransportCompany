@@ -80,9 +80,6 @@ class UserDetailsServiceImpl : UserDetailsService {
     override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO)/*: List<TicketAcquiredDTO> */{
         var numberOfTickets = purchasedTicketDTO.quantity
 
-        println(numberOfTickets)
-
-        val ticketsList = mutableListOf<TicketAcquiredDTO>()
         val userDetails = userDetailsRepository.findByUsername(username)
 
         if(userDetails==null)
@@ -93,42 +90,201 @@ class UserDetailsServiceImpl : UserDetailsService {
             throw BadRequestException("Invalid Post Command")
 
 
-        val formatter = SimpleDateFormat("dd-MM-yyyy")
-        var date : Date? = null
 
-        if(purchasedTicketDTO.validFrom!=null && purchasedTicketDTO.validFrom!="")
-            date = formatter.parse(purchasedTicketDTO.validFrom)
 
-        //TODO implementare logica e controllo sul expiration in base al type
+        if(purchasedTicketDTO.validFrom==null || purchasedTicketDTO.validFrom=="")
+            throw BadRequestException("Invalid NotBefore Date")
+
+        //TODO implementare logica e controllo sul validFrom in base al type
+        //business logic for NotBefore And Expiry Time
+        val jwtTimeInfo = computeNbfAndExp(purchasedTicketDTO.type,purchasedTicketDTO.validFrom)
 
         //ticket creation
         do {
             val ticketWithoutJws = TicketAcquired(
-                Date(),
-                date as Date,
-                Date(Date().time), //TODO : expiration must be computed
+                Date(jwtTimeInfo.iat),
+                Date(jwtTimeInfo.nbf),
+                Date(jwtTimeInfo.exp),
                 purchasedTicketDTO.zone,
                 purchasedTicketDTO.type,
                     "",
                 userDetails
             )
 
-           ticketPurchasedRepository.save(ticketWithoutJws)
+            ticketPurchasedRepository.save(ticketWithoutJws)
 
             ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.validFrom, ticketWithoutJws.expiry, ticketWithoutJws.zoneId, ticketWithoutJws.type)
 
-            val ticketWithJws = ticketPurchasedRepository.save(ticketWithoutJws)
-
-            ticketsList.add(ticketWithJws.toDTO())
+            ticketPurchasedRepository.save(ticketWithoutJws)
 
             numberOfTickets--
         } while (numberOfTickets > 0)
 
-        //return ticketsList
     }
 
     override fun getTravelers(): List<String> {
         return userDetailsRepository.findUsernames()
     }
 
+    private fun computeNbfAndExp(type: String, validFrom : String): NbfExpInfo{
+
+        val formatter = SimpleDateFormat("dd-MM-yyyy")
+
+        val iat: Long
+        val exp: Long
+        val nbf: Long
+
+        val ticketInfo: NbfExpInfo = when(type){
+            "ordinary"->{
+                iat = Date().time
+                nbf = iat
+                exp = iat + 4200000 //4200 * 1000 = 70 minutes in  milliseconds
+
+                NbfExpInfo(iat, nbf, exp)
+            }
+            "daily"->{
+                val currentDate = Date()
+                iat = currentDate.time
+                nbf = iat
+                val cal = Calendar.getInstance()
+                cal.setTime(currentDate)
+
+                //retrieving midnight of the following day
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            "weekly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is a Monday
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_WEEK)!=Calendar.MONDAY)
+                    throw BadRequestException("Invalid ValidFrom field")
+
+                //valid from midnight of the selected Monday
+                nbf = validFromDate.time
+
+                //retrieving midnight of the next Monday (with respect to the actual Monday selected)
+                cal.add(Calendar.DAY_OF_YEAR, 7)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+                iat = Date().time
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            "monthly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+
+                //valid from midnight of the selected first day of any month
+                nbf = validFromDate.time
+
+                //retrieving midnight of the first day of the next month (with respect to the next month selected)
+                cal.add(Calendar.DAY_OF_YEAR, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+
+                iat = Date().time
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            "biannually"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+
+                //valid from midnight of the selected first day of any month
+                nbf = validFromDate.time
+
+                //retrieving midnight of the first day of the next 6th month (with respect to the month selected)
+                cal.add(Calendar.MONTH, 6)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+
+                iat = Date().time
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            "yearly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate);
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+
+                //valid from midnight of the selected first day of any month
+                nbf = validFromDate.time
+
+                //retrieving midnight of the first day of the next 12th month (with respect to the month selected)
+                cal.add(Calendar.MONTH, 12)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+
+                iat = Date().time
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            "weekend_pass"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is a Saturday or a Sunday
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+                if(dayOfWeek!=Calendar.SATURDAY && dayOfWeek!=Calendar.SUNDAY)
+                    throw BadRequestException("Invalid ValidFrom field")
+
+
+                if(dayOfWeek == Calendar.SATURDAY)
+                    cal.add(Calendar.DAY_OF_YEAR, 2)
+                else
+                    cal.add(Calendar.DAY_OF_YEAR, 1)
+
+                //valid from Midnight of the selected week-end day
+                nbf = validFromDate.time
+
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+                iat = Date().time
+                NbfExpInfo(iat, nbf, cal.time.time)
+            }
+            else -> throw BadRequestException("Invalid Ticket Type")
+        }
+
+        return ticketInfo
+    }
+
 }
+
+data class NbfExpInfo(
+    val iat: Long,
+    val nbf : Long,
+    val exp: Long
+)

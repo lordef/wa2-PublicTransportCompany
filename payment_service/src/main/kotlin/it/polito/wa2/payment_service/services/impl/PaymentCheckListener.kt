@@ -20,7 +20,7 @@ import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
-import java.util.*
+
 
 @Component
 class PaymentCheckListener(
@@ -45,6 +45,9 @@ class PaymentCheckListener(
         val message = consumerRecord.value() as PaymentInfoDTO
         println(message)
 
+
+        //TODO wrappare da qui a prima di contattare il catalogue in una funzione è aggiungere @Valid al parametro
+        // message che passiamo a tale funzione
         var transaction = Transaction(
             null,
             message.totalAmount,
@@ -78,6 +81,7 @@ class PaymentCheckListener(
         runBlocking {
             transactionRepository.save(transaction)
         }
+        //TODO fine wrap
 
         contactCatalogueService(bodyResult)
     }
