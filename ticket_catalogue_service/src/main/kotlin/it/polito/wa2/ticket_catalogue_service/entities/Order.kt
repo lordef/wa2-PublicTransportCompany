@@ -13,7 +13,6 @@ data class Order(
     val quantity: Long,
     val totalPrice: Float,
     val userId: String,
-    val zoneId: String,
-    val ticket_generated: Boolean
+    val zoneId: String
 
 )

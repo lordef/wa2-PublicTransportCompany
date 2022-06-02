@@ -20,10 +20,8 @@ import org.springframework.http.MediaType
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.support.Acknowledgment
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import java.security.Principal
 import java.util.*
 
 @Component
@@ -93,9 +91,10 @@ class PaymentAnswerListener {
                         if (response.statusCode() == HttpStatus.OK) {
                             response.bodyToMono(UserDetailsDTO::class.java)
                         } else {
+
+                            println("Something Went Wrong :")
                             println(response.statusCode())
-                            //throw BadRequestException("User Info are not available")
-                            throw Exception()
+                            Mono.empty()
                         }
                     }.awaitSingleOrNull()
             }

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
+import java.text.SimpleDateFormat
 
 import java.time.LocalDate
 import java.time.Period
@@ -72,6 +73,10 @@ class TicketCatalogueServiceImpl(
         if(ticket==null)
             throw BadRequestException("Invalid ticketID")
 
+
+        checkValidityOfValidFrom(ticket.type,purchaseTicketsRequestDTO.notBefore)
+
+
         //generating jwt for the authentication with Traveler Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
 
@@ -100,7 +105,7 @@ class TicketCatalogueServiceImpl(
         val totalAmount = (ticket.price*purchaseTicketsRequestDTO.quantity)
 
         //Save Pending Order
-        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId, purchaseTicketsRequestDTO.notBefore, purchaseTicketsRequestDTO.quantity,totalAmount, principal, purchaseTicketsRequestDTO.zoneId, false)
+        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId, purchaseTicketsRequestDTO.notBefore, purchaseTicketsRequestDTO.quantity,totalAmount, principal, purchaseTicketsRequestDTO.zoneId)
         orderRepository.save(order)
 
 
@@ -186,6 +191,73 @@ class TicketCatalogueServiceImpl(
             log.error("Exception: {}",e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
         }
+    }
+
+
+    private fun checkValidityOfValidFrom(type: String, validFrom : String){
+
+        val formatter = SimpleDateFormat("dd-MM-yyyy")
+
+         when(type){
+            "ordinary"->{
+
+            }
+            "daily"->{
+
+            }
+            "weekly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is a Monday
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_WEEK)!=Calendar.MONDAY)
+                    throw BadRequestException("Invalid ValidFrom field")
+
+            }
+            "monthly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+            }
+            "biannually"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+
+            }
+            "yearly"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is the first of Any Month
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate);
+                if(cal.get(Calendar.DAY_OF_MONTH)!=cal.getActualMinimum(Calendar.DAY_OF_MONTH))
+                    throw BadRequestException("Invalid ValidFrom field")
+
+            }
+            "weekend_pass"->{
+                val cal = Calendar.getInstance()
+
+                //check if validFrom is a Saturday or a Sunday
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
+                if(dayOfWeek!=Calendar.SATURDAY && dayOfWeek!=Calendar.SUNDAY)
+                    throw BadRequestException("Invalid ValidFrom field")
+
+            }
+            else -> throw BadRequestException("Invalid Ticket Type")
+        }
+
     }
 
 

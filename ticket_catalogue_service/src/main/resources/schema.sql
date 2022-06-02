@@ -23,7 +23,6 @@ create table if not exists  orders (
                                         ticket_type BIGINT NOT NULL ,
                                         not_before VARCHAR(255) NOT NULL,
                                         zone_id VARCHAR(255) NOT NULL,
-                                        ticket_generated BOOLEAN NOT NULL,
                                         PRIMARY KEY (order_id),
                                         CONSTRAINT fk_customer
                                             FOREIGN KEY(ticket_type)
