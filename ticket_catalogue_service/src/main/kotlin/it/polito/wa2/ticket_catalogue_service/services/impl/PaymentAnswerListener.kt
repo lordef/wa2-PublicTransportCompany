@@ -81,6 +81,8 @@ class PaymentAnswerListener {
                     it, ticketEntity!!.type, orderEntity.notBefore, orderEntity.quantity, orderEntity.zoneId)
             }
 
+            println(purchasingTickets)
+
             //generating jwt for the authentication with Traveler Service
             val jwt = jwtUtils.generateJwt(orderEntity.userId, Date(), Date(Date().time+jwtExpirationMs))
 

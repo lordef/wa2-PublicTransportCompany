@@ -77,8 +77,11 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     }
 
-    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO): List<TicketAcquiredDTO> {
+    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO)/*: List<TicketAcquiredDTO> */{
         var numberOfTickets = purchasedTicketDTO.quantity
+
+        println(numberOfTickets)
+
         val ticketsList = mutableListOf<TicketAcquiredDTO>()
         val userDetails = userDetailsRepository.findByUsername(username)
 
@@ -95,6 +98,9 @@ class UserDetailsServiceImpl : UserDetailsService {
 
         if(purchasedTicketDTO.validFrom!=null && purchasedTicketDTO.validFrom!="")
             date = formatter.parse(purchasedTicketDTO.validFrom)
+
+        //TODO implementare logica e controllo sul validFrom in base al type
+
         //ticket creation
         do {
             val ticketWithoutJws = TicketAcquired(
@@ -118,7 +124,7 @@ class UserDetailsServiceImpl : UserDetailsService {
             numberOfTickets--
         } while (numberOfTickets > 0)
 
-        return ticketsList
+        //return ticketsList
     }
 
     override fun getTravelers(): List<String> {

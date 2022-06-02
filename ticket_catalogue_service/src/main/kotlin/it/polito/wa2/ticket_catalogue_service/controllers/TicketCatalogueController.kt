@@ -37,8 +37,11 @@ class TicketCatalogueController {
         @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO
     ): Long {
 
-        if (!validDate(purchaseRequestDTO.expirationDate))
+        /*if (!validDate(purchaseRequestDTO.expirationDate) || !notFutureDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
+
+        if (!validDate(purchaseRequestDTO.notBefore) || !notFutureDate(purchaseRequestDTO.notBefore))
+            throw BadRequestException("Wrong json date field")*/
 
         println(purchaseRequestDTO)
 
