@@ -35,7 +35,7 @@ class CustomerMyTicketsIntegrationTests {
     companion object {
         @Container
         val postgresContainer = PostgreSQLContainer<Nothing>("postgres:latest").apply {
-            withDatabaseName("db2")
+            withDatabaseName("db_traveler")
             withUsername("postgres")
             withPassword("postgres")
         }
