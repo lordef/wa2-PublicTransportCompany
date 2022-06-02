@@ -56,6 +56,8 @@ dependencies {
 
     // dependencies for testcontainers implementation
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
+    testImplementation ("org.testcontainers:kafka:1.17.2")
+
 
 }
 
