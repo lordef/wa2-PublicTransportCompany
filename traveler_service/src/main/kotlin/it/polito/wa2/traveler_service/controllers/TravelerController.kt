@@ -73,12 +73,14 @@ class TravelerController {
     fun postMyTickets(
         @RequestBody @Valid purchaseTicketDTO: PurchaseTicketDTO,
         bindingResult: BindingResult
-    ): List<TicketAcquiredDTO> {
+    )/*: List<TicketAcquiredDTO> */{
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
 
+        println(purchaseTicketDTO)
+
         //posting tickets in the db
-        return userDetailsService.postUserTickets(
+        userDetailsService.postUserTickets(
             SecurityContextHolder.getContext().authentication.name,
             purchaseTicketDTO
         )

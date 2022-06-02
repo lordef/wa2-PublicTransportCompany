@@ -9,7 +9,10 @@ data class Order(
     var orderId: Long?=null,
     var status: Status = Status.PENDING,
     val ticketType: Long, //references Tickets table
+    val notBefore: String,
     val quantity: Long,
     val totalPrice: Float,
-    val userId: String
+    val userId: String,
+    val zoneId: String
+
 )

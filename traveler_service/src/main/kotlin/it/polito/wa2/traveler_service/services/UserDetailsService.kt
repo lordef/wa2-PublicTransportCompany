@@ -9,7 +9,7 @@ interface UserDetailsService {
     fun getUserProfile(username : String) : UserDetailsDTO
     fun putUserProfile(userDetailsDTO: UserDetailsDTO) : UserDetailsDTO
     fun getUserTickets(username: String) : List<TicketAcquiredDTO>
-    fun postUserTickets(username: String, purchaseTicketDTO: PurchaseTicketDTO) : List<TicketAcquiredDTO>
+    fun postUserTickets(username: String, purchaseTicketDTO: PurchaseTicketDTO)/* : List<TicketAcquiredDTO>*/
 
     //admin services
     fun getTravelers(): List<String>
