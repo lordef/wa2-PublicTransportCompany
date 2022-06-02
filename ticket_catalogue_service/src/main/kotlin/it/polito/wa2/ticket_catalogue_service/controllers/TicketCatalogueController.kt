@@ -27,22 +27,6 @@ class TicketCatalogueController {
 
     @GetMapping("/tickets", produces = [MediaType.APPLICATION_NDJSON_VALUE])
     fun getTickets() : Flow<TicketDTO> {
-
-
-
-        //TODO rimuovere parte commentata
-        /*val currentDate = Date()
-        val iat = currentDate.time
-        val nbf = iat
-        val cal = Calendar.getInstance()
-        //val y = cal.get(Calendar.DAY_OF_MONTH)
-        cal.setTime(currentDate);
-        cal.add(Calendar.DAY_OF_YEAR, 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        println(cal.time.time)*/
         return catalogueService.getAllTickets()
     }
 
@@ -53,11 +37,11 @@ class TicketCatalogueController {
         @RequestBody @Valid purchaseRequestDTO: PurchaseTicketsRequestDTO
     ): Long {
 
-        /*if (!validDate(purchaseRequestDTO.expirationDate) || !notFutureDate(purchaseRequestDTO.expirationDate))
+        if (!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
-        if (!validDate(purchaseRequestDTO.notBefore) || !notFutureDate(purchaseRequestDTO.notBefore))
-            throw BadRequestException("Wrong json date field")*/
+        if (!validDate(purchaseRequestDTO.notBefore))
+            throw BadRequestException("Wrong json date field")
 
 
         println(purchaseRequestDTO)
@@ -154,16 +138,16 @@ class TicketCatalogueController {
             }
             else -> true
         }
-        if (firstCheck && notFutureDate(date))
+        if (firstCheck && notPastDate(date))
             return true
         else return false
     }
 
-    private fun notFutureDate(date: String): Boolean {
+    private fun notPastDate(date: String): Boolean {
         val formatter = SimpleDateFormat("dd-MM-yyyy")
         val date = formatter.parse(date)
 
-        if (date.compareTo(formatter.parse(formatter.format(Date()))) <= 0)
+        if (date.compareTo(formatter.parse(formatter.format(Date()))) > 0)
             return true
         else return false
     }

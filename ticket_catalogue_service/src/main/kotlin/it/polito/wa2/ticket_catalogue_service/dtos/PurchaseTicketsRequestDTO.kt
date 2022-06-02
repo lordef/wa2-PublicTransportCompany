@@ -16,8 +16,12 @@ data class PurchaseTicketsRequestDTO(
         val ticketId: Long,
 
         @field:NotNull
+        @field:Size(min=1,max = 15, message = "wrong size of zone id")
         val zoneId: String,
 
+
+        //contraints for date
+        @field:Pattern(regexp = "([0-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}")
         @field:NotNull
         val notBefore: String,
 

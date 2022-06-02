@@ -20,6 +20,7 @@ import org.springframework.messaging.Message
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
+import javax.validation.Valid
 
 
 @Component
@@ -41,13 +42,38 @@ class PaymentCheckListener(
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
 
-        val bodyResult: PaymentInfoAnswerDTO
         val message = consumerRecord.value() as PaymentInfoDTO
         println(message)
 
+        val bodyResult = manageBankTransaction(message)
 
-        //TODO wrappare da qui a prima di contattare il catalogue in una funzione è aggiungere @Valid al parametro
-        // message che passiamo a tale funzione
+        contactCatalogueService(bodyResult)
+    }
+
+
+
+private fun contactCatalogueService(answer: PaymentInfoAnswerDTO) {
+    try {
+        logger.info("Receiving product request")
+        logger.info("Sending message to Kafka {}", answer)
+        val message: Message<PaymentInfoAnswerDTO> = MessageBuilder
+            .withPayload(answer)
+            .setHeader(KafkaHeaders.TOPIC, answerTopic)
+            .setHeader("X-Custom-Header", "Custom header here")
+            .build()
+        kafkaTemplate.send(message)
+        logger.info("Message sent with success")
+        //ResponseEntity.ok().build()
+    } catch (e: Exception) {
+        logger.error("Exception: {}", e)
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
+    }
+}
+
+    private fun manageBankTransaction(@Valid message: PaymentInfoDTO) : PaymentInfoAnswerDTO{
+
+        val bodyResult: PaymentInfoAnswerDTO
+
         var transaction = Transaction(
             null,
             message.totalAmount,
@@ -81,28 +107,7 @@ class PaymentCheckListener(
         runBlocking {
             transactionRepository.save(transaction)
         }
-        //TODO fine wrap
 
-        contactCatalogueService(bodyResult)
+        return bodyResult
     }
-
-
-
-private fun contactCatalogueService(answer: PaymentInfoAnswerDTO) {
-    try {
-        logger.info("Receiving product request")
-        logger.info("Sending message to Kafka {}", answer)
-        val message: Message<PaymentInfoAnswerDTO> = MessageBuilder
-            .withPayload(answer)
-            .setHeader(KafkaHeaders.TOPIC, answerTopic)
-            .setHeader("X-Custom-Header", "Custom header here")
-            .build()
-        kafkaTemplate.send(message)
-        logger.info("Message sent with success")
-        //ResponseEntity.ok().build()
-    } catch (e: Exception) {
-        logger.error("Exception: {}", e)
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
-    }
-}
 }

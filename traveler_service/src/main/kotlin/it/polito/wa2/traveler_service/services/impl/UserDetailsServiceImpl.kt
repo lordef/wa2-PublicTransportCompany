@@ -95,7 +95,6 @@ class UserDetailsServiceImpl : UserDetailsService {
         if(purchasedTicketDTO.validFrom==null || purchasedTicketDTO.validFrom=="")
             throw BadRequestException("Invalid NotBefore Date")
 
-        //TODO implementare logica e controllo sul validFrom in base al type
         //business logic for NotBefore And Expiry Time
         val jwtTimeInfo = computeNbfAndExp(purchasedTicketDTO.type,purchasedTicketDTO.validFrom)
 
@@ -145,9 +144,16 @@ class UserDetailsServiceImpl : UserDetailsService {
             "daily"->{
                 val currentDate = Date()
                 iat = currentDate.time
-                nbf = iat
+
                 val cal = Calendar.getInstance()
-                cal.setTime(currentDate)
+                val validFromDate = formatter.parse(validFrom)
+                cal.setTime(validFromDate)
+                cal.set(Calendar.HOUR_OF_DAY, 0)
+                cal.set(Calendar.MINUTE, 0)
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+                nbf = cal.time.time
 
                 //retrieving midnight of the following day
                 cal.add(Calendar.DAY_OF_YEAR, 1)
