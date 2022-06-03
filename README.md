@@ -1,4 +1,4 @@
-# Lab5-Group04 - TODO: info related to the previous lab
+# Lab5-Group04
 
 ### Guides
 The following guides illustrate how to set up the two modules concretely:
@@ -10,31 +10,38 @@ The following guides illustrate how to set up the two modules concretely:
 
 
 ## Databases
+**Two** containers are necessary, each one with 2 databases respectively. 
 
-For the moment, i have created 2 containers, each one respectively with 2 dbs. (I haven't found a way to create 4 db 
-in the same container)
+For creating these two containers, <br>
+we need to execute the following command in the command line:
 
-To create a container with two databases, execute the following commands in the command line: <br>
 ` docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
 
 and then
+
 `docker run --name container2 -p 54321:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_payment -d postgres`
 
+These four databases have the following names respectively: <br>
+- Container _**lab5container**_ has the following two databases:
+  * _postgres_, on port 54320, that contains info regarding **_login service_**
+  * _db_traveler_, on port 54320, that contains info regarding **_traveler service_**
 
-These four databases have the following names respectively:
-* _postgres_  on port 54320, contains info regarding login service
-* _db_traveler_ on port 54320 contains info regarding traveler service
+- Container _**container2**_ has the following two databases:
+  * _postgres_, on port 54321, that contains info regarding **_ticket catalogue service_**
+  * _db_payment_, on port 54321, that contains info regarding **_payment service_**
 
-* _postgres_  on port 54321, contains info regarding catalogue service
-* _db_payment_ on port 54321 contains info regarding payment service
+Add two new Datasources in the IntelliJ project, <br>
+for each one username and password (should be _postgres_ and _postgres_ respectively) specified in:
+- [application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
+  - fields: _spring.datasource.username_ and _spring.datasource.password_
+- [application.properties](ticket_catalogue_service/src/main/resources/application.properties)
+  - fields: _spring.r2dbc.username_ and _spring.r2dbc.password_
 
-Add a new Datasource in the IntelliJ project 
-with username and password (should be _postgres_ and _postgres_ respectively) specified in the
-[application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
-#Questo da rivedere poi :
-and the host and port (should be _localhost_ and _54320_) specified in the spring.datasource.url of the [application.properties](login_service/src/main/resources/application.properties)
+and the host and port specified in
+- _spring.datasource.url_ of the [application.properties](login_service/src/main/resources/application.properties) (should be _localhost_ and _54320_)
+- _spring.r2dbc.url_ of the [application.properties](ticket_catalogue_service/src/main/resources/application.properties) (should be _localhost_ and _54321_)
 
-In addition, to successfully run the app, start the created container.
+**In addition**, to successfully run the app, **start** the created container.
 
 ## Servers  
 
@@ -44,13 +51,12 @@ In addition, to successfully run the app, start the created container.
 * TicketCatalogueService server (DB: _postgres_  on port 54321) on port 8082
 * PaymentService server (DB: _db_payment_ on port 54321) on port 8083
 
-
-#Questo da rivedere poi :
-
+[//]: # (TODO)
 ## Unit tests
 To run unit tests of the login and traveler service, 
 it is necessary to run the command for **creating** the required **container** explained above in this README.md and run it during the test
 
+[//]: # (TODO)
 ## Integration tests
 To run integrations tests, it is sufficient to run the command for **creating** the required **container** explained above in this README.md
       

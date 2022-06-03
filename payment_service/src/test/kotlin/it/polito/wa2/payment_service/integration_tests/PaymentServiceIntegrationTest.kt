@@ -1,3 +1,4 @@
+/*
 package it.polito.wa2.payment_service.integration_tests
 
 
@@ -28,13 +29,15 @@ import org.testcontainers.utility.DockerImageName
 import java.util.concurrent.TimeUnit
 
 
+*/
 /**
  * This test class uses Testcontainers to instantiate and manage an external Apache
  * Kafka broker hosted inside a Docker container.
  *
  * Therefore, one of the prerequisites for using Testcontainers is that Docker is installed on the host running this test
  *
- */
+ *//*
+
 @RunWith(SpringRunner::class)
 @Import(it.polito.wa2.payment_service.integration_tests.KafkaTestContainersLiveTest::class)
 @SpringBootTest(classes = [PaymentCheckListener::class])
@@ -110,3 +113,4 @@ class KafkaTestContainersLiveTest {
     }
 }
 
+*/
