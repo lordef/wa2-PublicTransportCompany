@@ -5,8 +5,10 @@ The following guides illustrate how to set up the two modules concretely:
 - [Set up Kafka](#kafka-containers)
 - [Set up Databases](#databases)
 - [Set up Servers](#servers)
+- [Business Logic](#business-logic)
 - [Run Unit tests](#unit-tests)
 - [Run Integration tests](#integration-tests)
+
 
 ## Kafka containers
 Run in the project command line:
@@ -68,6 +70,43 @@ and the host and port specified in
 
 * **_TicketCatalogueService_** server (DB: _postgres_  on port 54321) on port 8082
 * **_PaymentService_** server (DB: _db_payment_ on port 54321) on port 8083
+
+
+## Business Logic
+[//]: # (TODO)
+I ticket sono stati pensati come segue :
+
+- ogni ticket nella tabella tickets può essere di tipo "ordinal" o "seasonal"
+
+- un admin può aggiungere solo ticket seasonal; i ticket ordinal sono inseriti nel DB all'avvio del catalogue
+  service, e sono gestiti in modo hardcoded
+
+- quando un utente compra un ticket, deve specificare i seguenti campi (e.g.) :
+  {
+  "quantity": 1,
+  "ticketId": 2,
+  "zoneId": "a",
+  "notBefore": "24-07-2022", -> specifica la data da cui far partire la validità del ticket
+  "creditCardNumber": "11111111111111",
+  "expirationDate": "03-06-2023",
+  "cvv":"333",
+  "cardHolder": "ciaooo",
+  "duration" : 30
+  }
+
+se il ticketId fa riferimento a un ordinal, non è necessario specificare la duration, in quanto in tal caso è hardcoded
+
+- i tipi ordinal previsti per lo shop sono :
+  1) "70 minutes" -> validFrom = istante in cui viene generato, exp = 70 minuti dopo
+  2) "daily" -> dura 24, per un giorno qualsiasi specificato nella notBefore (validFrom = mezzanotte del giorno specificato nella notBefore, exp : mezzanotte del giorno dopo)
+  3) "weekly" -> dura 7 giorni, dal lunedì al venerdi di una qualsiasi settimana. Per selezionare la settimana per cui si vuole acquistare,
+     la notBefore DEVE essere il lunedì della specifica settimana selezionata. Non è possibile far partire un weekly da un giorno che non sia lunedì.
+
+  4) "monthly" -> dura un mese, dal primo del mese sino alla fine. E' possibile selezionare lo specifico mese usando come notBefore nella POST
+     una data che sia il primo giorno del mese selezionato. Non è possibile far partire un mensile da un giorno che non sia il primo giorno di un certo mese.
+
+
+
 
 [//]: # (TODO)
 ## Unit tests
