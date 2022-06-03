@@ -5,16 +5,14 @@ import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
 import it.polito.wa2.traveler_service.services.UserDetailsService
+import it.polito.wa2.traveler_service.unit_tests.unit_tests_utils.SpringTestBase
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-//TODO risistemare i test secondo modifiche apportate
 
-/*
 
-import it.polito.wa2.traveler_service.unit_tests.unit_tests_utils.SpringTestBase
 
 
 @SpringBootTest
@@ -27,7 +25,6 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
     fun validGetUserProfile() {
         Assertions.assertInstanceOf(UserDetailsDTO::class.java,
             userDetails.username?.let { userDetailsService.getUserProfile(it) })
-
     }
 
     @Test
@@ -100,49 +97,17 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
 
 
     @Test
-    fun validPostUserTickets() {
-        val purchasedTicketDTO = PurchaseTicketDTO(
-            "buy_tickets",
-            1,
-            "1"
-        )
-        Assertions.assertInstanceOf(List::class.java,
-            userDetails.username?.let { userDetailsService.postUserTickets(it, purchasedTicketDTO) })
-
-    }
-
-    @Test
     fun nullUserDetailsPostUserTickets() {
-        val purchasedTicketDTO = PurchaseTicketDTO(
-            "buy_tickets",
-            1,
-            "1"
-        )
+        val purchasedTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", "24-08-2022", 3, 360000, "ABC")
         Assertions.assertThrows(NotFoundException::class.java) {
             userDetailsService.postUserTickets("null username", purchasedTicketDTO)
         }
     }
 
-    @Test
-    fun quantityLessThan1PostUserTickets() {
-        val purchasedTicketDTO = PurchaseTicketDTO(
-            "buy_tickets",
-            0,
-            "1"
-        )
-        Assertions.assertThrows(BadRequestException::class.java) {
-            userDetails.username?.let { userDetailsService.postUserTickets(it, purchasedTicketDTO) }
-
-        }
-    }
 
     @Test
     fun wrongCMDPostUserTickets() {
-        val purchasedTicketDTO = PurchaseTicketDTO(
-            "wrong_command",
-            1,
-            "1"
-        )
+        val purchasedTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", "24-08-2022", 3, 360000, "ABC")
         Assertions.assertThrows(NotFoundException::class.java) {
             userDetailsService.postUserTickets("null username", purchasedTicketDTO)
         }
@@ -153,4 +118,4 @@ class UserDetailsServiceUnitTest : SpringTestBase() {
     fun validGetTravelers() {
         Assertions.assertInstanceOf(List::class.java, userDetailsService.getTravelers())
     }
-}*/
+}

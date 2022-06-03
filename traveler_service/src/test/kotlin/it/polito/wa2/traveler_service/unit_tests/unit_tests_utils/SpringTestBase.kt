@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 
-//TODO risistemare i test secondo modifiche apportate
-/*
+
 @ExtendWith(SpringExtension::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 open class SpringTestBase {
@@ -42,7 +41,9 @@ open class SpringTestBase {
         ticketPurchased = TicketAcquired(
             Date(System.currentTimeMillis()),
             Date(1708347840000), // 2024/02/19
-            "1",
+            Date(System.currentTimeMillis()+4200000),
+            "ABC",
+            "ordinal",
             "eyJhbGciOiJIUzUxMiJ9." +
                     "eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiQ1VTVE9NRVIiXX0." +
                     "W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g",
@@ -61,4 +62,4 @@ open class SpringTestBase {
     }
 
 
-}*/
+}
