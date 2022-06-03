@@ -5,8 +5,10 @@ create table if not exists  tickets (
     ticket_id BIGINT GENERATED ALWAYS AS IDENTITY,
     price DECIMAL(10,2) NOT NULL ,
     type VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     min_age INT,
     max_age INT,
+    duration INT,
     PRIMARY KEY (ticket_id)
     );
 
@@ -21,6 +23,8 @@ create table if not exists  orders (
                                         quantity INTEGER NOT NULL,
                                         total_price NUMERIC(7,2) NOT NULL,
                                         ticket_type BIGINT NOT NULL ,
+                                        not_before VARCHAR(255) NOT NULL,
+                                        zone_id VARCHAR(255) NOT NULL,
                                         PRIMARY KEY (order_id),
                                         CONSTRAINT fk_customer
                                             FOREIGN KEY(ticket_type)
@@ -28,6 +32,10 @@ create table if not exists  orders (
 
 );
 
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 3.92, 'daily',NULL,NULL);
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 2.17, 'pass',NULL,NULL);
-INSERT INTO tickets ( price, type, min_age, max_age) VALUES ( 2.17, 'under_27',1,26);
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 1.70, 'ordinal', '70 minutes',NULL,NULL,NULL);             --1
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.00, 'ordinal', 'daily',NULL,NULL,NULL);                --2
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 10.00, 'ordinal', 'weekly',NULL,NULL,NULL);              --3
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 24.00, 'ordinal', 'monthly',NULL,NULL,NULL);             --4
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 60.00, 'ordinal', 'biannually',NULL,NULL,NULL);          --5
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 110.00, 'ordinal', 'yearly',NULL,NULL,NULL);             --6
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.80, 'ordinal', 'weekend_pass', NULL, 27,NULL);         --7

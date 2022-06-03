@@ -15,6 +15,16 @@ data class PurchaseTicketsRequestDTO(
         @field:Min(1)
         val ticketId: Long,
 
+        @field:NotNull
+        @field:Size(min=1,max = 15, message = "wrong size of zone id")
+        val zoneId: String,
+
+
+        //contraints for date
+        @field:Pattern(regexp = "([0-2][0-9]|3[0-1])-(0[1-9]|1[0-2])-[0-9]{4}")
+        val notBefore: String,
+
+        /** Payment info*/
         @field:NotBlank(message = "credit card number cannot be null or empty")
         @field:Size(min=13,max = 16, message = "credit card number has wrong number of digits")
         val creditCardNumber: String,
@@ -27,6 +37,7 @@ data class PurchaseTicketsRequestDTO(
         @field:NotBlank(message = "cvv cannot be null or empty")
         @field:Size(min=3,max = 3, message = "cvv has wrong number of digits")
         val cvv : String,
+
 
         @field:NotBlank(message = "card holder cannot be null or empty")
         val cardHolder: String
