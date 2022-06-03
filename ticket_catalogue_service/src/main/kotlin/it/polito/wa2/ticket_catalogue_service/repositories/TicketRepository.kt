@@ -8,4 +8,5 @@ import reactor.core.publisher.Mono
 
 @Repository
 interface TicketRepository: CoroutineCrudRepository<Ticket,Long> {
+    suspend fun  findByName(name: String): Ticket?
 }
