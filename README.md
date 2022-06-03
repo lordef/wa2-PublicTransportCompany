@@ -110,8 +110,10 @@ se il ticketId fa riferimento a un ordinal, non è necessario specificare la dur
 
 [//]: # (TODO)
 ## Unit tests
-To run unit tests of the login and traveler service, 
-it is necessary to run the command for **creating** the required **container** explained above in this README.md and run it during the test
+To run unit tests of the _login and traveler service_, 
+it is necessary to **run** the command for **creating** the required **container** (_**lab5container**_) explained above in this README.md <br> 
+and <br>
+**run** it during the test
 
 [//]: # (TODO)
 ## Integration tests
