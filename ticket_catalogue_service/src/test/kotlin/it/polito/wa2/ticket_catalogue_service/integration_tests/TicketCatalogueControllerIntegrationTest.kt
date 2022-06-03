@@ -9,12 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.*
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.web.reactive.server.WebTestClient
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -46,6 +44,9 @@ class TicketCatalogueControllerIntegrationTest {
     protected var port: Int = 8081
 
     @Autowired
+    lateinit var webTestClient: WebTestClient
+
+    @Autowired
     lateinit var restTemplate: TestRestTemplate
 
     @Autowired
@@ -55,19 +56,16 @@ class TicketCatalogueControllerIntegrationTest {
 
     @Test
     fun validGetTickets(){
-        val baseUrl = "http://localhost:$port/tickets"
+        val list = webTestClient
+            .get()
+            .uri("$routeName/products")
+            .accept(MediaType.APPLICATION_STREAM_JSON)
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(ProductDTO::class.java)
+            .responseBody.toIterable()
 
-        val headers = HttpHeaders()
-
-        headers.setBearerAuth(
-            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
-        )
-
-        val entity = HttpEntity("", headers)
-        val response = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(productsSaved, list.map { it.toEntity() })
     }
 
 }
