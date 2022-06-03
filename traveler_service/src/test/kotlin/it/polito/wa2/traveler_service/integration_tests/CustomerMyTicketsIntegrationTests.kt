@@ -24,9 +24,12 @@ import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.*
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
+import javax.validation.constraints.NotNull
 
 //TODO risistemare i test secondo modifiche apportate
-/*
+
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -78,18 +81,23 @@ class CustomerMyTicketsIntegrationTests {
         val ticketWithoutJws = TicketAcquired(
             Date(),
             Date(Date().time + 3600000),
+            Date(Date().time + 420000),
             "ABC",
+            "ordinal",
             "",
             userDetails
         )
+
 
         ticketPurchasedRepository.save(ticketWithoutJws)
 
         ticketWithoutJws.jws = jwtUtils.generateJwt(
             ticketWithoutJws.getId() as Long,
             ticketWithoutJws.issuedAt,
+            ticketWithoutJws.validFrom,
             ticketWithoutJws.expiry,
-            ticketWithoutJws.zoneId
+            ticketWithoutJws.zoneId,
+            ticketWithoutJws.type
         )
 
 
@@ -134,16 +142,15 @@ class CustomerMyTicketsIntegrationTests {
         val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
         userDetailsRepository.save(userDetails)
 
-        val purchaseTicketDTO = PurchaseTicketDTO("buy_tickets", 3, "ABC")
+        val purchaseTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", "24-08-2022", 3, 360000, "ABC")
 
         val baseUrl = "http://localhost:$port/my/tickets"
 
         val headers = HttpHeaders()
 
         headers.setBearerAuth(
-            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
-        )
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiU0VSVklDRSJ" +
+                    "dfQ._UVqHYiXMGJXbwFvxN17PeU9Aiw7DCdJ5xy1Ett-SXd7O6NP1VXEVpVlXFdQKM4ZMp96aKTq6QKu-cOEEeEjRQ"        )
         val entity = HttpEntity(purchaseTicketDTO, headers)
 
         val response = restTemplate.exchange(baseUrl, HttpMethod.POST, entity, String::class.java)
@@ -158,15 +165,14 @@ class CustomerMyTicketsIntegrationTests {
         val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
         userDetailsRepository.save(userDetails)
 
-        val purchaseTicketDTO = PurchaseTicketDTO("buy tickets", 3, "ABC")
+        val purchaseTicketDTO = PurchaseTicketDTO("bad_cmd", "ordinal", "daily", Date().toString(), 3, 360000, "ABC")
 
         val baseUrl = "http://localhost:$port/my/tickets"
 
         val headers = HttpHeaders()
 
         headers.setBearerAuth(
-            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiU0VSVklDRSJdfQ._UVqHYiXMGJXbwFvxN17PeU9Aiw7DCdJ5xy1Ett-SXd7O6NP1VXEVpVlXFdQKM4ZMp96aKTq6QKu-cOEEeEjRQ"
         )
         val entity = HttpEntity(purchaseTicketDTO, headers)
 
@@ -178,15 +184,14 @@ class CustomerMyTicketsIntegrationTests {
 
     @Test
     fun noUserDetailsPutMyTicketTest() {
-        val purchaseTicketDTO = PurchaseTicketDTO("buy tickets", 3, "ABC")
+        val purchaseTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", Date().toString(), 3, 360000, "ABC")
 
         val baseUrl = "http://localhost:$port/my/tickets"
 
         val headers = HttpHeaders()
 
         headers.setBearerAuth(
-            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjIiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiO" +
-                    "lsiQ1VTVE9NRVIiXX0.oBF7ct8jLBfpMfe6oev6utrcborJL8RCwxJLt_GbpwMyvad_o-qdy_3UuilCWqyTU_gO-HKyzL9DstpU0eT3Fg"
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpbnZhbGlkX3VzZXIiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiU0VSVklDRSJdfQ.nakCOF0DqrNLBBTxMB1vJLzW55tixMOjEA-fQUNfrTfaUKTiOFQCMorK4nCTn42sv68WE24dh3WXq_t3ZFd0fQ"
         )
         val entity = HttpEntity(purchaseTicketDTO, headers)
 
@@ -203,15 +208,14 @@ class CustomerMyTicketsIntegrationTests {
         userDetailsRepository.save(userDetails)
 
 
-        val purchaseTicketDTO = PurchaseTicketDTO("buy tickets", -2, "ABC")
+        val purchaseTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", Date().toString(), -4, 360000, "ABC")
 
         val baseUrl = "http://localhost:$port/my/tickets"
 
         val headers = HttpHeaders()
 
         headers.setBearerAuth(
-            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm" +
-                    "9sZXMiOlsiQ1VTVE9NRVIiXX0.W71JOUP-TSK_j__yDz3XlWJbtO7UD3_5ZVs7BVQXg2EqKwHeW9J7d9NHpVAOVDpHtTyuuJWoBmA26jQ9wyP78g"
+            "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJjdXN0b21lcjEiLCJpYXQiOjE2NTI4OTE4NzksImV4cCI6MTcxNjA1MTI2Miwicm9sZXMiOlsiU0VSVklDRSJdfQ._UVqHYiXMGJXbwFvxN17PeU9Aiw7DCdJ5xy1Ett-SXd7O6NP1VXEVpVlXFdQKM4ZMp96aKTq6QKu-cOEEeEjRQ"
         )
         val entity = HttpEntity(purchaseTicketDTO, headers)
 
@@ -222,4 +226,4 @@ class CustomerMyTicketsIntegrationTests {
     }
 
 
-}*/
+}
