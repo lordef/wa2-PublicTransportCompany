@@ -23,6 +23,12 @@ repositories {
 
 extra["springCloudVersion"] = "2021.0.3"
 
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:1.16.3")
+    }
+}
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -46,6 +52,10 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.hibernate.validator:hibernate-validator")
+
+    // dependencies for testcontainers implementation
+    testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
+    testImplementation("org.testcontainers:postgresql:1.16.3")
 
 }
 
