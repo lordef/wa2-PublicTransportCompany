@@ -2,19 +2,28 @@
 
 ### Guides
 The following guides illustrate how to set up the two modules concretely:
+- [Set up Kafka](#kafka-containers)
 - [Set up Databases](#databases)
 - [Set up Servers](#servers)
 - [Run Unit tests](#unit-tests)
 - [Run Integration tests](#integration-tests)
 
+## Kafka containers
+Run in the project command line:
 
+`docker-compose up`
+
+Once completed,<br>
+**start** the two created containers (_kafka_kafka_1_ and _kafka_zookeeper_1_)
+
+`docker start kafka_kafka_1 kafka_zookeeper_1`
 
 ## Databases
 **Two** containers are necessary, each one with 2 databases respectively. 
 
 ### 1. Create containers
 For creating these two containers, <br>
-we need to execute the following command in the command line:
+execute the following command in the command line:
 
 ` docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
 
@@ -48,11 +57,11 @@ and the host and port specified in
 
 ## Servers  
 
-* LoginService server (DB: _postgres_  on port 54320) on port 8081
-* TravelerService server (DB: _db_traveler_ on port 54320) on port 8080
+* **_LoginService_** server (DB: _postgres_  on port 54320) on port 8081
+* **_TravelerService_** server (DB: _db_traveler_ on port 54320) on port 8080
 
-* TicketCatalogueService server (DB: _postgres_  on port 54321) on port 8082
-* PaymentService server (DB: _db_payment_ on port 54321) on port 8083
+* **_TicketCatalogueService_** server (DB: _postgres_  on port 54321) on port 8082
+* **_PaymentService_** server (DB: _db_payment_ on port 54321) on port 8083
 
 [//]: # (TODO)
 ## Unit tests
