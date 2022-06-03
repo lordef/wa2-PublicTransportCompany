@@ -74,36 +74,69 @@ and the host and port specified in
 
 ## Business Logic
 [//]: # (TODO)
-I ticket sono stati pensati come segue :
 
-- ogni ticket nella tabella tickets può essere di tipo "ordinal" o "seasonal"
+NOTE: before to shop tickets, be sure to have injected inside the User Details table the specific user record (and eventually the date of birth, if the purchased ticket has age restriction)
 
-- un admin può aggiungere solo ticket seasonal; i ticket ordinal sono inseriti nel DB all'avvio del catalogue
-  service, e sono gestiti in modo hardcoded
+During purchasing, the Catalogue service is responsible only to manage orders and sales, retrieve info from Traveler service, check validity of information (age constraints, duration, etc)
+and only if payment has been accepted (after contacting Payment service), contact the traveler service which is the one in charge of generating tickets using the speicific informations.
 
-- quando un utente compra un ticket, deve specificare i seguenti campi (e.g.) :
+Payment service "contact" the bank service to check the payment simply by generating a random number : if it is even, payment is denied, if instead is odd it will be accepted.
+Tickets are generated only if payment succeed.
+
+Tickets was thought as follow :
+
+- each ticket has a price, a type (that can only be "ordinal" or "seasonal"), a name (that must be unique and represent uniquely the ticket), min and max age for pucrhasing that ticket (these fields are optional), and duration (which is available only for "seasonal" types).
+  duration is expressed in minutes (so that admin can add tickets which have a more flexible duration : a certain number of minutes, hours, days or months)
+
+- ordinal tickets are already inside the Database once you run the catalogue service, and new ones cannot be inserted by an admin and their business logic is hardcoded in the traveler service which generates tickets :
+  An admin can add only seasonal tickets, using a JSON as follow :
   {
-  "quantity": 1,
-  "ticketId": 2,
-  "zoneId": "a",
-  "notBefore": "24-07-2022", -> specifica la data da cui far partire la validità del ticket
-  "creditCardNumber": "11111111111111",
-  "expirationDate": "03-06-2023",
-  "cvv":"333",
-  "cardHolder": "ciaooo",
-  "duration" : 30
+  "price":2.35, //required
+  "type":"seasonal", //required : only seasonal is allowed as string content
+  "name": "mia prova3", //required : must be a not existing yet name
+  "minAge":2, //optional
+  "maxAge":14, //optional
+  "duration": 65 ////required: must be present
   }
 
-se il ticketId fa riferimento a un ordinal, non è necessario specificare la duration, in quanto in tal caso è hardcoded
 
-- i tipi ordinal previsti per lo shop sono :
-  1) "70 minutes" -> validFrom = istante in cui viene generato, exp = 70 minuti dopo
-  2) "daily" -> dura 24, per un giorno qualsiasi specificato nella notBefore (validFrom = mezzanotte del giorno specificato nella notBefore, exp : mezzanotte del giorno dopo)
-  3) "weekly" -> dura 7 giorni, dal lunedì al venerdi di una qualsiasi settimana. Per selezionare la settimana per cui si vuole acquistare,
-     la notBefore DEVE essere il lunedì della specifica settimana selezionata. Non è possibile far partire un weekly da un giorno che non sia lunedì.
+- When a user want to buy a ticket, has to send to the shop endopoint the following JSON :
+  {
+  "quantity": 1, //required
+  "ticketId": 2, //required
+  "zoneId": "a", //required
+  "notBefore": "24-07-2022", -> //required : useful only for purchasing ordinal types in order specify the moment from which the user want to use the ticket; constraints are reported below
+  "creditCardNumber": "11111111111111", //required
+  "expirationDate": "03-06-2023", //required
+  "cvv":"333", //required
+  "cardHolder": "ciaooo", //required
+  "duration" : 30 //required only if you want to buy a seasonal ticket; not required for ordinal ones
+  }
 
-  4) "monthly" -> dura un mese, dal primo del mese sino alla fine. E' possibile selezionare lo specifico mese usando come notBefore nella POST
-     una data che sia il primo giorno del mese selezionato. Non è possibile far partire un mensile da un giorno che non sia il primo giorno di un certo mese.
+- if the purchased ticket is an ordinal one, duration is neither necessary or useful; instead, for seasonal ones it is required.
+
+- The only expected "ordinal" ticket to shop are :
+1) "70 minutes" -> validFrom = instant in which is purchased/generated , exp = 70 minutes after (the notBefore field here is required but is useless to generate the ticket)
+2) "daily" -> It last 24 hours, for a specific day specified inside the JSON notBefore field (validFrom = midnight of the day specified in the notBefore field, exp : midnight of the day after)
+3) "weekly" -> It last 7 days, from monday to sunday of any specified week. In order to select the specific week,
+      notBefore field MUST be the Monday of the specific selected Week. Non è possibile far partire un weekly da un giorno che non sia lunedì.
+
+
+4) "monthly" -> Valid only from the first day of a selected month, up to the last day of that month. Is possible to select the specific month by using the notBefore field of the JSON in the POST request
+   : for this reason, notBefore must be the first day of the specific month selected. A monthly ticket cannot start from a day which is not the 1st day of that month.
+
+5) "biannually" -> Valid only from the first day of a selected month, up to the last day of the 6th month.Is possible to select the specific starting month by using the notBefore field of the JSON in the POST request
+   : for this reason, notBefore must be the first day of the specific month selected. A biannually ticket cannot start from a day which is not the 1st day of that month.
+
+
+6) "yearly" -> Valid only from the first day of a selected month, up to the last day of the 12th month.Is possible to select the specific starting month by using the notBefore field of the JSON in the POST request
+   : for this reason, notBefore must be the first day of the specific month selected. A yearly ticket cannot start from a day which is not the 1st day of that month.
+
+7) "weekend_pass" -> valid only for a specific weekend (both saturday and sunday) . Is possible to select the specific weekend by using the notBefore field of the JSON in the POST request
+   : for this reason, notBefore must be a saturday or a sunday of the specific selected weekend. In weekend pass ticket, notBefore cannot be any day of a specific year, but only a saturday or a sunday.
+
+
+- when a user purchase a ticket inserted by an admin (a seasonal one), the generated ticket is valid from the current time (nbf=iat) until the specified minutes added to the current time (exp = iat + duration = nbf + duration)
 
 
 
