@@ -143,7 +143,7 @@ class UserDetailsServiceImpl : UserDetailsService {
         if (type == "ordinal") {
 
             val ticketInfo: NbfExpInfo = when (name) {
-                "ordinary" -> {
+                "70 minutes" -> {
                     iat = Date().time
                     nbf = iat
                     exp = iat + 4200000 //4200 * 1000 = 70 minutes in  milliseconds
@@ -245,7 +245,7 @@ class UserDetailsServiceImpl : UserDetailsService {
 
                     //check if validFrom is the first of Any Month
                     val validFromDate = formatter.parse(validFrom)
-                    cal.setTime(validFromDate);
+                    cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
                         throw BadRequestException("Invalid ValidFrom field")
 

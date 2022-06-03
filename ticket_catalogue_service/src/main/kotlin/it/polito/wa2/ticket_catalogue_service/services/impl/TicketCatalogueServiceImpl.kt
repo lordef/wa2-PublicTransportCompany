@@ -39,13 +39,11 @@ import java.util.*
 class TicketCatalogueServiceImpl(
     @Value("\${kafka.topics.bank_check}") val topic: String,
     @Autowired
-    private val kafkaTemplate: KafkaTemplate<String, Any>) : TicketCatalogueService {
-
-
+    private val kafkaTemplate: KafkaTemplate<String, Any>
+) : TicketCatalogueService {
 
 
     val log = LoggerFactory.getLogger(javaClass)
-
 
 
     @Autowired
@@ -66,52 +64,71 @@ class TicketCatalogueServiceImpl(
     }
 
 
-    override suspend fun purchaseTickets(principal: String, purchaseTicketsRequestDTO: PurchaseTicketsRequestDTO) : Mono<Long> {
+    override suspend fun purchaseTickets(
+        principal: String,
+        purchaseTicketsRequestDTO: PurchaseTicketsRequestDTO
+    ): Mono<Long> {
 
         val ticket = ticketRepository.findById(purchaseTicketsRequestDTO.ticketId)
 
-        if(ticket==null)
+        if (ticket == null)
             throw BadRequestException("Invalid ticketID")
 
 
-        checkValidityOfValidFrom(ticket.type,ticket.name,purchaseTicketsRequestDTO.notBefore)
-
+        checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore)
+        if(ticket.type=="seasonal" && (ticket.duration==null || ticket.duration<1))
+            throw BadRequestException("Invalid duration")
 
         //generating jwt for the authentication with Traveler Service
-        val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time+jwtExpirationMs))
+        val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time + jwtExpirationMs))
+
+
+        val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
+            .header("Authorization", "Bearer " + jwt)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchangeToMono { response ->
+
+                if (response.statusCode() == HttpStatus.OK) {
+                    response.bodyToMono(UserDetailsDTO::class.java)
+                } else {
+                    println(response.statusCode())
+                    throw BadRequestException("User is not present in User Details")
+                }
+            }.awaitSingleOrNull()
+
 
         //se è necessario controllare l'età...
-        if(ticket.maxAge!= null || ticket.minAge!=null) {
-
-
-            //TODO si potrebbe mettere questo pezzo di codice in una funzione a cui passiamo solo il web client
-            val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
-                .header("Authorization", "Bearer " + jwt)
-                .accept(MediaType.APPLICATION_JSON)
-                .exchangeToMono { response ->
-
-                    if (response.statusCode() == HttpStatus.OK) {
-                        response.bodyToMono(UserDetailsDTO::class.java)
-                    } else {
-                        println(response.statusCode())
-                        throw BadRequestException("User Info are not available")
-                    }
-                }.awaitSingleOrNull()
-
+        if (ticket.maxAge != null || ticket.minAge != null) {
             //throw an exception if age constraints are not satisfied
-            checkAgeConstraints(userInfo,ticket)
+            checkAgeConstraints(userInfo, ticket)
         }
 
-        val totalAmount = (ticket.price*purchaseTicketsRequestDTO.quantity)
+        val totalAmount = (ticket.price * purchaseTicketsRequestDTO.quantity)
 
         //Save Pending Order
-        val order = Order(null,Status.PENDING,purchaseTicketsRequestDTO.ticketId, purchaseTicketsRequestDTO.notBefore, purchaseTicketsRequestDTO.quantity,totalAmount, principal, purchaseTicketsRequestDTO.zoneId)
+        val order = Order(
+            null,
+            Status.PENDING,
+            purchaseTicketsRequestDTO.ticketId,
+            purchaseTicketsRequestDTO.notBefore,
+            purchaseTicketsRequestDTO.quantity,
+            totalAmount,
+            principal,
+            purchaseTicketsRequestDTO.zoneId
+        )
         orderRepository.save(order)
 
 
-
         //Contacting Payment Service
-        val request = PaymentInfoDTO(totalAmount,purchaseTicketsRequestDTO.creditCardNumber,purchaseTicketsRequestDTO.expirationDate,purchaseTicketsRequestDTO.cvv,purchaseTicketsRequestDTO.cardHolder, principal,order.orderId as Long)
+        val request = PaymentInfoDTO(
+            totalAmount,
+            purchaseTicketsRequestDTO.creditCardNumber,
+            purchaseTicketsRequestDTO.expirationDate,
+            purchaseTicketsRequestDTO.cvv,
+            purchaseTicketsRequestDTO.cardHolder,
+            principal,
+            order.orderId as Long
+        )
         contactPaymentService(request)
 
         return Mono.just(order.orderId as Long)
@@ -124,10 +141,11 @@ class TicketCatalogueServiceImpl(
     }
 
     override suspend fun getOrderByOrderIdAndUserId(userId: String, orderId: Long): Mono<OrderDTO> {
-        return orderRepository.findOrderByOrderIdAndUserId(orderId,userId).map {
-            if(it==null)
+        return orderRepository.findOrderByOrderIdAndUserId(orderId, userId).map {
+            if (it == null)
                 null
-            else it.toDTO() }
+            else it.toDTO()
+        }
     }
 
     override fun getAllOrdersByAllUsers(): Flow<OrderDTO> {
@@ -137,10 +155,18 @@ class TicketCatalogueServiceImpl(
     override suspend fun addTicket(ticketDTO: TicketDTO) {
         val ticket = ticketRepository.findByName(ticketDTO.name)
 
-        if(ticket!=null)
+        if (ticket != null)
             throw BadRequestException("Invalid ticket name")
 
-        val ticketEntity = Ticket(null,ticketDTO.price,ticketDTO.type,ticketDTO.name,ticketDTO.minAge,ticketDTO.maxAge, ticketDTO.duration)
+        val ticketEntity = Ticket(
+            null,
+            ticketDTO.price,
+            ticketDTO.type,
+            ticketDTO.name,
+            ticketDTO.minAge,
+            ticketDTO.maxAge,
+            ticketDTO.duration
+        )
         ticketRepository.save(ticketEntity)
     }
     //
@@ -153,11 +179,10 @@ class TicketCatalogueServiceImpl(
         }
     }
 
-    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket){
-        if (userInfo == null )
-            throw BadRequestException("User Info are not available")
+    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket) {
 
-        if(userInfo.date_of_birth == null)
+
+        if (userInfo!!.date_of_birth == null)
             throw BadRequestException("Date of Birth is not available")
 
         val date = (userInfo.date_of_birth as String).split("-")
@@ -170,17 +195,17 @@ class TicketCatalogueServiceImpl(
         if (currentNumberOfYears == 0)
             throw BadRequestException("Invalid Age for this ticket type")
 
-        if (ticket.maxAge!=null)
-            if(currentNumberOfYears>ticket.maxAge)
+        if (ticket.maxAge != null)
+            if (currentNumberOfYears > ticket.maxAge)
                 throw BadRequestException("Invalid Age for this ticket type")
 
-        if (ticket.minAge!=null)
-            if(currentNumberOfYears<ticket.minAge)
+        if (ticket.minAge != null)
+            if (currentNumberOfYears < ticket.minAge)
                 throw BadRequestException("Invalid Age for this ticket type")
     }
 
 
-    private fun contactPaymentService(request: PaymentInfoDTO ){
+    private fun contactPaymentService(request: PaymentInfoDTO) {
         try {
             log.info("Receiving product request")
             log.info("Sending message to Kafka {}", request)
@@ -193,20 +218,20 @@ class TicketCatalogueServiceImpl(
             log.info("Message sent with success")
             //ResponseEntity.ok().build()
         } catch (e: Exception) {
-            log.error("Exception: {}",e)
+            log.error("Exception: {}", e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
         }
     }
 
 
-    private fun checkValidityOfValidFrom(type: String, name: String, validFrom : String) {
+    private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String) {
 
         val formatter = SimpleDateFormat("dd-MM-yyyy")
 
         if (type == "ordinal") {
 
             when (name) {
-                "ordinary" -> {
+                "70 minutes" -> {
 
                 }
                 "daily" -> {
@@ -246,7 +271,7 @@ class TicketCatalogueServiceImpl(
 
                     //check if validFrom is the first of Any Month
                     val validFromDate = formatter.parse(validFrom)
-                    cal.setTime(validFromDate);
+                    cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
                         throw BadRequestException("Invalid ValidFrom field")
 
@@ -262,9 +287,16 @@ class TicketCatalogueServiceImpl(
                         throw BadRequestException("Invalid ValidFrom field")
 
                 }
-                else -> throw BadRequestException("Invalid Ticket Type")
+                else -> {
+                    throw BadRequestException("Invalid ValidFrom field")
+                }
             }
 
+        }else{
+
+            val date = formatter.format(Date())
+            if(date!=validFrom)
+                throw  BadRequestException("NotBefore must be current date for seasonal types")
         }
     }
 
@@ -272,9 +304,9 @@ class TicketCatalogueServiceImpl(
 }
 
 data class UserDetailsDTO(
-        var username: String,
-        var name: String?,
-        var address: String?,
-        var telephone_number: String?,
-        var date_of_birth: String?
+    var username: String,
+    var name: String?,
+    var address: String?,
+    var telephone_number: String?,
+    var date_of_birth: String?
 )
