@@ -1,6 +1,5 @@
 package it.polito.wa2.traveler_service.interceptors
 
-//TODO
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.ConsumptionProbe
 import org.springframework.http.HttpStatus

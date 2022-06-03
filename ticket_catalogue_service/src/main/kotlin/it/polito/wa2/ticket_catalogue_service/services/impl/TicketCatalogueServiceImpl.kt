@@ -135,7 +135,6 @@ class TicketCatalogueServiceImpl(
 
     }
 
-    //TODO occhio che le funzioni ritornanti Mono non sono suspend qui, da modificare
     override fun getOrdersByUserId(userId: String): Flow<OrderDTO> {
         return orderRepository.findByUserId(userId).map { it.toDTO() }
     }

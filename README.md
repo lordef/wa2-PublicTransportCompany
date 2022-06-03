@@ -73,7 +73,6 @@ and the host and port specified in
 
 
 ## Business Logic
-[//]: # (TODO)
 
 NOTE: before to shop tickets, be sure to have injected inside the User Details table the specific user record (and eventually the date of birth, if the purchased ticket has age restriction)
 
@@ -88,45 +87,49 @@ Tickets was thought as follow :
 - each ticket has a price, a type (that can only be "ordinal" or "seasonal"), a name (that must be unique and represent uniquely the ticket), min and max age for pucrhasing that ticket (these fields are optional), and duration (which is available only for "seasonal" types).
   duration is expressed in minutes (so that admin can add tickets which have a more flexible duration : a certain number of minutes, hours, days or months)
 
-- ordinal tickets are already inside the Database once you run the catalogue service, and new ones cannot be inserted by an admin and their business logic is hardcoded in the traveler service which generates tickets :
-  An admin can add only seasonal tickets, using a JSON as follow :
+- ordinal tickets are already inside the Database once you run the catalogue service, and new ones cannot be inserted by an admin.
+  An admin can add only seasonal tickets, using a JSON as follows :
+```json
   {
-  "price":2.35, //required
-  "type":"seasonal", //required : only seasonal is allowed as string content
-  "name": "mia prova3", //required : must be a not existing yet name
-  "minAge":2, //optional
-  "maxAge":14, //optional
-  "duration": 65 ////required: must be present
+  "price":2.35,
+  "type":"seasonal", 
+  "name": "mia prova3",
+  "minAge":2, 
+  "maxAge":14, 
+  "duration": 65
   }
+```
 
-
-- When a user want to buy a ticket, has to send to the shop endopoint the following JSON :
-  {
-  "quantity": 1, //required
-  "ticketId": 2, //required
-  "zoneId": "a", //required
-  "notBefore": "24-07-2022", -> //required : useful only for purchasing ordinal types in order specify the moment from which the user want to use the ticket; constraints are reported below
-  "creditCardNumber": "11111111111111", //required
-  "expirationDate": "03-06-2023", //required
-  "cvv":"333", //required
-  "cardHolder": "ciaooo", //required
-  "duration" : 30 //required only if you want to buy a seasonal ticket; not required for ordinal ones
+- When a user want to buy a ticket, has to send to the shop endpoint the following JSON : <br>
+```json
+ { 
+  "quantity": 1, 
+  "ticketId": 2, 
+  "zoneId": "a", 
+  "notBefore": "24-07-2022", 
+  "creditCardNumber": "542523343010990", 
+  "expirationDate": "03-06-2023",
+  "cvv":"333", 
+  "cardHolder": "David Enzo Dongiomicco", 
+  "duration" : 30 
   }
+  ````
+ 
 
-- if the purchased ticket is an ordinal one, duration is neither necessary or useful; instead, for seasonal ones it is required.
+- if the purchased ticket is an ordinal one, duration is neither necessary nor useful; instead, for seasonal ones it is required.
 
 - The only expected "ordinal" ticket to shop are :
 1) "70 minutes" -> validFrom = instant in which is purchased/generated , exp = 70 minutes after (the notBefore field here is required but is useless to generate the ticket)
 2) "daily" -> It last 24 hours, for a specific day specified inside the JSON notBefore field (validFrom = midnight of the day specified in the notBefore field, exp : midnight of the day after)
 3) "weekly" -> It last 7 days, from monday to sunday of any specified week. In order to select the specific week,
-      notBefore field MUST be the Monday of the specific selected Week. Non è possibile far partire un weekly da un giorno che non sia lunedì.
+      notBefore field MUST be the Monday of the specific selected Week. "Weekly" tickets must start on "monday" days of the week.
 
 
 4) "monthly" -> Valid only from the first day of a selected month, up to the last day of that month. Is possible to select the specific month by using the notBefore field of the JSON in the POST request
    : for this reason, notBefore must be the first day of the specific month selected. A monthly ticket cannot start from a day which is not the 1st day of that month.
 
 5) "biannually" -> Valid only from the first day of a selected month, up to the last day of the 6th month.Is possible to select the specific starting month by using the notBefore field of the JSON in the POST request
-   : for this reason, notBefore must be the first day of the specific month selected. A biannually ticket cannot start from a day which is not the 1st day of that month.
+   : for this reason, notBefore must be the first day of the specific month selected. A biannual ticket cannot start from a day which is not the 1st day of that month.
 
 
 6) "yearly" -> Valid only from the first day of a selected month, up to the last day of the 12th month.Is possible to select the specific starting month by using the notBefore field of the JSON in the POST request
@@ -140,15 +143,13 @@ Tickets was thought as follow :
 
 
 
-
-[//]: # (TODO)
 ## Unit tests
-To run unit tests of the _login and traveler service_, 
-it is necessary to **run** the command for **creating** the required **container** (_**lab5container**_) explained above in this README.md <br> 
+To run unit tests of the _login, traveler service and payment service_, 
+it is necessary to **run** the command for **creating** the required **containers** (_**lab5container, container2**_) explained above in this README.md <br> 
 and <br>
-**run** it during the test
+**run** them during the test
 
-[//]: # (TODO)
 ## Integration tests
-To run integrations tests, it is sufficient to run the command for **creating** the required **container** explained above in this README.md
+To run integrations tests of the _login and traveler service_, it is sufficient to run the command for **creating** the required **containers** explained above in this README.md .
+
       
