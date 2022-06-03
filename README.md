@@ -2,18 +2,28 @@
 
 ### Guides
 The following guides illustrate how to set up the two modules concretely:
+- [Set up Kafka](#kafka-containers)
 - [Set up Databases](#databases)
 - [Set up Servers](#servers)
 - [Run Unit tests](#unit-tests)
 - [Run Integration tests](#integration-tests)
 
+## Kafka containers
+Run in the project command line:
 
+`docker-compose up`
+
+Once completed,<br>
+**start** the two created containers (_kafka_kafka_1_ and _kafka_zookeeper_1_)
+
+`docker start kafka_kafka_1 kafka_zookeeper_1`
 
 ## Databases
 **Two** containers are necessary, each one with 2 databases respectively. 
 
+### 1. Create containers
 For creating these two containers, <br>
-we need to execute the following command in the command line:
+execute the following command in the command line:
 
 ` docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
 
@@ -30,6 +40,7 @@ These four databases have the following names respectively: <br>
   * _postgres_, on port 54321, that contains info regarding **_ticket catalogue service_**
   * _db_payment_, on port 54321, that contains info regarding **_payment service_**
 
+### 2. Add Datasources
 Add two new Datasources in the IntelliJ project, <br>
 for each one username and password (should be _postgres_ and _postgres_ respectively) specified in:
 - [application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
@@ -41,15 +52,16 @@ and the host and port specified in
 - _spring.datasource.url_ of the [application.properties](login_service/src/main/resources/application.properties) (should be _localhost_ and _54320_)
 - _spring.r2dbc.url_ of the [application.properties](ticket_catalogue_service/src/main/resources/application.properties) (should be _localhost_ and _54321_)
 
-**In addition**, to successfully run the app, **start** the created container.
+### 3. Start containers
+**In addition**, to successfully run the app, **start** the created containers.
 
 ## Servers  
 
-* LoginService server (DB: _postgres_  on port 54320) on port 8081
-* TravelerService server (DB: _db_traveler_ on port 54320) on port 8080
+* **_LoginService_** server (DB: _postgres_  on port 54320) on port 8081
+* **_TravelerService_** server (DB: _db_traveler_ on port 54320) on port 8080
 
-* TicketCatalogueService server (DB: _postgres_  on port 54321) on port 8082
-* PaymentService server (DB: _db_payment_ on port 54321) on port 8083
+* **_TicketCatalogueService_** server (DB: _postgres_  on port 54321) on port 8082
+* **_PaymentService_** server (DB: _db_payment_ on port 54321) on port 8083
 
 [//]: # (TODO)
 ## Unit tests
