@@ -12,6 +12,7 @@ The following guides illustrate how to set up the two modules concretely:
 ## Databases
 **Two** containers are necessary, each one with 2 databases respectively. 
 
+### 1. Create containers
 For creating these two containers, <br>
 we need to execute the following command in the command line:
 
@@ -30,6 +31,7 @@ These four databases have the following names respectively: <br>
   * _postgres_, on port 54321, that contains info regarding **_ticket catalogue service_**
   * _db_payment_, on port 54321, that contains info regarding **_payment service_**
 
+### 2. Add Datasources
 Add two new Datasources in the IntelliJ project, <br>
 for each one username and password (should be _postgres_ and _postgres_ respectively) specified in:
 - [application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
@@ -41,7 +43,8 @@ and the host and port specified in
 - _spring.datasource.url_ of the [application.properties](login_service/src/main/resources/application.properties) (should be _localhost_ and _54320_)
 - _spring.r2dbc.url_ of the [application.properties](ticket_catalogue_service/src/main/resources/application.properties) (should be _localhost_ and _54321_)
 
-**In addition**, to successfully run the app, **start** the created container.
+### 3. Start containers
+**In addition**, to successfully run the app, **start** the created containers.
 
 ## Servers  
 
