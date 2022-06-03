@@ -11,12 +11,12 @@ The following guides illustrate how to set up the two modules concretely:
 ## Kafka containers
 Run in the project command line:
 
-`docker-compose up`
+`docker-compose up -d`
 
 Once completed,<br>
 **start** the two created containers (_kafka_kafka_1_ and _kafka_zookeeper_1_)
 
-`docker start kafka_kafka_1 kafka_zookeeper_1`
+`docker start lab5-group04_kafka_1 lab5-group04_zookeeper_1`
 
 ## Databases
 **Two** containers are necessary, each one with 2 databases respectively. 
@@ -25,7 +25,7 @@ Once completed,<br>
 For creating these two containers, <br>
 execute the following command in the command line:
 
-` docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
+`docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
 
 and then
 
@@ -40,8 +40,15 @@ These four databases have the following names respectively: <br>
   * _postgres_, on port 54321, that contains info regarding **_ticket catalogue service_**
   * _db_payment_, on port 54321, that contains info regarding **_payment service_**
 
-### 2. Add Datasources
-Add two new Datasources in the IntelliJ project, <br>
+### 2. Start containers
+**Start** the created containers with the following command:
+
+`docker start lab5container container2`
+
+
+### 3. Add Datasources
+**In addition**, to successfully run the app,<br>
+Add two new Datasources of type PostegreSQL in the IntelliJ project, <br>
 for each one username and password (should be _postgres_ and _postgres_ respectively) specified in:
 - [application-credentials.properties](login_service/src/main/resources/application-credentials.properties)
   - fields: _spring.datasource.username_ and _spring.datasource.password_
@@ -52,8 +59,7 @@ and the host and port specified in
 - _spring.datasource.url_ of the [application.properties](login_service/src/main/resources/application.properties) (should be _localhost_ and _54320_)
 - _spring.r2dbc.url_ of the [application.properties](ticket_catalogue_service/src/main/resources/application.properties) (should be _localhost_ and _54321_)
 
-### 3. Start containers
-**In addition**, to successfully run the app, **start** the created containers.
+
 
 ## Servers  
 
