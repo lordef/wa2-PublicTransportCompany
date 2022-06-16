@@ -19,9 +19,6 @@ class User(
     @Column(nullable = false)
     var active: Boolean = false,
 
-    @Column
-    var enrolling_capabilities: Boolean = false,
-
     @ManyToMany
     @JoinTable(
         name = "user_role",
