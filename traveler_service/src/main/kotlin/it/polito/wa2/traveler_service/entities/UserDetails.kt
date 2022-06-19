@@ -6,7 +6,7 @@ import javax.persistence.*
 
 @Entity
 class UserDetails(
-        @Id
+    @Id
     @Column(updatable = false, nullable = false, unique = true)
     val username: String? = null,
 
@@ -23,6 +23,8 @@ class UserDetails(
     var telephone_number: String? = null,
 
         @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)
-    val tickets: List<TicketAcquired>? = null
+    val tickets: List<TicketAcquired>? = null,
 
+        @OneToMany(mappedBy = "userDetails", fetch = FetchType.LAZY)
+    val transits: List<Transit>? = null
 )

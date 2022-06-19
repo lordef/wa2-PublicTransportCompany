@@ -45,7 +45,7 @@ class TicketCatalogueController {
 
 
 
-        println(purchaseRequestDTO)
+        println(principal.name)
 
         val res = catalogueService.purchaseTickets(principal.name, purchaseRequestDTO).awaitSingle()
         return res

@@ -47,6 +47,10 @@ dependencies {
 
     implementation("org.postgresql:postgresql:42.3.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
+
+    // dependencies for QRcode writer
+    implementation("com.google.zxing:core:3.3.1")
+    implementation("com.google.zxing:javase:3.3.0")
 }
 
 tasks.withType<KotlinCompile> {

@@ -10,4 +10,7 @@ interface TicketPurchasedRepository : CrudRepository<TicketAcquired, Long> {
 
     @Transactional(readOnly = true)
     fun findAllByUserDetailsUsername(userDetailsUsername : String) : List<TicketAcquired>
+
+    @Transactional(readOnly = true)
+    fun findTicketAcquiredById(ticketId : Long) : TicketAcquired
 }

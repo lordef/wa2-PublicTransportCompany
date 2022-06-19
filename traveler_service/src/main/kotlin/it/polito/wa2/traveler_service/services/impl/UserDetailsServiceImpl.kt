@@ -14,6 +14,7 @@ import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.context.SecurityContextHolder
 import java.text.SimpleDateFormat
 
 
@@ -75,6 +76,15 @@ class UserDetailsServiceImpl : UserDetailsService {
 
         return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map{it->it.toDTO()}
 
+    }
+
+    override fun getTicketById(ticketId : Long, username: String): TicketAcquiredDTO {
+        val ticket =  ticketPurchasedRepository.findTicketAcquiredById(ticketId).toDTO()
+        println(ticket.sub)
+        if(ticket == null || !ticket.sub.equals(username)) {
+            throw NotFoundException("Ticket doesn't exist for this user")
+        }
+        return ticket
     }
 
     override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO)/*: List<TicketAcquiredDTO> */{

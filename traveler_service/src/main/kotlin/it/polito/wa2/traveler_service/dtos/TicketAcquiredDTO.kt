@@ -4,7 +4,7 @@ import it.polito.wa2.traveler_service.entities.TicketAcquired
 
 
 data class TicketAcquiredDTO(
-        val sub: Long?,
+        val sub: String?,
         var iat: String,
         var nbf: String,//NotBefore, stands for validFrom
         var exp: String,
@@ -14,5 +14,5 @@ data class TicketAcquiredDTO(
 ) {}
 
 fun TicketAcquired.toDTO(): TicketAcquiredDTO {
-    return TicketAcquiredDTO(getId(), issuedAt.toString(), validFrom.toString(), expiry.toString(), zoneId, type,jws)
+    return TicketAcquiredDTO(userDetails.username, issuedAt.toString(), validFrom.toString(), expiry.toString(), zoneId, type,jws)
 }

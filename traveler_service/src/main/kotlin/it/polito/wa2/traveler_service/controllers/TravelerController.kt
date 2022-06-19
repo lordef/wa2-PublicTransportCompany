@@ -1,16 +1,26 @@
 package it.polito.wa2.traveler_service.controllers
 
 
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.client.j2se.MatrixToImageConfig
+import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.google.zxing.common.BitMatrix
+import com.google.zxing.qrcode.QRCodeWriter
 import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
 import it.polito.wa2.traveler_service.dtos.TicketAcquiredDTO
+import it.polito.wa2.traveler_service.dtos.TransitDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
+import it.polito.wa2.traveler_service.services.impl.TransitServiceImpl
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.validation.Valid
@@ -21,6 +31,9 @@ class TravelerController {
 
     @Autowired
     lateinit var userDetailsService: UserDetailsServiceImpl
+
+    @Autowired
+    lateinit var transitService: TransitServiceImpl
 
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
@@ -86,6 +99,25 @@ class TravelerController {
         )
     }
 
+    @GetMapping(path = ["/single-ticket"], produces = [MediaType.IMAGE_PNG_VALUE])
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
+    fun generateQRCodeImage(@RequestParam ticketId: String): ByteArray? {
+
+        val userName = SecurityContextHolder.getContext().authentication.name
+
+        //QRcode generator logic
+        val qrCodeWriter = QRCodeWriter()
+        val ticketDTO = userDetailsService.getTicketById(ticketId.toLong(), userName)
+        val bitMatrix: BitMatrix = qrCodeWriter.encode(ticketDTO.jws, BarcodeFormat.QR_CODE, 250, 250)
+
+        val pngOutputStream = ByteArrayOutputStream()
+        val con = MatrixToImageConfig(-0xfffffe, -0x3fbf)
+
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream, con)
+        val pngData: ByteArray = pngOutputStream.toByteArray()
+
+        return pngData
+    }
 
     @GetMapping("/admin/travelers")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
@@ -106,6 +138,21 @@ class TravelerController {
     @ResponseBody
     fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(userID)
+    }
+
+
+    @PostMapping("/transit")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).EMBEDDED_SYSTEM)")
+    @ResponseBody
+    fun postTransit(
+        @RequestBody @Valid transitDTO: TransitDTO,
+        bindingResult: BindingResult
+    ) {
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+        //putting transit info in the db
+        transitService.postTransit(transitDTO)
     }
 
     //the only valid format is dd-MM-yyyy

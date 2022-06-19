@@ -6,7 +6,8 @@ enum class Role: GrantedAuthority {
     CUSTOMER,
     ADMIN,
     ADMIN_E,
-    EMBEDDED_SYSTEM;
+    EMBEDDED_SYSTEM,
+    SERVICE;
 
     override fun getAuthority(): String {
         return this.name
