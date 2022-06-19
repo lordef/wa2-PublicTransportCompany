@@ -1,6 +1,5 @@
 package it.polito.wa2.traveler_service.entities
 
-import it.polito.wa2.traveler_service.annotations.ValidTimestamp
 import java.time.LocalDateTime
 import javax.persistence.*
 

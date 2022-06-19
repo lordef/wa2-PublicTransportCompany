@@ -6,11 +6,10 @@ import com.google.zxing.client.j2se.MatrixToImageConfig
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
-import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
-import it.polito.wa2.traveler_service.dtos.TicketAcquiredDTO
-import it.polito.wa2.traveler_service.dtos.TransitDTO
-import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
+import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
+import it.polito.wa2.traveler_service.services.AdminReportsService
+import it.polito.wa2.traveler_service.services.impl.AdminReportsServiceImpl
 import it.polito.wa2.traveler_service.services.impl.TransitServiceImpl
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +33,9 @@ class TravelerController {
 
     @Autowired
     lateinit var transitService: TransitServiceImpl
+
+    @Autowired
+    lateinit var adminReportsService: AdminReportsServiceImpl
 
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
@@ -138,6 +140,62 @@ class TravelerController {
     @ResponseBody
     fun getAdminTickets(@PathVariable("userID") userID: String): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(userID)
+    }
+
+
+
+    /** APIs for statistics about purchases and transits  **/
+
+    @GetMapping("/admin/report/{userID}/purchases")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @ResponseBody
+    fun getPurchasesByUser(@PathVariable("userID") userID: String,
+                           @RequestBody @Valid dateRangeDTO: DateRangeDTO,
+                           bindingResult: BindingResult): List<TicketAcquiredDTO> {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+        println(dateRangeDTO)
+        return adminReportsService.getTicketsAcquiredByUser(userID, dateRangeDTO)
+    }
+
+    @GetMapping("/admin/report/{userID}/transits")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @ResponseBody
+    fun getTransitsByUser(@PathVariable("userID") userID: String,
+                          @RequestBody @Valid dateTimeRangeDTO: DateTimeRangeDTO,
+                          bindingResult: BindingResult): List<TransitDTO> {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+
+        return adminReportsService.getTransitsByUser(userID, dateTimeRangeDTO)
+    }
+
+    @GetMapping("/admin/report/purchases")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @ResponseBody
+    fun getPurchases( @RequestBody @Valid dateRangeDTO: DateRangeDTO,
+                      bindingResult: BindingResult): List<TicketAcquiredDTO> {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+
+        return adminReportsService.getTicketsAcquired(dateRangeDTO)
+    }
+    @GetMapping("/admin/report/transits")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @ResponseBody
+    fun getTransits( @RequestBody @Valid dateTimeRangeDTO: DateTimeRangeDTO,
+                     bindingResult: BindingResult): List<TransitDTO> {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+
+        return adminReportsService.getTransits(dateTimeRangeDTO)
     }
 
 
