@@ -1,4 +1,4 @@
-# Lab5-Group04
+# Group04-FinalProject
 
 ### Guides
 The following guides illustrate how to set up the two modules concretely:
@@ -18,7 +18,7 @@ Run in the project command line:
 Once completed,<br>
 **start** the two created containers (_kafka_kafka_1_ and _kafka_zookeeper_1_)
 
-`docker start lab5-group04_kafka_1 lab5-group04_zookeeper_1`
+`docker start group04_final_project_kafka_1 group04_final_project_zookeeper_1`
 
 ## Databases
 **Two** containers are necessary, each one with 2 databases respectively. 
@@ -27,25 +27,25 @@ Once completed,<br>
 For creating these two containers, <br>
 execute the following command in the command line:
 
-`docker run --name lab5container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
+`docker run --name login_traveler_container -p 54320:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_traveler -d postgres`
 
 and then
 
-`docker run --name container2 -p 54321:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_payment -d postgres`
+`docker run --name ticketCatalogue_payment_container -p 54321:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=db_payment -d postgres`
 
 These four databases have the following names respectively: <br>
-- Container _**lab5container**_ has the following two databases:
+- Container _**login_traveler_container**_ has the following two databases:
   * _postgres_, on port 54320, that contains info regarding **_login service_**
   * _db_traveler_, on port 54320, that contains info regarding **_traveler service_**
 
-- Container _**container2**_ has the following two databases:
+- Container _**ticketCatalogue_payment_container**_ has the following two databases:
   * _postgres_, on port 54321, that contains info regarding **_ticket catalogue service_**
   * _db_payment_, on port 54321, that contains info regarding **_payment service_**
 
 ### 2. Start containers
 **Start** the created containers with the following command:
 
-`docker start lab5container container2`
+`docker start login_traveler_container ticketCatalogue_payment_container`
 
 
 ### 3. Add Datasources
@@ -145,7 +145,7 @@ Tickets was thought as follow :
 
 ## Unit tests
 To run unit tests of the _login, traveler service and payment service_, 
-it is necessary to **run** the command for **creating** the required **containers** (_**lab5container, container2**_) explained above in this README.md <br> 
+it is necessary to **run** the command for **creating** the required **containers** (_**login_traveler_container, ticketCatalogue_payment_container**_) explained above in this README.md <br> 
 and <br>
 **run** them during the test
 
