@@ -169,7 +169,6 @@ class TicketCatalogueServiceImpl(
         ticketRepository.save(ticketEntity)
     }
 
-    //TODO: to test
     override suspend fun updateTicket(ticketDTO: TicketDTO) {
         val ticket = ticketRepository.findById(ticketDTO.ticketID!!)
 
@@ -201,7 +200,7 @@ class TicketCatalogueServiceImpl(
                     ticketDTO.duration
                 )
             }
-        ticketRepository.save(ticketEntity) //TODO: test, because maybe 'save' performs an update if the row exists
+        ticketRepository.save(ticketEntity) //'save' performs an update if the row exists
 
         /* Alternative rough method */
         /*
