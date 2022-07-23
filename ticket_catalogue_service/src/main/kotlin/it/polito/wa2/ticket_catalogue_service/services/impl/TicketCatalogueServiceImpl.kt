@@ -76,7 +76,7 @@ class TicketCatalogueServiceImpl(
 
 
         checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore)
-        if(ticket.type=="seasonal" && (ticket.duration==null || ticket.duration<1))
+        if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
             throw BadRequestException("Invalid duration")
 
         //generating jwt for the authentication with Traveler Service
@@ -169,35 +169,47 @@ class TicketCatalogueServiceImpl(
         ticketRepository.save(ticketEntity)
     }
 
-    //TODO
+    //TODO: to test
     override suspend fun updateTicket(ticketDTO: TicketDTO) {
         val ticket = ticketRepository.findById(ticketDTO.ticketID!!)
 
-        if (ticket != null)
+        if (ticket == null)
             throw BadRequestException("Invalid ticket id")
 
+        val ticketEntity: Ticket =
+            if (ticketDTO.type != "ordinal") {
+                // allowed modifications: price, min_age, max_age //TODO: allow also name?
+                Ticket(
+                    ticket.ticketId,
+                    ticketDTO.price,
+                    ticket.type,
+                    ticket.name,
+                    ticketDTO.minAge,
+                    ticketDTO.maxAge,
+                    ticket.duration
+                )
+            } else { //ticketDTO.type == "seasonal"
+                // update (add/remove active columns: min_age, max_age, start_period, end_period)
+                // or modify some values (price, name, min_age, max_age, start_period, end_period, duration)
+                Ticket(
+                    ticket.ticketId,
+                    ticketDTO.price,
+                    ticket.type,
+                    ticketDTO.name,
+                    ticketDTO.minAge,
+                    ticketDTO.maxAge,
+                    ticketDTO.duration
+                )
+            }
+        ticketRepository.save(ticketEntity) //TODO: test, because maybe 'save' performs an update if the row exists
+
+        /* Alternative rough method */
         /*
-        if ordinal -> modify only price
-        if seasonal -> update (add/remove active columns: min_age, max_age, start_period, end_period)
-                        and modify some value (price, name, min_age, max_age, start_period, end_period, duration)
-        */
-
-        val ticketEntity = Ticket(
-            null,
-            ticketDTO.price,
-            ticketDTO.type,
-            ticketDTO.name,
-            ticketDTO.minAge,
-            ticketDTO.maxAge,
-            ticketDTO.duration
-        )
-//        ticketRepository.save(ticketEntity)
-
-        //It does not update. but delete the row and recreate a new one
+        //It does not update, but delete the row and recreate a new one with a new ticket id
         ticketRepository.deleteById(ticket?.ticketId!!)
         ticketRepository.save(ticketEntity)
+         */
     }
-
 
 
     //
@@ -323,11 +335,11 @@ class TicketCatalogueServiceImpl(
                 }
             }
 
-        }else{
+        } else {
 
             val date = formatter.format(Date())
-            if(date!=validFrom)
-                throw  BadRequestException("NotBefore must be current date for seasonal types")
+            if (date != validFrom)
+                throw BadRequestException("NotBefore must be current date for seasonal types")
         }
     }
 

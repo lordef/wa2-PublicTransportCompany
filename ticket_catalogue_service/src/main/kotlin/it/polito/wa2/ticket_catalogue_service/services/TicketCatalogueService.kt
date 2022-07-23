@@ -17,5 +17,4 @@ interface TicketCatalogueService {
 
     //TODO: update and modify ticket
     suspend fun updateTicket(ticket: TicketDTO)
-
 }
