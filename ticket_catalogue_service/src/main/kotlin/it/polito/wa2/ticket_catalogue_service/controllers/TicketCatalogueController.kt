@@ -18,7 +18,6 @@ import java.util.*
 import javax.validation.Valid
 
 
-
 @RestController
 class TicketCatalogueController {
 
@@ -26,7 +25,7 @@ class TicketCatalogueController {
     lateinit var catalogueService: TicketCatalogueServiceImpl
 
     @GetMapping("/tickets", produces = [MediaType.APPLICATION_NDJSON_VALUE])
-    fun getTickets() : Flow<TicketDTO> {
+    fun getTickets(): Flow<TicketDTO> {
         return catalogueService.getAllTickets()
     }
 
@@ -64,7 +63,7 @@ class TicketCatalogueController {
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
     suspend fun getOrder(principal: Principal, @PathVariable("orderId") orderId: Long): OrderDTO {
         val res = catalogueService.getOrderByOrderIdAndUserId(principal.name, orderId).awaitSingleOrNull()
-        if(res==null)
+        if (res == null)
             throw BadRequestException("User and/or Order Not Present")
         else return res
     }
@@ -74,12 +73,25 @@ class TicketCatalogueController {
     suspend fun addTicket(
         @RequestBody @Valid ticketDTO: TicketDTO
     ) {
-        if(ticketDTO.type!="seasonal")
+        if (ticketDTO.type != "seasonal")
             throw BadRequestException("Bad Type Inserted")
 
 
         catalogueService.addTicket(ticketDTO)
     }
+
+    //TODO: update and modify an existing ticket
+    @PutMapping("/admin/{ticketId}")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
+    suspend fun updateTicket(
+        @RequestBody @Valid ticketDTO: TicketDTO,
+        @PathVariable("ticketId") ticketId: Long
+    ) {
+        if(ticketDTO.ticketID == null)
+            throw BadRequestException("No id Inserted") //TODO: choose right exception
+        catalogueService.updateTicket(ticketDTO)
+    }
+
 
     @GetMapping("/admin/orders")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")

@@ -168,6 +168,38 @@ class TicketCatalogueServiceImpl(
         )
         ticketRepository.save(ticketEntity)
     }
+
+    //TODO
+    override suspend fun updateTicket(ticketDTO: TicketDTO) {
+        val ticket = ticketRepository.findById(ticketDTO.ticketID!!)
+
+        if (ticket != null)
+            throw BadRequestException("Invalid ticket id")
+
+        /*
+        if ordinal -> modify only price
+        if seasonal -> update (add/remove active columns: min_age, max_age, start_period, end_period)
+                        and modify some value (price, name, min_age, max_age, start_period, end_period, duration)
+        */
+
+        val ticketEntity = Ticket(
+            null,
+            ticketDTO.price,
+            ticketDTO.type,
+            ticketDTO.name,
+            ticketDTO.minAge,
+            ticketDTO.maxAge,
+            ticketDTO.duration
+        )
+//        ticketRepository.save(ticketEntity)
+
+        //It does not update. but delete the row and recreate a new one
+        ticketRepository.deleteById(ticket?.ticketId!!)
+        ticketRepository.save(ticketEntity)
+    }
+
+
+
     //
 
     fun calculateAge(birthDate: LocalDate?, currentDate: LocalDate?): Int {

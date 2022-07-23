@@ -14,4 +14,8 @@ interface TicketCatalogueService {
     suspend fun getOrderByOrderIdAndUserId(userId : String, orderId : Long): Mono<OrderDTO>
     fun getAllOrdersByAllUsers(): Flow<OrderDTO>
     suspend fun addTicket(ticket: TicketDTO)
+
+    //TODO: update and modify ticket
+    suspend fun updateTicket(ticket: TicketDTO)
+
 }
