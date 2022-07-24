@@ -20,9 +20,9 @@ class EmailBaseClass {
     lateinit var mailService: EmailServiceImpl
 
     // Email session info
-    @Value( "politolab03@gmail.com" )
+    @Value("\${spring.mail.username}" )
     lateinit var email: String
-    @Value("i}nXcs%Q7Z'X<5Z@3-Kc7;!}yw}.%") //TODO: test -> old password: Polito123 -> on Gmail not changed yet
+    @Value("\${spring.mail.password}")
     lateinit var password: String
 
     lateinit var store: Store
