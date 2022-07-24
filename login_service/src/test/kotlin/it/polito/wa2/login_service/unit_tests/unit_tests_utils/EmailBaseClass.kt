@@ -22,7 +22,7 @@ class EmailBaseClass {
     // Email session info
     @Value( "politolab03@gmail.com" )
     lateinit var email: String
-    @Value( "Polito123" )
+    @Value("i}nXcs%Q7Z'X<5Z@3-Kc7;!}yw}.%") //TODO: test -> old password: Polito123 -> on Gmail not changed yet
     lateinit var password: String
 
     lateinit var store: Store
