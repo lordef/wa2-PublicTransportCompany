@@ -53,6 +53,9 @@ class RegistrationController() {
         //creating user
         val activationDTO = userService.createUser(userDTO)
 
+        //TODO: debug
+//        println("USER ACTIVATION: provId: ${activationDTO.provisional_id}, activation_code: ${activationDTO.activation_code}")
+
         return UserRegistrationResponseBody(activationDTO.provisional_id,userDTO.email)
 
     }

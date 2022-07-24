@@ -61,7 +61,7 @@ class UserServiceImpl: UserDetailsService,UserService {
 
             val act = Activation(user)
 
-            activationRepository.save(act) //memorizzo l'activation nel DB
+            activationRepository.save(act) //save activation in DB
 
             val ret = mailService.sendEmail(savedUser.email, "Email verification",
                     "Hi ${savedUser.nickname},\n" +

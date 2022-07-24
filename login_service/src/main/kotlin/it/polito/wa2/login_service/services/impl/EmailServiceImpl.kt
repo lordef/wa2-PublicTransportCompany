@@ -13,7 +13,6 @@ class EmailServiceImpl : EmailService {
     @Autowired
     lateinit var mailSender: JavaMailSender
 
-
     @Value("politolab03@gmail.com")
     lateinit var fromMail : String
 
