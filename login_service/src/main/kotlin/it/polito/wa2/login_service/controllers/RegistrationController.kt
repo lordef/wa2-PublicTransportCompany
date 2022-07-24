@@ -3,12 +3,15 @@ package it.polito.wa2.login_service.controllers
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.LoginRequestDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
+import it.polito.wa2.login_service.dtos.RoleDTO
+import it.polito.wa2.login_service.entities.ERole
 import it.polito.wa2.login_service.exceptions.BadRequestException
 import it.polito.wa2.login_service.security.Jwt
 import it.polito.wa2.login_service.services.impl.UserServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -19,13 +22,10 @@ import javax.servlet.http.HttpServletResponse
 import javax.validation.Valid
 
 
-
-
-
 @RestController
 class RegistrationController() {
 
-    @Value( "\${application.jwt.jwtHeaderStart}" )
+    @Value("\${application.jwt.jwtHeaderStart}")
     lateinit var prefix: String
 
     @Autowired
@@ -38,13 +38,12 @@ class RegistrationController() {
     lateinit var authenticationManager: AuthenticationManager
 
 
-
     @PostMapping("/user/register")
     @ResponseBody
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun userRegistration(
-            @RequestBody @Valid userDTO: RegistrationRequestDTO,
-            bindingResult: BindingResult
+        @RequestBody @Valid userDTO: RegistrationRequestDTO,
+        bindingResult: BindingResult
     ): UserRegistrationResponseBody {
 
         if (bindingResult.hasErrors())
@@ -56,15 +55,17 @@ class RegistrationController() {
         //TODO: debug
 //        println("USER ACTIVATION: provId: ${activationDTO.provisional_id}, activation_code: ${activationDTO.activation_code}")
 
-        return UserRegistrationResponseBody(activationDTO.provisional_id,userDTO.email)
+        return UserRegistrationResponseBody(activationDTO.provisional_id, userDTO.email)
 
     }
 
     @PostMapping("/user/validate")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    fun userValidation(@RequestBody @Valid activationDTO: ActivationDTO,
-                       bindingResult: BindingResult) : UserValidationResponseBody {
+    fun userValidation(
+        @RequestBody @Valid activationDTO: ActivationDTO,
+        bindingResult: BindingResult
+    ): UserValidationResponseBody {
 
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
@@ -75,13 +76,11 @@ class RegistrationController() {
     }
 
 
-
-
     @PostMapping("/user/login")
     fun login(
-            @RequestBody @Valid loginRequest: LoginRequestDTO, bindingResult: BindingResult,
-            response: HttpServletResponse
-    ){
+        @RequestBody @Valid loginRequest: LoginRequestDTO, bindingResult: BindingResult,
+        response: HttpServletResponse
+    ) {
         if (bindingResult.hasErrors())
             throw BadRequestException(bindingResult.fieldErrors.joinToString())
 
@@ -98,7 +97,7 @@ class RegistrationController() {
          * , ritorna un Authentication popolata con i dettagli dell'utente autenticato, che sfrutterò per generare il JWT
          */
         val authentication: Authentication = authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(loginRequest.nickname, loginRequest.password)
+            UsernamePasswordAuthenticationToken(loginRequest.nickname, loginRequest.password)
         )
 
         response.setHeader("Authorization", "$prefix ${jwt.generateJwt(authentication)}")
@@ -107,7 +106,28 @@ class RegistrationController() {
     }
 
 
+    //TODO: add admin or embedded system
+    @PutMapping("/admin/users/{userId}")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN)")
+    suspend fun addRole(
+        @RequestBody @Valid roleDTO: RoleDTO,
+        @PathVariable("userId") userId: Long
+    ) {
+        //subsequent id of code for service ---> TODO
+        if(roleDTO.role == ERole.ADMIN_E){
+            //add a role through addRole and addUser methods
+        }else if (roleDTO.role == ERole.EMBEDDED_SYSTEM){
+
+        }
+//        if (ticketDTO.type != "seasonal")
+//            throw BadRequestException("Bad Type Inserted")
+//
+//
+//        catalogueService.addTicket(ticketDTO)
+    }
+
+
 }
 
-data class UserRegistrationResponseBody(val provisional_id : UUID?, val email : String )
+data class UserRegistrationResponseBody(val provisional_id: UUID?, val email: String)
 data class UserValidationResponseBody(val userId: Long?, val nickname: String, val email: String)

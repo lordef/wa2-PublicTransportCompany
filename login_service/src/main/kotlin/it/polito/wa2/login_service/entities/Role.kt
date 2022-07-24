@@ -16,13 +16,11 @@ class Role(
 
         @ManyToMany(mappedBy = "roles")
         val users: MutableSet<User> = mutableSetOf()
-
-
 ) {
 
-    fun addUser(s: User) {
-        users.add(s)
-        s.roles.add(this)
+    fun addUser(user: User) {
+        users.add(user)
+        user.roles.add(this)
     }
 
 }
