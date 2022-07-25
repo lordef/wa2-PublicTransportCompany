@@ -132,6 +132,7 @@ class UserServiceImpl : UserDetailsService, UserService {
     }
 
     //TODO: add or modify role
+
     override fun addRole(userRoleDTO: UserRoleDTO) {
         try {
 //            val userDB = userRepository.findById(userRoleDTO.userId)
@@ -154,7 +155,7 @@ class UserServiceImpl : UserDetailsService, UserService {
             if (userRoleDTO.role == ERole.ADMIN_E) {
                 //add a role through addRole and addUser methods
 
-                updatedUser.addRole()
+//                updatedUser.addRole()
 
 
             } else
@@ -166,7 +167,7 @@ class UserServiceImpl : UserDetailsService, UserService {
 
             /*old code*/
             //encode the password before to store it
-            val user = User(userDTO.nickname, passwordEncoder.encode(userDTO.password as String), userDTO.email)
+            /*val user = User(userDTO.nickname, passwordEncoder.encode(userDTO.password as String), userDTO.email)
 
             val savedUser = userRepository.save(user)
 
@@ -187,10 +188,15 @@ class UserServiceImpl : UserDetailsService, UserService {
                 throw BadRequestException("Problem Occurs during mail sending")
 
             return act.toDTO()
+            s
+             */
         } catch (ex: Exception) {
             throw BadRequestException(ex.message.toString())
         }
+
     }
+
+
 
 
     @Scheduled(fixedRate = 86400000)// 24hours expressed in milliseconds

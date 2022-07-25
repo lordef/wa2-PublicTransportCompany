@@ -10,5 +10,4 @@ interface UserService{
     fun validateUser(activation: ActivationDTO): UserDTO
 
     fun addRole(userRoleDTO: UserRoleDTO)
-
 }
