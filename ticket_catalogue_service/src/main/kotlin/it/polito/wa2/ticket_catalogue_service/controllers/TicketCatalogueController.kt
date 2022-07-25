@@ -81,7 +81,7 @@ class TicketCatalogueController {
     }
 
     //Update and modify an existing ticket
-    @PutMapping("/admin/{ticketId}")
+    @PutMapping("/admin/tickets/{ticketId}")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).ADMIN)")
     suspend fun updateTicket(
         @RequestBody @Valid ticketDTO: TicketDTO,
