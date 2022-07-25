@@ -3,7 +3,7 @@ package it.polito.wa2.login_service.controllers
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.LoginRequestDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
-import it.polito.wa2.login_service.dtos.RoleDTO
+import it.polito.wa2.login_service.dtos.UserRoleDTO
 import it.polito.wa2.login_service.entities.ERole
 import it.polito.wa2.login_service.exceptions.BadRequestException
 import it.polito.wa2.login_service.security.Jwt
@@ -110,20 +110,16 @@ class RegistrationController() {
     @PutMapping("/admin/users/{userId}")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN)")
     suspend fun addRole(
-        @RequestBody @Valid roleDTO: RoleDTO,
-        @PathVariable("userId") userId: Long
+        @RequestBody @Valid userRoleDTO: UserRoleDTO,
+        @PathVariable("userId") userId: Long, //<--- TODO: could be useless due to UserRoleDTO and binding result not null for userId
+        bindingResult: BindingResult
     ) {
-        //subsequent id of code for service ---> TODO
-        if(roleDTO.role == ERole.ADMIN_E){
-            //add a role through addRole and addUser methods
-        }else if (roleDTO.role == ERole.EMBEDDED_SYSTEM){
 
-        }
-//        if (ticketDTO.type != "seasonal")
-//            throw BadRequestException("Bad Type Inserted")
-//
-//
-//        catalogueService.addTicket(ticketDTO)
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+        val userRole = UserRoleDTO(userId, userRoleDTO.role)
+        userService.addRole(userRole)
     }
 
 

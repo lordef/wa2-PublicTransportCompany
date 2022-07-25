@@ -5,7 +5,11 @@ import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
 
-data class RoleDTO(
+data class UserRoleDTO(
+    @field:NotNull
+    @field:NotEmpty(message = "Used id must not be empty")
+    val userId: Long?,
+
     @field:NotNull
     @field:NotEmpty(message = "Role must not be empty")
     val role: ERole
