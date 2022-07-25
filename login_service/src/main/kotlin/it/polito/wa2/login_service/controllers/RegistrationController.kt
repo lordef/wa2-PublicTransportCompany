@@ -119,7 +119,7 @@ class RegistrationController() {
             throw BadRequestException("Wrong json fields")
 
         val userRole = UserRoleDTO(userId, userRoleDTO.role)
-        userService.addRole(userRole)
+        userService.addRole(userRole) //TODO: ACTIVE THIS LINE
     }
 
 
