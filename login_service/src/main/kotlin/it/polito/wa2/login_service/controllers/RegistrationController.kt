@@ -108,7 +108,7 @@ class RegistrationController() {
 
     //TODO: add admin or embedded system
     @PutMapping("/admin/users/{userId}")
-    @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN)")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN_E)")
     suspend fun addRole(
         @RequestBody @Valid userRoleDTO: UserRoleDTO,
         @PathVariable("userId") userId: Long, //<--- TODO: could be useless due to UserRoleDTO and binding result not null for userId
@@ -119,7 +119,7 @@ class RegistrationController() {
             throw BadRequestException("Wrong json fields")
 
         val userRole = UserRoleDTO(userId, userRoleDTO.role)
-        userService.addRole(userRole) //TODO: ACTIVE THIS LINE
+        userService.addRole(userRole)
     }
 
 

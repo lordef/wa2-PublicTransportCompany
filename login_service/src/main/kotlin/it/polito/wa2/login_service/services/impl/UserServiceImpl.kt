@@ -3,6 +3,7 @@ package it.polito.wa2.login_service.services.impl
 import it.polito.wa2.login_service.dtos.*
 import it.polito.wa2.login_service.entities.Activation
 import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.exceptions.*
 import it.polito.wa2.login_service.repositories.ActivationRepository
@@ -146,7 +147,7 @@ class UserServiceImpl : UserDetailsService, UserService {
             if (userRoleDTO.userId == null)
                 throw BadRequestException("No user id inserted")
 
-            val existingUser = userRepository.findById(userRoleDTO.userId)
+            val existingUser = userRepository.findById(userRoleDTO.userId) //TODO -> change method in interface
             val existingRole = roleRepository.findByName(userRoleDTO.role)
             if (!existingUser.isEmpty || !existingRole!!.isEmpty )
                 throw BadRequestException("Wrong json fields")
@@ -154,12 +155,14 @@ class UserServiceImpl : UserDetailsService, UserService {
 
             if (userRoleDTO.role == ERole.ADMIN_E) {
                 //add a role through addRole and addUser methods
+//                existingUser.get().addRole()
+                existingUser.get().addRole(existingRole.get())
 
 //                updatedUser.addRole()
 
 
             } else
-                if (userRoleDTO.role == ERole.EMBEDDED_SYSTEM) {
+                if (userRoleDTO.role == ERole.EMBEDDED_SYSTEM) { //TODO: another one endpoint for embedded systems
                     //TODO
                 }
 
