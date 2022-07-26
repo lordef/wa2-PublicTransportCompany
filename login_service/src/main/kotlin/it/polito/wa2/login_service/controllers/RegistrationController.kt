@@ -115,8 +115,8 @@ class RegistrationController() {
         bindingResult: BindingResult
     ) {
 
-//        if (bindingResult.hasErrors())
-//            throw BadRequestException("Wrong json fields")
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
 
         val userRole = UserRoleDTO(userId, userRoleDTO.role)
         println(userRole)

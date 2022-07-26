@@ -3,7 +3,6 @@ package it.polito.wa2.login_service.services.impl
 import it.polito.wa2.login_service.dtos.*
 import it.polito.wa2.login_service.entities.Activation
 import it.polito.wa2.login_service.entities.ERole
-import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.exceptions.*
 import it.polito.wa2.login_service.repositories.ActivationRepository
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 import java.util.*
-import kotlin.reflect.jvm.internal.impl.load.java.lazy.descriptors.DeclaredMemberIndex.Empty
-import kotlin.system.exitProcess
 
 
 @Service
@@ -147,24 +144,41 @@ class UserServiceImpl : UserDetailsService, UserService {
             if (userRoleDTO.userId == null)
                 throw BadRequestException("No user id inserted")
 
-            val existingUser = userRepository.findById(userRoleDTO.userId) //TODO -> change method in interface
+            val existingUser = userRepository.findById(userRoleDTO.userId)
             val existingRole = roleRepository.findByName(userRoleDTO.role)
-            if (existingUser.isEmpty || existingRole!!.isEmpty )
+            if (existingUser.isEmpty || existingRole!!.isEmpty)
                 throw BadRequestException("Wrong json fields")
 
+            val userRoles = existingUser.get().roles
 
-            if (userRoleDTO.role == ERole.ADMIN_E) {
-                //add a role through addRole and addUser methods
-//                existingUser.get().addRole()
+            val customerRole = roleRepository.findByName(ERole.CUSTOMER)
+            if (customerRole == null)
+                throw NotFoundException("Role not found")
+
+
+            /*
+                add admin:
+                    if only custom => add admin
+            */
+            if (userRoles.size == 1 &&
+                userRoles.contains(customerRole.get())
+            ) {
                 existingUser.get().addRole(existingRole.get())
+            }
 
-//                updatedUser.addRole()
+            /*
+            add admin:
+                if only custom add admin
+            add admin_e
+                if only customer => add admin and admin_e
+            */
 
-
-            } else
-                if (userRoleDTO.role == ERole.EMBEDDED_SYSTEM) { //TODO: another one endpoint for embedded systems
-                    //TODO
-                }
+            /*
+                - ADMIN_E è anche ADMIN
+                - Customer promosso ad ADMIN, tiene Customer
+                - Customer promosso ad ADMIN_E, tiene Customer e ADMIN
+                - EMBEDDED_SYSTEM -> nuovo endpoint
+            */
 
             /*************/
 
@@ -198,8 +212,6 @@ class UserServiceImpl : UserDetailsService, UserService {
         }
 
     }
-
-
 
 
     @Scheduled(fixedRate = 86400000)// 24hours expressed in milliseconds
