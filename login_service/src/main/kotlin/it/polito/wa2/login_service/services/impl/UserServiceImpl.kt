@@ -149,7 +149,7 @@ class UserServiceImpl : UserDetailsService, UserService {
 
             val existingUser = userRepository.findById(userRoleDTO.userId) //TODO -> change method in interface
             val existingRole = roleRepository.findByName(userRoleDTO.role)
-            if (!existingUser.isEmpty || !existingRole!!.isEmpty )
+            if (existingUser.isEmpty || existingRole!!.isEmpty )
                 throw BadRequestException("Wrong json fields")
 
 
