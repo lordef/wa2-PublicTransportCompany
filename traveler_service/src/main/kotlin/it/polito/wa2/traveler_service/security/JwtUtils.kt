@@ -80,6 +80,10 @@ class JwtUtils {
             .compact()
     }
 
+    fun getJwtTokenFromHeader(header: String): String{
+        return header.split(" ")[1]
+    }
+
 }
 
 data class UserDetailsJwt( val username : String, val roles : Set<Role> )

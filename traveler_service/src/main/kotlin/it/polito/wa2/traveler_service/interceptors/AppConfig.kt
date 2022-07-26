@@ -1,5 +1,6 @@
 package it.polito.wa2.traveler_service.interceptors
-
+//TODO qui da rivedere il rate limiter con web flux
+/*
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
@@ -16,4 +17,4 @@ class AppConfig : WebMvcConfigurer {
         registry.addInterceptor(interceptor)
             .addPathPatterns("/**")
     }
-}
+}*/

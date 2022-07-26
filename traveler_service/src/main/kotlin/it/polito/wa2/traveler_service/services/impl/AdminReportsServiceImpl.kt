@@ -4,6 +4,8 @@ import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.repositories.TransitRepository
 import it.polito.wa2.traveler_service.services.AdminReportsService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,19 +20,19 @@ class AdminReportsServiceImpl : AdminReportsService {
     @Autowired
     lateinit var ticketPurchasedRepository: TicketPurchasedRepository
 
-    override fun getTicketsAcquiredByUser(userID : String, dateRangeDTO: DateRangeDTO) :  List<TicketAcquiredDTO> {
-        return ticketPurchasedRepository.getTicketsAcquiredByUser(userID, dateRangeDTO).map { ticketAcquired -> ticketAcquired.toDTO()  }
+    override fun getTicketsAcquiredByUser(userID : String, dateRangeDTO: DateRangeDTO) : Flow<TicketAcquiredDTO> {
+        return ticketPurchasedRepository.getTicketsAcquiredByUser(userID, dateRangeDTO).map { it.toDTO() }
     }
 
-    override fun getTicketsAcquired(dateRangeDTO: DateRangeDTO) :  List<TicketAcquiredDTO> {
-        return ticketPurchasedRepository.getTicketsAcquired(dateRangeDTO).map { ticketAcquired -> ticketAcquired.toDTO()  }
+    override fun getTicketsAcquired(dateRangeDTO: DateRangeDTO) :  Flow<TicketAcquiredDTO> {
+        return ticketPurchasedRepository.getTicketsAcquired(dateRangeDTO).map { it.toDTO()  }
     }
 
-    override fun getTransitsByUser(userID : String, dateTimeRangeDTO: DateTimeRangeDTO) : List<TransitDTO> {
-        return transitRepository.getTransitsByUser(userID, dateTimeRangeDTO).map { transit -> transit.toDTO() }
+    override fun getTransitsByUser(userID : String, dateTimeRangeDTO: DateTimeRangeDTO) : Flow<TransitDTO> {
+        return transitRepository.getTransitsByUser(userID, dateTimeRangeDTO).map { it.toDTO() }
     }
 
-    override fun getTransits(dateTimeRangeDTO: DateTimeRangeDTO) : List<TransitDTO> {
-        return transitRepository.getTransits(dateTimeRangeDTO).map { transit -> transit.toDTO()  }
+    override fun getTransits(dateTimeRangeDTO: DateTimeRangeDTO) : Flow<TransitDTO> {
+        return transitRepository.getTransits(dateTimeRangeDTO).map { it.toDTO()  }
     }
 }

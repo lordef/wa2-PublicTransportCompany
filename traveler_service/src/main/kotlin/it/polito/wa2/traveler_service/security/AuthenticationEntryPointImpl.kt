@@ -1,5 +1,5 @@
 package it.polito.wa2.traveler_service.security
-
+/*
 import org.springframework.stereotype.Component
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
@@ -16,6 +16,7 @@ import java.io.IOException
  * Then we override the commence() method. This method will be triggerd anytime unauthenticated User requests
  * a secured HTTP resource and an AuthenticationException is thrown.
  * **/
+/*
 @Component
 class AuthenticationEntryPointImpl : AuthenticationEntryPoint {
 
@@ -27,4 +28,4 @@ class AuthenticationEntryPointImpl : AuthenticationEntryPoint {
         logger.error("Unauthorized error: {}", authException.message)
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized")
     }
-}
+}*/

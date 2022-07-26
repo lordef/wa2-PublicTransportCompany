@@ -1,70 +1,73 @@
 package it.polito.wa2.traveler_service.security
 
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.AuthenticationEntryPoint
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-
-@Configuration
-@EnableWebSecurity
-class WebSecurityConfig: WebSecurityConfigurerAdapter() {
-
-    @Autowired
-    lateinit var authenticationJwtTokenFilter: JwtAuthenticationTokenFilter
-
-    @Autowired
-    lateinit var unauthorizedHandler: AuthenticationEntryPoint
+import org.springframework.context.annotation.Bean
+import org.springframework.core.ResolvableType
+import org.springframework.core.codec.Hints
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.codec.json.Jackson2JsonEncoder
+import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder
+import org.springframework.security.config.web.server.ServerHttpSecurity
+import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.web.server.ServerWebExchange
+import reactor.core.publisher.Mono
 
 
-    /**
-     * We override the configure(HttpSecurity http) method from WebSecurityConfigurerAdapter interface.
-     * It tells Spring Security how we configure CORS and CSRF, when we want to require all users to be authenticated
-     * or not, which filter (AuthTokenFilter) and when we want it to work (filter before
-     * UsernamePasswordAuthenticationFilter), which Exception Handler is chosen (AuthEntryPointJwt).
-     */
-    override fun configure(http: HttpSecurity) {
+@EnableReactiveMethodSecurity
+@EnableWebFluxSecurity
+class WebSecurityConfig {
 
-        http.csrf().disable() // disable csrf
 
-        http.cors()
+    @Bean
+    fun springSecurityFilterChain(http: ServerHttpSecurity,
+                                  jwtReactiveAuthenticationFilter: JwtReactiveAuthenticationFilter
+    ): SecurityWebFilterChain {
+
 
 
         http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .authorizeExchange()
+            .anyExchange()
+            .authenticated()
 
-        http.authorizeRequests()
-                .anyRequest()
-                .authenticated()
+        http
+            .cors().disable()
+            .csrf().disable()
+            .httpBasic().disable()
+            .formLogin().disable()
+            .exceptionHandling()
+            .authenticationEntryPoint(handler)
+            .accessDeniedHandler(handler)
 
-        /**
-         *
-         * **/
-        http.exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
+        http
+            .addFilterAt(
+                jwtReactiveAuthenticationFilter,
+                SecurityWebFiltersOrder.AUTHENTICATION)
 
-
-
-        //esplicito che voglio aggiungere un filtro da eseguire prima di un certo filtro
-        //(quindi specifico anche l'ordine così facendo)
-        //riceve due parametri : il filtro implementato, qual è il filtro prima del quale eseguire questo filtro aggiunto
-        //quindi gli sto dicendo : prima di eseguire il filtro di autenticazione basato su username e password (che di
-        //solito, di base, è il primo della catena di filtri), esegui quest'altro filtro, il quale verifica se è valido
-        //il JWT, e se è valido, inietta nel SecurityContext un Authentication già processata (in quanto noi creiamo e
-        //inseriamo un Authentication il cui metodo isAuthenticated() ritorna true :  e da quanto ho capito poi, il filtro
-        //a seguire, e cioè quello dell'Autenticazione, trova un Authentication già processata (isAuth  = true) e quindi
-        //riesce a passare il filtro di autenticazione (quest'ultima parte è ciò che ho dedotto io)
-        http.addFilterBefore(authenticationJwtTokenFilter,
-                UsernamePasswordAuthenticationFilter::class.java)
+        return http.build()
     }
 
-    /*@Bean
-    override fun authenticationManagerBean(): AuthenticationManager? {
-        return super.authenticationManagerBean()
-    }*/
+    private val handler = {
+            swe: ServerWebExchange, e : Exception ->
+        println(e)
+        println(e.message)
+        swe.response.statusCode = HttpStatus.UNAUTHORIZED
+        swe.response.headers.contentType = MediaType.APPLICATION_JSON
+        swe.response.writeWith(
+            Jackson2JsonEncoder().encode(
+                Mono.just("Not Authorized User"),
+                swe.response.bufferFactory(),
+                ResolvableType.forInstance("Not Authorized User"),
+                MediaType.APPLICATION_JSON,
+                Hints.from(Hints.LOG_PREFIX_HINT, swe.logPrefix)
+            )
+        )
+    }
+
 
 }
+
+

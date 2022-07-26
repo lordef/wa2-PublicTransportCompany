@@ -14,5 +14,5 @@ data class TicketAcquiredDTO(
 ) {}
 
 fun TicketAcquired.toDTO(): TicketAcquiredDTO {
-    return TicketAcquiredDTO(userDetails.username, issuedAt.toString(), validFrom.toString(), expiry.toString(), zoneId, type,jws)
+    return TicketAcquiredDTO(userId, issuedAt.toString(), validFrom.toString(), expiry.toString(), zoneId, type,jws)
 }

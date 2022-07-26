@@ -1,29 +1,28 @@
 package it.polito.wa2.traveler_service.entities
 
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.util.Date
-import javax.persistence.*
 
-@Entity
-class TicketAcquired(
-    @Column(nullable = false, updatable = false)
+
+@Table("tickets_acquired")
+data class TicketAcquired(
+    @Id
+    val ticketId: Long?,
+
     var issuedAt: Date,
 
-    @Column(nullable = false, updatable = false)
     var validFrom: Date,
 
-    @Column(nullable = false, updatable = false)
     var expiry: Date,
 
-    @Column(nullable = false, updatable = false)
     var zoneId: String,
 
-    @Column(nullable = false, updatable = false)
     var type: String,
 
-    @Column(nullable = false, updatable = true)
     var jws: String = "",
 
-    @ManyToOne(fetch=FetchType.LAZY)
-    val userDetails: UserDetails
+    val userId: String
 
-) : EntityBase<Long>() {}
+)
+

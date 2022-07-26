@@ -15,5 +15,5 @@ class TransitDTO(
 ) {}
 
 fun Transit.toDTO(): TransitDTO {
-    return TransitDTO(timestamp, userDetails.username!!)
+    return TransitDTO(timestamp, userId)
 }

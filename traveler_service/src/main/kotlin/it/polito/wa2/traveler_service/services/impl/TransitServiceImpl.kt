@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.entities.UserDetails
+import kotlinx.coroutines.reactor.awaitSingle
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -23,12 +24,12 @@ class TransitServiceImpl : TransitService{
 
 
 
-    override fun postTransit(transitDTO: TransitDTO) {
+    override suspend fun postTransit(transitDTO: TransitDTO) {
 
         val formatter = SimpleDateFormat("dd-MM-yyyy")
         var date : Date? = null
 
-        val userDetailsDTO : UserDetailsDTO = userDetailsService.getUserProfile(transitDTO.username)
+        val userDetailsDTO : UserDetailsDTO = userDetailsService.getUserProfile(transitDTO.username).awaitSingle()
 
         if(userDetailsDTO.date_of_birth!=null && userDetailsDTO.date_of_birth!="")
             date = formatter.parse(userDetailsDTO.date_of_birth)
@@ -41,7 +42,7 @@ class TransitServiceImpl : TransitService{
             userDetailsDTO.telephone_number
         )
 
-        transitRepository.save(Transit(null, transitDTO.timestamp!!, userDetailsEntity))
+        transitRepository.save(Transit(null, transitDTO.timestamp!!, userDetailsEntity.username!!))
 
     }
 }

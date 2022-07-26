@@ -1,19 +1,20 @@
 package it.polito.wa2.traveler_service.repositories
 
 import it.polito.wa2.traveler_service.entities.UserDetails
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.CrudRepository
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.r2dbc.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
+
+
+
 
 @Repository
-interface UserDetailsRepository : CrudRepository<UserDetails, Long> {
+interface UserDetailsRepository : CoroutineCrudRepository<UserDetails, Long> {
 
-    @Transactional(readOnly = true)
-    fun findByUsername(nickname: String): UserDetails?
+    suspend fun findByUsername(username: String): UserDetails?//findByUsername(nickname: String): UserDetails?
 
     @Query("select ud.username from UserDetails ud")
-    @Transactional(readOnly = true)
-    fun findUsernames(): List<String>
+    fun findUsernames(): Flow<String>
 
 }

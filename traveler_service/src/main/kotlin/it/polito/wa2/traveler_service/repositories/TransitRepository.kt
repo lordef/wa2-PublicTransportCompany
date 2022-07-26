@@ -1,26 +1,23 @@
 package it.polito.wa2.traveler_service.repositories
 
-import it.polito.wa2.traveler_service.dtos.DateRangeDTO
+
 import it.polito.wa2.traveler_service.dtos.DateTimeRangeDTO
-import it.polito.wa2.traveler_service.entities.TicketAcquired
 import it.polito.wa2.traveler_service.entities.Transit
-import it.polito.wa2.traveler_service.entities.UserDetails
-import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.CrudRepository
+import kotlinx.coroutines.flow.Flow
+import org.springframework.data.r2dbc.repository.Query
+import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import org.springframework.transaction.annotation.Transactional
+
 
 @Repository
-interface TransitRepository : CrudRepository<Transit, Long> {
+interface TransitRepository : CoroutineCrudRepository<Transit, Long> {
 
     @Query("select t from Transit t where t.userDetails.username = :#{#username} " +
             "and t.timestamp >= :#{#dateRange.from} and t.timestamp <= :#{#dateRange.to}")
-    @Transactional(readOnly = true)
-    fun getTransitsByUser(@Param("username") username : String, @Param("dateRange") dateTimeRangeDTO: DateTimeRangeDTO): List<Transit>
+    fun getTransitsByUser(@Param("username") username : String, @Param("dateRange") dateTimeRangeDTO: DateTimeRangeDTO): Flow<Transit>
 
     @Query("select t from Transit t where " +
             "t.timestamp >= :#{#dateRange.from} and t.timestamp <= :#{#dateRange.to}")
-    @Transactional(readOnly = true)
-    fun getTransits(@Param("dateRange") dateTimeRangeDTO: DateTimeRangeDTO ): List<Transit>
+    fun getTransits(@Param("dateRange") dateTimeRangeDTO: DateTimeRangeDTO ): Flow<Transit>
 }

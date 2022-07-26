@@ -1,5 +1,7 @@
 package it.polito.wa2.traveler_service.interceptors
 
+//TODO qui da rivedere il rate limiter con web flux
+/*
 import io.github.bucket4j.Bucket
 import io.github.bucket4j.ConsumptionProbe
 import org.springframework.http.HttpStatus
@@ -37,4 +39,4 @@ class RateLimitInterceptor : HandlerInterceptor {
             false
         }
     }
-}
+}*/

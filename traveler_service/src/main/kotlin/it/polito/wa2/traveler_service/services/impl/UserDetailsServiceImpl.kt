@@ -13,8 +13,12 @@ import it.polito.wa2.traveler_service.entities.TicketAcquired
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
+import reactor.core.publisher.Mono
 import java.text.SimpleDateFormat
 
 
@@ -34,17 +38,17 @@ class UserDetailsServiceImpl : UserDetailsService {
     @Value("\${application.jwt.jwtExpirationMs}")
     val ticketExpirationMs: Long = -1
 
-    override fun getUserProfile(username: String): UserDetailsDTO {
+    override suspend fun getUserProfile(username: String): Mono<UserDetailsDTO> {
         val userDetailsDTO = userDetailsRepository.findByUsername(username)?.toDTO()
 
         if (userDetailsDTO == null) {
             throw NotFoundException("Username not found")
         }
 
-        return userDetailsDTO
+        return Mono.just(userDetailsDTO)
     }
 
-    override fun putUserProfile(userDetailsDTO: UserDetailsDTO): UserDetailsDTO {
+    override suspend fun putUserProfile(userDetailsDTO: UserDetailsDTO): Mono<UserDetailsDTO> {
         try {
 
             val formatter = SimpleDateFormat("dd-MM-yyyy")
@@ -61,33 +65,38 @@ class UserDetailsServiceImpl : UserDetailsService {
                     userDetailsDTO.telephone_number
             )
 
-            return userDetailsRepository.save(userDetailsEntity).toDTO()
+            return Mono.just(userDetailsRepository.save(userDetailsEntity).toDTO())
         }catch(ex: Exception){
             throw BadRequestException("Problems during insertion of User Details")
         }
 
     }
 
-    override fun getUserTickets(username: String): List<TicketAcquiredDTO> {
-        val userDetails = userDetailsRepository.findByUsername(username)
+    override fun getUserTickets(username: String): Flow<TicketAcquiredDTO> {
+
+        var userDetails: UserDetails?;
+
+        runBlocking {
+            userDetails = userDetailsRepository.findByUsername(username)
+        }
 
         if(userDetails==null)
             throw NotFoundException("Username not found")
 
-        return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map{it->it.toDTO()}
+        return ticketPurchasedRepository.findAllByUserDetailsUsername(username).map { it.toDTO() }
 
     }
 
-    override fun getTicketById(ticketId : Long, username: String): TicketAcquiredDTO {
+    override suspend fun getTicketById(ticketId : Long, username: String): Mono<TicketAcquiredDTO> {
         val ticket =  ticketPurchasedRepository.findTicketAcquiredById(ticketId).toDTO()
         println(ticket.sub)
         if(ticket == null || !ticket.sub.equals(username)) {
             throw NotFoundException("Ticket doesn't exist for this user")
         }
-        return ticket
+        return Mono.just(ticket)
     }
 
-    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO)/*: List<TicketAcquiredDTO> */{
+    override suspend fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO){
         var numberOfTickets = purchasedTicketDTO.quantity
 
         val userDetails = userDetailsRepository.findByUsername(username)
@@ -111,18 +120,19 @@ class UserDetailsServiceImpl : UserDetailsService {
         //ticket creation
         do {
             val ticketWithoutJws = TicketAcquired(
+                null,
                 Date(jwtTimeInfo.iat),
                 Date(jwtTimeInfo.nbf),
                 Date(jwtTimeInfo.exp),
                 purchasedTicketDTO.zone,
                 purchasedTicketDTO.type,
                     "",
-                userDetails
+                userDetails.username!!
             )
 
             ticketPurchasedRepository.save(ticketWithoutJws)
 
-            ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.getId() as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.validFrom, ticketWithoutJws.expiry, ticketWithoutJws.zoneId, ticketWithoutJws.type)
+            ticketWithoutJws.jws = jwtUtils.generateJwt(ticketWithoutJws.ticketId as Long, ticketWithoutJws.issuedAt, ticketWithoutJws.validFrom, ticketWithoutJws.expiry, ticketWithoutJws.zoneId, ticketWithoutJws.type)
 
             ticketPurchasedRepository.save(ticketWithoutJws)
 
@@ -131,7 +141,7 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     }
 
-    override fun getTravelers(): List<String> {
+    override fun getTravelers(): Flow<String> {
         return userDetailsRepository.findUsernames()
     }
 

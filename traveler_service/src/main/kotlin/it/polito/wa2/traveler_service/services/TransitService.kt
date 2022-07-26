@@ -4,6 +4,6 @@ import it.polito.wa2.traveler_service.dtos.TransitDTO
 
 interface TransitService {
 
-        fun postTransit(transitDTO: TransitDTO)
+        suspend fun postTransit(transitDTO: TransitDTO)
 
 }
