@@ -3,6 +3,7 @@ package it.polito.wa2.login_service.services.impl
 import it.polito.wa2.login_service.dtos.*
 import it.polito.wa2.login_service.entities.Activation
 import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.exceptions.*
 import it.polito.wa2.login_service.repositories.ActivationRepository
@@ -133,80 +134,45 @@ class UserServiceImpl : UserDetailsService, UserService {
 
     override fun addRole(userRoleDTO: UserRoleDTO) {
         try {
-//            val userDB = userRepository.findById(userRoleDTO.userId)
-
-//            if (userRepository.findByNickname(userDTO.nickname) != null)
-//                throw BadRequestException("Username already in use")
-
-            /* Main idea */
-            //TODO
 
             if (userRoleDTO.userId == null)
                 throw BadRequestException("No user id inserted")
 
-            val existingUser = userRepository.findById(userRoleDTO.userId)
-            val existingRole = roleRepository.findByName(userRoleDTO.role)
-            if (existingUser.isEmpty || existingRole!!.isEmpty)
+            if (userRoleDTO.role == ERole.EMBEDDED_SYSTEM)
+                throw BadRequestException("${ERole.EMBEDDED_SYSTEM} cannot be added to a human users")
+
+            val user = userRepository.findById(userRoleDTO.userId)
+            val newRole = roleRepository.findByName(userRoleDTO.role)
+            if (user.isEmpty || newRole!!.isEmpty)
                 throw BadRequestException("Wrong json fields")
 
-            val userRoles = existingUser.get().roles
 
-            val customerRole = roleRepository.findByName(ERole.CUSTOMER)
-            if (customerRole == null)
-                throw NotFoundException("Role not found")
-
-
+            /* Main logic in adding roles - except EMBEDDED_SYSTEM */
             /*
-                add admin:
-                    if only custom => add admin
+                - ADMIN_E is also ADMIN
+                - CUSTOMER that becomes ADMIN, is still a CUSTOMER
+                - CUSTOMER that becomes ADMIN_E, is also Customer and ADMIN
             */
-            if (userRoles.size == 1 &&
-                userRoles.contains(customerRole.get())
-            ) {
-                existingUser.get().addRole(existingRole.get())
+
+            val userRoles = user.get().roles
+            val existingRoles = roleRepository.findAll()
+
+            /* new role already owned by the user */
+            if (userRoles.contains<Role>(newRole.get()))
+                throw BadRequestException("Wrong data fields")
+
+
+            if (userRoleDTO.role == ERole.ADMIN) {
+                    user.get().addRole(newRole.get())
+            } else if (userRoleDTO.role == ERole.ADMIN_E) {
+                /* force an ADMIN_E to be also an ADMIN */
+                if (!userRoles.any { it.name == ERole.ADMIN }) {
+                    user.get().addRole((existingRoles.filter { it.name == ERole.ADMIN })[0])
+                }
+                /* adding ADMIN_E as role */
+                user.get().addRole(existingRoles.filter { it.name == ERole.ADMIN_E }[0])
             }
 
-            /*
-            add admin:
-                if only custom add admin
-            add admin_e
-                if only customer => add admin and admin_e
-            */
-
-            /*
-                - ADMIN_E è anche ADMIN
-                - Customer promosso ad ADMIN, tiene Customer
-                - Customer promosso ad ADMIN_E, tiene Customer e ADMIN
-                - EMBEDDED_SYSTEM -> nuovo endpoint
-            */
-
-            /*************/
-
-            /*old code*/
-            //encode the password before to store it
-            /*val user = User(userDTO.nickname, passwordEncoder.encode(userDTO.password as String), userDTO.email)
-
-            val savedUser = userRepository.save(user)
-
-            val act = Activation(user)
-
-            activationRepository.save(act) //save activation in DB
-
-            val ret = mailService.sendEmail(
-                savedUser.email, "Email verification",
-                "Hi ${savedUser.nickname},\n" +
-                        "This is your Activation Code : \n" +
-                        "${act.activationCode} \n" +
-                        "Use it to activate your account.\n" +
-                        "Pay attention, this activation code will remain active up to 24 hours"
-            )
-
-            if (ret == false)
-                throw BadRequestException("Problem Occurs during mail sending")
-
-            return act.toDTO()
-            s
-             */
         } catch (ex: Exception) {
             throw BadRequestException(ex.message.toString())
         }
