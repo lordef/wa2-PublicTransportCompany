@@ -8,8 +8,8 @@ create table if not exists  tickets (
     name VARCHAR(255) NOT NULL,
     min_age INT,
     max_age INT,
-    start_period VARCHAR(255),
-    end_period VARCHAR(255),
+    start_period TIMESTAMP,
+    end_period TIMESTAMP,
     duration INT,
     PRIMARY KEY (ticket_id)
     );
