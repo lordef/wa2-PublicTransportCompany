@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat
 
 import java.time.LocalDate
 import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -75,7 +76,7 @@ class TicketCatalogueServiceImpl(
             throw BadRequestException("Invalid ticketID")
 
 
-        checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore)
+        checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(), ticket)
         if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
             throw BadRequestException("Invalid duration")
 
@@ -272,7 +273,7 @@ class TicketCatalogueServiceImpl(
     }
 
 
-    private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String) {
+    private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String, ticket: Ticket) {
 
         val formatter = SimpleDateFormat("dd-MM-yyyy")
 
@@ -341,10 +342,11 @@ class TicketCatalogueServiceImpl(
             }
 
         } else {
-
+            // TODO
             val date = formatter.format(Date())
-            if (date != validFrom)
-                throw BadRequestException("NotBefore must be current date for seasonal types")
+            if (validFrom<ticket.start_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) || validFrom>ticket.end_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
+                throw BadRequestException("NotBefore must be in the validity period of seasonal types")
+
         }
     }
 

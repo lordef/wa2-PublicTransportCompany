@@ -1,6 +1,6 @@
 package it.polito.wa2.traveler_service.dtos
 
-import it.polito.wa2.traveler_service.entities.TicketAcquired
+import it.polito.wa2.traveler_service.services.impl.entities.TicketAcquired
 
 
 data class TicketAcquiredDTO(

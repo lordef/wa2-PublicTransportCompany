@@ -1,6 +1,6 @@
 package it.polito.wa2.traveler_service.repositories
 
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository

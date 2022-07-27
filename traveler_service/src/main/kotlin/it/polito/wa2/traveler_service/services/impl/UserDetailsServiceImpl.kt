@@ -1,7 +1,7 @@
 package it.polito.wa2.traveler_service.services.impl
 
 import it.polito.wa2.traveler_service.dtos.*
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import it.polito.wa2.traveler_service.services.UserDetailsService
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import it.polito.wa2.traveler_service.exceptions.NotFoundException
 import java.util.*
-import it.polito.wa2.traveler_service.entities.TicketAcquired
+import it.polito.wa2.traveler_service.services.impl.entities.TicketAcquired
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.security.JwtUtils
@@ -102,7 +102,7 @@ class UserDetailsServiceImpl : UserDetailsService {
 
 
 
-        if(purchasedTicketDTO.validFrom==null || purchasedTicketDTO.validFrom=="")
+        if(purchasedTicketDTO.validFrom==null)
             throw BadRequestException("Invalid NotBefore Date")
 
         //business logic for NotBefore And Expiry Time
@@ -165,7 +165,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     iat = currentDate.time
 
                     val cal = Calendar.getInstance()
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     cal.set(Calendar.HOUR_OF_DAY, 0)
                     cal.set(Calendar.MINUTE, 0)
@@ -186,7 +186,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     val cal = Calendar.getInstance()
 
                     //check if validFrom is a Monday
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
                         throw BadRequestException("Invalid ValidFrom field")
@@ -208,7 +208,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     val cal = Calendar.getInstance()
 
                     //check if validFrom is the first of Any Month
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
                         throw BadRequestException("Invalid ValidFrom field")
@@ -231,7 +231,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     val cal = Calendar.getInstance()
 
                     //check if validFrom is the first of Any Month
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
                         throw BadRequestException("Invalid ValidFrom field")
@@ -254,7 +254,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     val cal = Calendar.getInstance()
 
                     //check if validFrom is the first of Any Month
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     if (cal.get(Calendar.DAY_OF_MONTH) != cal.getActualMinimum(Calendar.DAY_OF_MONTH))
                         throw BadRequestException("Invalid ValidFrom field")
@@ -277,7 +277,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                     val cal = Calendar.getInstance()
 
                     //check if validFrom is a Saturday or a Sunday
-                    val validFromDate = formatter.parse(validFrom)
+                    val validFromDate = formatter.parse(validFrom.toLocalDate().toString())
                     cal.setTime(validFromDate)
                     val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
                     if (dayOfWeek != Calendar.SATURDAY && dayOfWeek != Calendar.SUNDAY)

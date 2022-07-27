@@ -1,4 +1,4 @@
-package it.polito.wa2.traveler_service.entities
+package it.polito.wa2.traveler_service.services.impl.entities
 
 import java.time.LocalDateTime
 import javax.persistence.*

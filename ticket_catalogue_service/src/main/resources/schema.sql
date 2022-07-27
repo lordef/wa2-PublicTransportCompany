@@ -25,7 +25,7 @@ create table if not exists  orders (
                                         quantity INTEGER NOT NULL,
                                         total_price NUMERIC(7,2) NOT NULL,
                                         ticket_type BIGINT NOT NULL ,
-                                        not_before VARCHAR(255) NOT NULL,
+                                        not_before TIMESTAMP NOT NULL,
                                         zone_id VARCHAR(255) NOT NULL,
                                         PRIMARY KEY (order_id),
                                         CONSTRAINT fk_customer

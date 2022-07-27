@@ -1,6 +1,7 @@
 package it.polito.wa2.ticket_catalogue_service.dtos
 
 
+import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull
@@ -15,7 +16,7 @@ data class PurchaseTicketDTO(
     val name: String,
 
     @field:NotNull
-    val validFrom: String,
+    val validFrom: LocalDateTime,
 
     @field:NotNull
     @field:Min(1)

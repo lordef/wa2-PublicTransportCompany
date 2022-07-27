@@ -2,13 +2,13 @@ package it.polito.wa2.traveler_service.services.impl
 
 import it.polito.wa2.traveler_service.dtos.TransitDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
-import it.polito.wa2.traveler_service.entities.Transit
+import it.polito.wa2.traveler_service.services.impl.entities.Transit
 import it.polito.wa2.traveler_service.repositories.TransitRepository
 import it.polito.wa2.traveler_service.services.TransitService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import java.text.SimpleDateFormat
 import java.util.*
 

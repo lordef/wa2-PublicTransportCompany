@@ -1,4 +1,4 @@
-package it.polito.wa2.traveler_service.entities
+package it.polito.wa2.traveler_service.services.impl.entities
 
 import org.springframework.data.util.ProxyUtils
 import java.io.Serializable

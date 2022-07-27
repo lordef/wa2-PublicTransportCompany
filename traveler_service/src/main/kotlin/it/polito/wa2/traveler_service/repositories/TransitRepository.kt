@@ -2,9 +2,9 @@ package it.polito.wa2.traveler_service.repositories
 
 import it.polito.wa2.traveler_service.dtos.DateRangeDTO
 import it.polito.wa2.traveler_service.dtos.DateTimeRangeDTO
-import it.polito.wa2.traveler_service.entities.TicketAcquired
-import it.polito.wa2.traveler_service.entities.Transit
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.TicketAcquired
+import it.polito.wa2.traveler_service.services.impl.entities.Transit
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param

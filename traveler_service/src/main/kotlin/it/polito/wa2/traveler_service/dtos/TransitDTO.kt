@@ -1,7 +1,7 @@
 package it.polito.wa2.traveler_service.dtos
 
-import it.polito.wa2.traveler_service.entities.TicketAcquired
-import it.polito.wa2.traveler_service.entities.Transit
+import it.polito.wa2.traveler_service.services.impl.entities.TicketAcquired
+import it.polito.wa2.traveler_service.services.impl.entities.Transit
 import java.time.LocalDateTime
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.NotNull

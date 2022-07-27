@@ -40,11 +40,6 @@ class TicketCatalogueController {
         if (!validDate(purchaseRequestDTO.expirationDate))
             throw BadRequestException("Wrong json date field")
 
-        if (!validDate(purchaseRequestDTO.notBefore))
-            throw BadRequestException("Wrong json date field")
-
-
-
         println(principal.name)
 
         val res = catalogueService.purchaseTickets(principal.name, purchaseRequestDTO).awaitSingle()

@@ -2,8 +2,8 @@ package it.polito.wa2.traveler_service.integration_tests
 
 import it.polito.wa2.traveler_service.dtos.PurchaseTicketDTO
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
-import it.polito.wa2.traveler_service.entities.TicketAcquired
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.TicketAcquired
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.TicketPurchasedRepository
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import it.polito.wa2.traveler_service.security.JwtUtils

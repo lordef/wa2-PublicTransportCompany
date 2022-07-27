@@ -1,7 +1,7 @@
 package it.polito.wa2.traveler_service.dtos
 
 
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import java.text.SimpleDateFormat
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size

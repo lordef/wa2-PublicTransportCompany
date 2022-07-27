@@ -1,7 +1,7 @@
 package it.polito.wa2.traveler_service.integration_tests
 
 import it.polito.wa2.traveler_service.dtos.UserDetailsDTO
-import it.polito.wa2.traveler_service.entities.UserDetails
+import it.polito.wa2.traveler_service.services.impl.entities.UserDetails
 import it.polito.wa2.traveler_service.repositories.UserDetailsRepository
 import kotlinx.coroutines.*
 import org.junit.jupiter.api.Assertions
