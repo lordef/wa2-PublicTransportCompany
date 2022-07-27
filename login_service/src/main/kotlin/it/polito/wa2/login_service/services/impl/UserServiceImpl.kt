@@ -152,10 +152,6 @@ class UserServiceImpl : UserDetailsService, UserService {
 
             val savedUser = userRepository.save(user)
 
-//            val act = Activation(user)
-
-//            activationRepository.save(act) //save activation in DB
-
             val ret = mailService.sendEmail(
                 savedUser.email, "Email verification",
                 "Embedded system with name: ${savedUser.nickname}\n"
@@ -165,47 +161,6 @@ class UserServiceImpl : UserDetailsService, UserService {
             if (ret == false)
                 throw BadRequestException("Problem Occurs during mail sending")
 
-
-            //TODO: delete subsequent lines
-
-
-//            return act.toDTO()
-
-
-            /*
-             * retrieve from repository the Activation starting from the provisionalId String.
-             * Verify if it is not expired and enable the corresponding nickname.
-             * If the activation record is not found or it is expired, throw an exception.
-             */
-            /*
-            if (act.isExpired()) {
-                userRepository.delete(act.user)
-                activationRepository.delete(act)
-                throw NotFoundException("Activation has expired")
-            }
-            */
-
-
-            //In case of existing a not expired activation, but mismatched act. code
-            /*
-            if (act.activationCode != activation.activation_code) {
-                if (act.attemptCounter == 1) {
-                    userRepository.delete(act.user)
-                    activationRepository.delete(act)
-                } else {
-                    act.attemptCounter -= 1
-                    activationRepository.save(act)
-                }
-                throw NotFoundException("Mismatching activation code")
-            }
-            */
-
-//            activationRepository.delete(act)
-//            act.user.active = true
-//            userRepository.save(act.user)
-
-//            return act.user.toDTO()
-//            return act.toDTO()
             return user.toDTO()
 
         } catch (ex: Exception) {
