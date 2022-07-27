@@ -8,6 +8,8 @@ create table if not exists  tickets (
     name VARCHAR(255) NOT NULL,
     min_age INT,
     max_age INT,
+    start_period VARCHAR(255),
+    end_period VARCHAR(255),
     duration INT,
     PRIMARY KEY (ticket_id)
     );
@@ -32,10 +34,10 @@ create table if not exists  orders (
 
 );
 
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 1.70, 'ordinal', '70 minutes',NULL,NULL,NULL);             --1
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.00, 'ordinal', 'daily',NULL,NULL,NULL);                --2
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 10.00, 'ordinal', 'weekly',NULL,NULL,NULL);              --3
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 24.00, 'ordinal', 'monthly',NULL,NULL,NULL);             --4
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 60.00, 'ordinal', 'biannually',NULL,NULL,NULL);          --5
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 110.00, 'ordinal', 'yearly',NULL,NULL,NULL);             --6
-INSERT INTO tickets ( price, type, name, min_age, max_age, duration) VALUES ( 3.80, 'ordinal', 'weekend_pass', NULL, 27,NULL);         --7
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 1.70, 'ordinal', '70 minutes',NULL,NULL,NULL,NULL,NULL);           --1
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 3.00, 'ordinal', 'daily',NULL,NULL,NULL,NULL,NULL);                --2
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 10.00, 'ordinal', 'weekly',NULL,NULL,NULL,NULL,NULL);              --3
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 24.00, 'ordinal', 'monthly',NULL,NULL,NULL,NULL,NULL);             --4
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 60.00, 'ordinal', 'biannually',NULL,NULL,NULL,NULL,NULL);          --5
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 110.00, 'ordinal', 'yearly',NULL,NULL,NULL,NULL,NULL);             --6
+INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 3.80, 'ordinal', 'weekend_pass', NULL, 27,NULL,NULL,NULL);         --7

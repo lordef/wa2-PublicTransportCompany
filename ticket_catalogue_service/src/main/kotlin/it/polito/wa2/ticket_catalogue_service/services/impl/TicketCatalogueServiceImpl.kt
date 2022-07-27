@@ -164,6 +164,8 @@ class TicketCatalogueServiceImpl(
             ticketDTO.name,
             ticketDTO.minAge,
             ticketDTO.maxAge,
+            ticketDTO.start_period,
+            ticketDTO.end_period,
             ticketDTO.duration
         )
         ticketRepository.save(ticketEntity)
@@ -185,7 +187,9 @@ class TicketCatalogueServiceImpl(
                     ticket.name,
                     ticketDTO.minAge,
                     ticketDTO.maxAge,
-                    ticket.duration
+                    ticketDTO.start_period,
+                    ticketDTO.end_period,
+                    ticketDTO.duration
                 )
             } else { //ticketDTO.type == "seasonal"
                 // update (add/remove active columns: min_age, max_age, start_period, end_period)
@@ -197,6 +201,8 @@ class TicketCatalogueServiceImpl(
                     ticketDTO.name,
                     ticketDTO.minAge,
                     ticketDTO.maxAge,
+                    ticketDTO.start_period,
+                    ticketDTO.end_period,
                     ticketDTO.duration
                 )
             }

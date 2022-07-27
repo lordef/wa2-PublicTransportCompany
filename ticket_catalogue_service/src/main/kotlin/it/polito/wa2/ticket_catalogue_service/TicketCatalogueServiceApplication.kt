@@ -10,3 +10,4 @@ class TicketCatalogueServiceApplication
 fun main(args: Array<String>) {
     runApplication<TicketCatalogueServiceApplication>(*args)
 }
+
