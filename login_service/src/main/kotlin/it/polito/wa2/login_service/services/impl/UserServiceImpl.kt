@@ -166,7 +166,7 @@ class UserServiceImpl : UserDetailsService, UserService {
                 throw BadRequestException("Problem Occurs during mail sending")
 
 
-            //TODO: delete subsequent line
+            //TODO: delete subsequent lines
 
 
 //            return act.toDTO()
