@@ -52,9 +52,6 @@ class RegistrationController() {
         //creating user
         val activationDTO = userService.createUser(userDTO)
 
-        //TODO: debug
-//        println("USER ACTIVATION: provId: ${activationDTO.provisional_id}, activation_code: ${activationDTO.activation_code}")
-
         return UserRegistrationResponseBody(activationDTO.provisional_id, userDTO.email)
 
     }
@@ -106,7 +103,26 @@ class RegistrationController() {
     }
 
 
-    //TODO: add admin or embedded system
+    @PostMapping("/admin/embedded_systems/register")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN_E)")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    fun embeddedSystemRegistration(
+        @RequestBody @Valid userDTO: RegistrationRequestDTO,
+        bindingResult: BindingResult
+    ): EmbeddedSystemRegistrationResponseBody {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+        //creating user
+//        val activationDTO = userService.createEmbeddedSystem(userDTO)
+        val userDTO = userService.createEmbeddedSystem(userDTO)
+
+        return EmbeddedSystemRegistrationResponseBody(userDTO.nickname, userDTO.email)
+
+    }
+
     @PutMapping("/admin/users/{userId}")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.login_service.entities.ERole).ADMIN_E)")
     fun addRole(
@@ -125,4 +141,6 @@ class RegistrationController() {
 }
 
 data class UserRegistrationResponseBody(val provisional_id: UUID?, val email: String)
+data class EmbeddedSystemRegistrationResponseBody(val nickname: String, val email: String)
+
 data class UserValidationResponseBody(val userId: Long?, val nickname: String, val email: String)
