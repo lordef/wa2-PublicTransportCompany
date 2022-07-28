@@ -198,6 +198,19 @@ class TravelerController {
         return adminReportsService.getTransits(dateTimeRangeDTO)
     }
 
+    @GetMapping("/embedded/secret")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @ResponseBody
+    fun getSecret( @RequestBody @Valid dateTimeRangeDTO: DateTimeRangeDTO,
+                   bindingResult: BindingResult): List<TransitDTO> {
+
+        if (bindingResult.hasErrors())
+            throw BadRequestException("Wrong json fields")
+
+
+        return adminReportsService.getTransits(dateTimeRangeDTO)
+    }
+
 
     @PostMapping("/transit")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).EMBEDDED_SYSTEM)")
