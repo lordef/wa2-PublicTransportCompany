@@ -1,13 +1,13 @@
 package it.polito.wa2.login_service.services.impl
 
-import it.polito.wa2.login_service.dtos.ActivationDTO
-import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
-import it.polito.wa2.login_service.dtos.UserDTO
-import it.polito.wa2.login_service.dtos.toDTO
+import it.polito.wa2.login_service.dtos.*
 import it.polito.wa2.login_service.entities.Activation
+import it.polito.wa2.login_service.entities.ERole
+import it.polito.wa2.login_service.entities.Role
 import it.polito.wa2.login_service.entities.User
 import it.polito.wa2.login_service.exceptions.*
 import it.polito.wa2.login_service.repositories.ActivationRepository
+import it.polito.wa2.login_service.repositories.RoleRepository
 import it.polito.wa2.login_service.repositories.UserRepository
 import it.polito.wa2.login_service.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,24 +29,33 @@ import java.util.*
 @Configuration
 @EnableScheduling
 @EnableAsync
-@ConditionalOnProperty(name=["scheduler.enabled"], matchIfMissing = true)
-class UserServiceImpl: UserDetailsService,UserService {
+@ConditionalOnProperty(name = ["scheduler.enabled"], matchIfMissing = true)
+class UserServiceImpl : UserDetailsService, UserService {
 
-    @Autowired lateinit var mailService : EmailServiceImpl
-    @Autowired lateinit var activationRepository: ActivationRepository
-    @Autowired lateinit var userRepository: UserRepository
-    @Autowired lateinit var passwordEncoder: PasswordEncoder
+    @Autowired
+    lateinit var mailService: EmailServiceImpl
 
+    @Autowired
+    lateinit var activationRepository: ActivationRepository
+
+    @Autowired
+    lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var roleRepository: RoleRepository
+
+    @Autowired
+    lateinit var passwordEncoder: PasswordEncoder
 
 
     override fun loadUserByUsername(username: String): UserDTO {
         val user = userRepository.findByNickname(username) ?: throw UnauthorizedException("Username not found")
-        if(!user.active) throw UnauthorizedException("User not active")
+        if (!user.active) throw UnauthorizedException("User not active")
         return user.toDTO()
     }
 
 
-    override fun createUser(userDTO: RegistrationRequestDTO): ActivationDTO{
+    override fun createUser(userDTO: RegistrationRequestDTO): ActivationDTO {
 
         try {
             if (userRepository.findByNickname(userDTO.nickname) != null)
@@ -63,18 +72,20 @@ class UserServiceImpl: UserDetailsService,UserService {
 
             activationRepository.save(act) //save activation in DB
 
-            val ret = mailService.sendEmail(savedUser.email, "Email verification",
-                    "Hi ${savedUser.nickname},\n" +
-                            "This is your Activation Code : \n" +
-                            "${act.activationCode} \n" +
-                            "Use it to activate your account.\n" +
-                            "Pay attention, this activation code will remain active up to 24 hours")
+            val ret = mailService.sendEmail(
+                savedUser.email, "Email verification",
+                "Hi ${savedUser.nickname},\n" +
+                        "This is your Activation Code : \n" +
+                        "${act.activationCode} \n" +
+                        "Use it to activate your account.\n" +
+                        "Pay attention, this activation code will remain active up to 24 hours"
+            )
 
             if (ret == false)
                 throw BadRequestException("Problem Occurs during mail sending")
 
             return act.toDTO()
-        }catch(ex: Exception){
+        } catch (ex: Exception) {
             throw BadRequestException(ex.message.toString())
         }
     }
@@ -88,9 +99,9 @@ class UserServiceImpl: UserDetailsService,UserService {
              * If the activation record is not found or it is expired, throw an exception.
              */
             val act = activationRepository.findByProvisionalUserId(activation.provisional_id as UUID)
-            if(act==null)
+            if (act == null)
                 throw NotFoundException("Provisional Id Not Found")
-            if(act.isExpired()) {
+            if (act.isExpired()) {
                 userRepository.delete(act.user)
                 activationRepository.delete(act)
                 throw NotFoundException("Activation has expired")
@@ -114,25 +125,113 @@ class UserServiceImpl: UserDetailsService,UserService {
             userRepository.save(act.user)
 
             return act.user.toDTO()
-        }catch(ex: Exception) {
+        } catch (ex: Exception) {
             throw NotFoundException(ex.message.toString())
         }
     }
 
+    override fun createEmbeddedSystem(userDTO: RegistrationRequestDTO) : UserDTO{
+
+        try {
+            if (userRepository.findByNickname(userDTO.nickname) != null)
+                throw BadRequestException("Username already in use")
+            if (userRepository.findByEmail(userDTO.email) != null)
+                throw BadRequestException("Email already in use")
+
+            //encode the password before to store it
+            val embeddedSystemRole = roleRepository.findByName(ERole.EMBEDDED_SYSTEM)
+            if (embeddedSystemRole == null)
+                throw NotFoundException("Role not found")
+
+            val user = User(
+                userDTO.nickname,
+                passwordEncoder.encode(userDTO.password as String),
+                userDTO.email,
+                roles = mutableSetOf(embeddedSystemRole.get())
+            )
+
+            val savedUser = userRepository.save(user)
+
+            val ret = mailService.sendEmail(
+                savedUser.email, "Email verification",
+                "Embedded system with name: ${savedUser.nickname}\n"
+                        + "CREATED\n"
+            )
+
+            if (ret == false)
+                throw BadRequestException("Problem Occurs during mail sending")
+
+            return user.toDTO()
+
+        } catch (ex: Exception) {
+            throw BadRequestException(ex.message.toString())
+        }
+    }
+
+
+    override fun addRole(userRoleDTO: UserRoleDTO) {
+        try {
+
+            if (userRoleDTO.userId == null)
+                throw BadRequestException("No user id inserted")
+
+            if (userRoleDTO.role == ERole.EMBEDDED_SYSTEM)
+                throw BadRequestException("${ERole.EMBEDDED_SYSTEM} cannot be added to a human users")
+
+            val user = userRepository.findById(userRoleDTO.userId)
+            val newRole = roleRepository.findByName(userRoleDTO.role)
+            if (user.isEmpty || newRole!!.isEmpty)
+                throw BadRequestException("Wrong json fields")
+
+
+            /* Main logic in adding roles - except EMBEDDED_SYSTEM */
+            /*
+                - ADMIN_E is also ADMIN
+                - CUSTOMER that becomes ADMIN, is still a CUSTOMER
+                - CUSTOMER that becomes ADMIN_E, is also Customer and ADMIN
+            */
+
+            val userRoles = user.get().roles
+            val existingRoles = roleRepository.findAll()
+
+            /* new role already owned by the user */
+            if (userRoles.contains<Role>(newRole.get()))
+                throw BadRequestException("Wrong data fields")
+
+
+            if (userRoleDTO.role == ERole.ADMIN) {
+                user.get().addRole(newRole.get())
+            } else if (userRoleDTO.role == ERole.ADMIN_E) {
+                /* force an ADMIN_E to be also an ADMIN */
+                if (!userRoles.any { it.name == ERole.ADMIN }) {
+                    user.get().addRole((existingRoles.filter { it.name == ERole.ADMIN })[0])
+                }
+                /* adding ADMIN_E as role */
+                user.get().addRole(existingRoles.filter { it.name == ERole.ADMIN_E }[0])
+            }
+
+        } catch (ex: Exception) {
+            throw BadRequestException(ex.message.toString())
+        }
+
+    }
+
+
     @Scheduled(fixedRate = 86400000)// 24hours expressed in milliseconds
     @Async
     @Transactional
-    fun pruningExpiredRegistrationData(){
-        val expiredActivations = activationRepository.
-                                  findActivationsByExpirationDateIsBefore( Date(System.currentTimeMillis()))
+    fun pruningExpiredRegistrationData() {
+        val expiredActivations =
+            activationRepository.findActivationsByExpirationDateIsBefore(Date(System.currentTimeMillis()))
 
-        if(expiredActivations.toList().isEmpty())
+        if (expiredActivations.toList().isEmpty())
             return
 
-        for(act in expiredActivations){
+        for (act in expiredActivations) {
             userRepository.delete(act.user)
             activationRepository.delete(act)
         }
     }
+
 
 }

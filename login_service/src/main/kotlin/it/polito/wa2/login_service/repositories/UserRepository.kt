@@ -3,6 +3,7 @@ import it.polito.wa2.login_service.entities.User
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Repository
 interface UserRepository : CrudRepository<User, Long>{
