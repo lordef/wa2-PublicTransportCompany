@@ -199,6 +199,9 @@ class UserServiceImpl : UserDetailsService, UserService {
             if (userRoles.contains<Role>(newRole.get()))
                 throw BadRequestException("Wrong data fields")
 
+            /* An EMBEDDED_SYSTEM cannot have other roles */
+            if (userRoles.any { it.name == ERole.EMBEDDED_SYSTEM })
+                throw BadRequestException("An ${ERole.EMBEDDED_SYSTEM} cannot have other roles")
 
             if (userRoleDTO.role == ERole.ADMIN) {
                 user.get().addRole(newRole.get())
