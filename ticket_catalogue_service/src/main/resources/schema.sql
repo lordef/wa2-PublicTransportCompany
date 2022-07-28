@@ -10,7 +10,7 @@ create table if not exists  tickets (
     max_age INT,
     start_period TIMESTAMP,
     end_period TIMESTAMP,
-    duration INT,
+    duration INTEGER,
     PRIMARY KEY (ticket_id)
     );
 

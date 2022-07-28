@@ -74,8 +74,7 @@ class PaymentAnswerListener {
                 ticketEntity = ticketRepository.findById(orderEntity.ticketType)
             }
 
-            val purchasingTickets = PurchaseTicketDTO("buy_tickets", ticketEntity!!.type, ticketEntity!!.name,orderEntity.notBefore, orderEntity.quantity,ticketEntity!!.duration?.toLong(), orderEntity.zoneId)
-
+            val purchasingTickets = PurchaseTicketDTO("buy_tickets", ticketEntity!!, orderEntity.notBefore, orderEntity.quantity, orderEntity.zoneId)
 
             //generating jwt for the authentication with Traveler Service
             val jwt = jwtUtils.generateJwt(orderEntity.userId, Date(), Date(Date().time+jwtExpirationMs))

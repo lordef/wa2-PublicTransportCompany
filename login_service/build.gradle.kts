@@ -47,12 +47,14 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:1.16.3")
     runtimeOnly("org.postgresql:postgresql")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
+
     // dependencies for jwt
     implementation("io.jsonwebtoken:jjwt-api:0.11.2")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.2")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
+
 }
 
 tasks.withType<KotlinCompile> {

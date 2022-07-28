@@ -342,8 +342,8 @@ class TicketCatalogueServiceImpl(
             }
 
         } else {
-            // TODO
-            val date = formatter.format(Date())
+//            println(validFrom)
+//            println(ticket.start_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
             if (validFrom<ticket.start_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) || validFrom>ticket.end_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
                 throw BadRequestException("NotBefore must be in the validity period of seasonal types")
 

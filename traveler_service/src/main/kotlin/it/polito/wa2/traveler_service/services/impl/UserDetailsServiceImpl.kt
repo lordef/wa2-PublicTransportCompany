@@ -16,6 +16,10 @@ import it.polito.wa2.traveler_service.security.JwtUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.context.SecurityContextHolder
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 
 @Service
@@ -115,7 +119,7 @@ class UserDetailsServiceImpl : UserDetailsService {
                 Date(jwtTimeInfo.nbf),
                 Date(jwtTimeInfo.exp),
                 purchasedTicketDTO.zone,
-                purchasedTicketDTO.type,
+                purchasedTicketDTO.ticket.type,
                     "",
                 userDetails
             )
@@ -137,15 +141,17 @@ class UserDetailsServiceImpl : UserDetailsService {
 
     private fun computeNbfAndExp(purchasedTicketDTO : PurchaseTicketDTO): NbfExpInfo {
 
-        val type=purchasedTicketDTO.type
-        val name=purchasedTicketDTO.name
+        val type=purchasedTicketDTO.ticket.type
+        val name=purchasedTicketDTO.ticket.name
         val validFrom=purchasedTicketDTO.validFrom
 
         val formatter = SimpleDateFormat("dd-MM-yyyy")
 
         val iat: Long
-        val exp: Long
+        var exp: Long
         val nbf: Long
+        val nbfSeasonal: LocalDateTime
+        var expSeasonal : LocalDateTime
 
         if(type!="ordinal" && type!="seasonal")
             throw BadRequestException("wrong type")
@@ -305,13 +311,22 @@ class UserDetailsServiceImpl : UserDetailsService {
 
             return ticketInfo
         }else{
-            if(purchasedTicketDTO.duration==null)
+            if(purchasedTicketDTO.ticket.duration==null)
                 throw BadRequestException("Wrong duration")
             iat = Date().time
-            nbf=iat
-            val durationInMillis = purchasedTicketDTO.duration*60*1000
-            exp=Date().time+durationInMillis
-            return NbfExpInfo(iat, nbf,exp)
+            nbfSeasonal = validFrom
+            expSeasonal=validFrom.plusMinutes(purchasedTicketDTO.ticket.duration)
+
+            //check if notBefore+duration exceeds the seasonal end_period
+            if(purchasedTicketDTO.validFrom.plusMinutes(purchasedTicketDTO.ticket.duration).isAfter(purchasedTicketDTO.ticket.end_period)) {
+                expSeasonal=purchasedTicketDTO.ticket.end_period!!
+            }
+
+            //converting localDateTime in milliseconds
+            nbf = nbfSeasonal.toEpochSecond(ZoneOffset.of("+01:00"))*1000
+            exp = expSeasonal.toEpochSecond(ZoneOffset.of("+01:00"))*1000
+
+            return NbfExpInfo(iat, nbf, exp)
         }
     }
 

@@ -1,7 +1,5 @@
-package it.polito.wa2.ticket_catalogue_service.dtos
+package it.polito.wa2.traveler_service.dtos
 
-import it.polito.wa2.ticket_catalogue_service.entities.Ticket
-import org.springframework.beans.factory.annotation.Value
 import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
@@ -35,7 +33,3 @@ data class TicketDTO(
     @field:NotNull
     val duration: Long?
 )
-
-fun Ticket.toDTO() : TicketDTO {
-    return TicketDTO(price,ticketId,type, name, minAge, maxAge, start_period, end_period, duration)
-}

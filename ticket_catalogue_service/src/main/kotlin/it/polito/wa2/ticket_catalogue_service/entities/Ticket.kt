@@ -19,5 +19,5 @@ data class Ticket(
         val maxAge: Int?,
         val start_period: LocalDateTime?,
         val end_period: LocalDateTime?,
-        val duration: Int? = null
+        val duration: Long? = null
 )
