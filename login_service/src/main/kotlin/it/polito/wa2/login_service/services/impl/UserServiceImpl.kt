@@ -147,7 +147,8 @@ class UserServiceImpl : UserDetailsService, UserService {
                 userDTO.nickname,
                 passwordEncoder.encode(userDTO.password as String),
                 userDTO.email,
-                roles = mutableSetOf(embeddedSystemRole.get())
+                roles = mutableSetOf(embeddedSystemRole.get()),
+                active = true
             )
 
             val savedUser = userRepository.save(user)
