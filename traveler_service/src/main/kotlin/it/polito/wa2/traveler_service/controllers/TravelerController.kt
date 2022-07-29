@@ -6,22 +6,35 @@ import com.google.zxing.client.j2se.MatrixToImageConfig
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
+import com.nimbusds.jose.*
+import com.nimbusds.jose.crypto.*
+import com.nimbusds.jwt.*
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
-import it.polito.wa2.traveler_service.services.AdminReportsService
 import it.polito.wa2.traveler_service.services.impl.AdminReportsServiceImpl
 import it.polito.wa2.traveler_service.services.impl.TransitServiceImpl
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
-import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.security.Key
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.interfaces.*
+import java.security.spec.PKCS8EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.crypto.*
 import javax.validation.Valid
 
 
@@ -36,6 +49,20 @@ class TravelerController {
 
     @Autowired
     lateinit var adminReportsService: AdminReportsServiceImpl
+
+    @Value("\${application.jwt.jwtSecretTicket}")
+    private lateinit var jwtSecretTicket: String
+
+    @Value("\${application.jwt.jwtSecretAuthentication}")
+    private lateinit var jwtSignature: String
+
+
+    @Value("\${application.jwt.publicKey}")
+    private lateinit var jwtPublicKey: String
+
+    @Value("\${application.jwt.jwtExpirationMs}")
+    var jwtExpirationMs: Long = -1
+
 
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
@@ -199,16 +226,18 @@ class TravelerController {
     }
 
     @GetMapping("/embedded/secret")
-    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).ADMIN)")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).EMBEDDED_SYSTEM)")
     @ResponseBody
-    fun getSecret( @RequestBody @Valid dateTimeRangeDTO: DateTimeRangeDTO,
-                   bindingResult: BindingResult): List<TransitDTO> {
+    fun getSecret(): String {
+        val publicKeyFile = File("traveler_service/src/main/resources/rsa.public")
+        val publicKey: PublicKey = getPublicKey(publicKeyFile)
 
-        if (bindingResult.hasErrors())
-            throw BadRequestException("Wrong json fields")
-
-
-        return adminReportsService.getTransits(dateTimeRangeDTO)
+        return Jwts.builder()
+            .setIssuedAt(Date())
+            .setExpiration(Date(Date().time + jwtExpirationMs))
+            .claim("secret", jwtSecretTicket)
+            .signWith(SignatureAlgorithm.RS256, publicKey)
+            .compact()
     }
 
 
@@ -284,6 +313,27 @@ class TravelerController {
         if (date.compareTo(formatter.parse(formatter.format(Date()))) <= 0)
             return true
         else return false
+    }
+
+    private fun getPublicKey(file: File): PublicKey {
+        var bytes: ByteArray = getKeyFromFile(file)
+
+        val spec = PKCS8EncodedKeySpec(bytes)
+        val factory = KeyFactory.getInstance("RSA")
+        return factory.generatePublic(spec)
+    }
+
+    private fun getKeyFromFile(file: File): ByteArray {
+        var fileContent = file.readText()
+
+        // Convert key file to string of Base64 characters:
+        // exclusion of "-----BEGIN/END ... KEY-----"
+        // exclusion of newlines
+
+        val re = Regex("-----[^-]*-----")
+        fileContent = re.replace(fileContent, "")
+        fileContent = fileContent.replace("\r", "").replace("\n", "")
+        return fileContent.toByteArray()
     }
 
 }

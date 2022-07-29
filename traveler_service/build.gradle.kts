@@ -51,6 +51,8 @@ dependencies {
     // dependencies for QRcode writer
     implementation("com.google.zxing:core:3.3.1")
     implementation("com.google.zxing:javase:3.3.0")
+
+    implementation("com.nimbusds:nimbus-jose-jwt:9.0")
 }
 
 tasks.withType<KotlinCompile> {
