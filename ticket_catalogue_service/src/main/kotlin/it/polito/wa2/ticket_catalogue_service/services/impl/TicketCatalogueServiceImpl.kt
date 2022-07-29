@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono
 import java.text.SimpleDateFormat
 
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -75,10 +76,20 @@ class TicketCatalogueServiceImpl(
         if (ticket == null)
             throw BadRequestException("Invalid ticketID")
 
+        checkValidityOfValidFrom(
+            ticket.type,
+            ticket.name,
+            purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(),
+            ticket
+        )
 
-        checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(), ticket)
-        if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
-            throw BadRequestException("Invalid duration")
+        //TODO: @alessiodongio: check start/end period mechanism
+
+
+        /*
+            if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
+                throw BadRequestException("Invalid duration")
+         */
 
         //generating jwt for the authentication with Traveler Service
         val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time + jwtExpirationMs))
@@ -98,7 +109,7 @@ class TicketCatalogueServiceImpl(
             }.awaitSingleOrNull()
 
 
-        //se è necessario controllare l'età...
+        //Check age if necessary.
         if (ticket.maxAge != null || ticket.minAge != null) {
             //throw an exception if age constraints are not satisfied
             checkAgeConstraints(userInfo, ticket)
@@ -158,6 +169,8 @@ class TicketCatalogueServiceImpl(
         if (ticket != null)
             throw BadRequestException("Invalid ticket name")
 
+        checkConstraintsBoundaries(ticketDTO)
+
         val ticketEntity = Ticket(
             null,
             ticketDTO.price,
@@ -179,20 +192,22 @@ class TicketCatalogueServiceImpl(
             throw BadRequestException("Invalid ticket id")
 
         val ticketEntity: Ticket =
-            if (ticketDTO.type != "ordinal") {
-                // allowed modifications: price, min_age, max_age //TODO: allow also name?
+            if (ticketDTO.type == "ordinal") {
+                // allowed modifications: price //name not allowed for example
                 Ticket(
                     ticket.ticketId,
                     ticketDTO.price,
                     ticket.type,
                     ticket.name,
-                    ticketDTO.minAge,
-                    ticketDTO.maxAge,
-                    ticketDTO.start_period,
-                    ticketDTO.end_period,
-                    ticketDTO.duration
+                    ticket.minAge,
+                    ticket.maxAge,
+                    ticket.start_period,
+                    ticket.end_period,
+                    ticket.duration
                 )
             } else { //ticketDTO.type == "seasonal"
+                checkConstraintsBoundaries(ticketDTO)
+
                 // update (add/remove active columns: min_age, max_age, start_period, end_period)
                 // or modify some values (price, name, min_age, max_age, start_period, end_period, duration)
                 Ticket(
@@ -253,7 +268,6 @@ class TicketCatalogueServiceImpl(
                 throw BadRequestException("Invalid Age for this ticket type")
     }
 
-
     private fun contactPaymentService(request: PaymentInfoDTO) {
         try {
             log.info("Receiving product request")
@@ -271,7 +285,6 @@ class TicketCatalogueServiceImpl(
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
         }
     }
-
 
     private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String, ticket: Ticket) {
 
@@ -341,16 +354,39 @@ class TicketCatalogueServiceImpl(
                 }
             }
 
-        } else {
-//            println(validFrom)
-//            println(ticket.start_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
-            if (validFrom<ticket.start_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) || validFrom>ticket.end_period!!.toLocalDate().toString().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
+        } else { //type == "seasonal"
+            if (validFrom < ticket.start_period!!.toLocalDate().toString()
+                    .format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+                || validFrom > ticket.end_period!!.toLocalDate().toString()
+                    .format(DateTimeFormatter.ofPattern("dd-MM-yyyy"))
+            )
                 throw BadRequestException("NotBefore must be in the validity period of seasonal types")
 
         }
     }
 
+    private fun checkConstraintsBoundaries(ticketDTO: TicketDTO) {
+        /* Check Age Boundaries */
+        if (ticketDTO.minAge != null && ticketDTO.maxAge != null) {
+            if (ticketDTO.minAge > ticketDTO.maxAge) throw BadRequestException("Wrong AGE boundaries inserted")
+        }
 
+
+        /* Check Period Boundaries */
+        // Mandatory duration
+        if (ticketDTO.duration == null)
+            throw BadRequestException("Mandatory duration field")
+
+        // Range boundary check
+        if (ticketDTO.start_period != null && ticketDTO.end_period != null && (
+                    ticketDTO.start_period.isAfter(ticketDTO.end_period)
+//                            ||
+//                            ((ticketDTO.end_period.minus(ticketDTO.start_period.)) <= ticketDTO.duration) //TODO: @alessiodongio
+                    )
+        ) {
+            throw BadRequestException("Wrong Start and/or End period range fields or duration field")
+        }
+    }
 }
 
 data class UserDetailsDTO(

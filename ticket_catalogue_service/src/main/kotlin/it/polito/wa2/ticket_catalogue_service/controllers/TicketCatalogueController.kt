@@ -47,14 +47,14 @@ class TicketCatalogueController {
 
     }
 
-    // GET /orders →Get list of all user orders
+    // GET /orders → Get list of all user orders
     @GetMapping("/orders", produces = [MediaType.APPLICATION_NDJSON_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
     fun getOrders(principal: Principal): Flow<OrderDTO> {
         return catalogueService.getOrdersByUserId(principal.name)
     }
 
-    // GET /orders/{order-id} →Get a specific order
+    // GET /orders/{order-id} → Get a specific order
     @GetMapping("/orders/{orderId}", produces = [MediaType.APPLICATION_NDJSON_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.ticket_catalogue_service.dtos.Role).CUSTOMER)")
     suspend fun getOrder(principal: Principal, @PathVariable("orderId") orderId: Long): OrderDTO {
@@ -71,7 +71,6 @@ class TicketCatalogueController {
     ) {
         if (ticketDTO.type != "seasonal")
             throw BadRequestException("Bad Type Inserted")
-
 
         catalogueService.addTicket(ticketDTO)
     }
