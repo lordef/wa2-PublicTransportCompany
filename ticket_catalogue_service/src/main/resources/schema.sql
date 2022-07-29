@@ -1,3 +1,4 @@
+drop table if exists payment_infos;
 drop table if exists orders;
 drop table if exists tickets;
 
@@ -33,6 +34,20 @@ create table if not exists  orders (
                                                 REFERENCES tickets(ticket_id)
 
 );
+
+create table if not exists  payment_infos (
+                                       order_id BIGINT,
+                                       creditCardNumber VARCHAR(255) NOT NULL,
+
+                                       expirationDate VARCHAR(255) NOT NULL,
+
+                                       cvv VARCHAR(255) NOT NULL,
+
+                                       cardHolder VARCHAR(255) NOT NULL,
+
+                                    PRIMARY KEY (order_id)
+
+    );
 
 INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 1.70, 'ordinal', '70 minutes',NULL,NULL,NULL,NULL,NULL);           --1
 INSERT INTO tickets ( price, type, name, min_age, max_age, duration, start_period, end_period) VALUES ( 3.00, 'ordinal', 'daily',NULL,NULL,NULL,NULL,NULL);                --2

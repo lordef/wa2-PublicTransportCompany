@@ -1,7 +1,8 @@
-package it.polito.wa2.ticket_catalogue_service.config
+package it.polito.wa2.ticket_catalogue_service.configKafka
 
 
 import it.polito.wa2.ticket_catalogue_service.dtos.serializer.PaymentRequestSerializer
+import it.polito.wa2.ticket_catalogue_service.dtos.serializer.TravelerRequestSerializer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
@@ -17,8 +18,11 @@ class KafkaProducerConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String
 ) {
+
+    /** ---------------- Payment Kafka Producer ------------------- **/
+
     @Bean
-    fun producerFactory(): ProducerFactory<String, Any> {
+    fun producerFactoryPayment(): ProducerFactory<String, Any> {
         val configProps: MutableMap<String, Any> = HashMap()
         configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -27,7 +31,23 @@ class KafkaProducerConfig(
     }
 
     @Bean
-    fun kafkaTemplate(): KafkaTemplate<String, Any> {
-        return KafkaTemplate(producerFactory())
+    fun kafkaTemplatePayment(): KafkaTemplate<String, Any> {
+        return KafkaTemplate(producerFactoryPayment())
+    }
+
+
+    /** ---------------- Traveler Kafka Producer ------------------- **/
+    @Bean
+    fun producerFactoryTraveler(): ProducerFactory<String, Any> {
+        val configProps: MutableMap<String, Any> = HashMap()
+        configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
+        configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = TravelerRequestSerializer::class.java
+        return DefaultKafkaProducerFactory(configProps)
+    }
+
+    @Bean
+    fun kafkaTemplateTraveler(): KafkaTemplate<String, Any> {
+        return KafkaTemplate(producerFactoryTraveler())
     }
 }

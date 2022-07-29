@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 data class Order(
     @Id
     var orderId: Long?=null,
-    var status: Status = Status.PENDING,
+    var status: Status = Status.CREATED,
     val ticketType: Long, //references Tickets table
     val notBefore: LocalDateTime,
     val quantity: Long,
