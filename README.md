@@ -6,8 +6,6 @@
 
 ### - [Business Logic](#business-logic)
 
-### - [Requests](#business-logic)
-
 ### - [Set-up project guidelines](#set-up-project-guidelines)
 
 ------------------------------------------------------
@@ -128,6 +126,8 @@ Tickets was thought as follow :
 - when a user purchase a ticket inserted by an admin (a seasonal one), the generated ticket is valid from the current
   time (nbf=iat) until the specified minutes added to the current time (exp = iat + duration = nbf + duration)
 
+## Requests
+TODO: list here requests as in the previous year final project
 
 
 ------------------------------------------------------
