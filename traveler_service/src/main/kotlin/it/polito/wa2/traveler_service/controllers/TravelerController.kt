@@ -101,9 +101,11 @@ class TravelerController {
         )
     }
 
-    @GetMapping(path = ["/single-ticket"], produces = [MediaType.IMAGE_PNG_VALUE])
+    @GetMapping(path = ["my/tickets/{ticketId}"], produces = [MediaType.IMAGE_PNG_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
-    fun generateQRCodeImage(@RequestParam ticketId: String): ByteArray? {
+    fun generateQRCodeImage(
+        @PathVariable("ticketId") ticketId: String
+    ): ByteArray? {
 
         val userName = SecurityContextHolder.getContext().authentication.name
 
@@ -155,7 +157,9 @@ class TravelerController {
 
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
+
         println(dateRangeDTO)
+
         return adminReportsService.getTicketsAcquiredByUser(userID, dateRangeDTO)
     }
 
@@ -199,7 +203,7 @@ class TravelerController {
     }
 
 
-    @PostMapping("/transit")
+    @PostMapping("embedded_system/transit")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).EMBEDDED_SYSTEM)")
     @ResponseBody
     fun postTransit(

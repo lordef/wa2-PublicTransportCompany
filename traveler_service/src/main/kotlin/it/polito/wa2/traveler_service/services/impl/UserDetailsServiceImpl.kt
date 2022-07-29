@@ -148,7 +148,7 @@ class UserDetailsServiceImpl : UserDetailsService {
         val formatter = SimpleDateFormat("dd-MM-yyyy")
 
         val iat: Long
-        var exp: Long
+        val exp: Long
         val nbf: Long
         val nbfSeasonal: LocalDateTime
         var expSeasonal : LocalDateTime
