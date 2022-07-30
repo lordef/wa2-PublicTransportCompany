@@ -51,6 +51,9 @@ dependencies {
     // dependencies for QRcode writer
     implementation("com.google.zxing:core:3.3.1")
     implementation("com.google.zxing:javase:3.3.0")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.3")
+
 }
 
 tasks.withType<KotlinCompile> {
