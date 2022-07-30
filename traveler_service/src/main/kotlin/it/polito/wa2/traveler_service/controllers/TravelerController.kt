@@ -8,7 +8,6 @@ import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
-import it.polito.wa2.traveler_service.services.AdminReportsService
 import it.polito.wa2.traveler_service.services.impl.AdminReportsServiceImpl
 import it.polito.wa2.traveler_service.services.impl.TransitServiceImpl
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
@@ -18,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
-import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,6 +24,7 @@ import javax.validation.Valid
 
 
 @RestController
+@RequestMapping("/traveler")
 class TravelerController {
 
     @Autowired
