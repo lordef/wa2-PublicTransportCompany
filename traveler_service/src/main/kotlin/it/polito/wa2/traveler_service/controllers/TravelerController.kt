@@ -9,6 +9,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.nimbusds.jose.EncryptionMethod
 import com.nimbusds.jose.JWEAlgorithm
 import com.nimbusds.jose.JWEHeader
+import com.nimbusds.jose.crypto.RSADecrypter
 import com.nimbusds.jose.crypto.RSAEncrypter
 import com.nimbusds.jwt.EncryptedJWT
 import com.nimbusds.jwt.JWTClaimsSet
@@ -259,17 +260,23 @@ class TravelerController {
 //        val privateRsaKey = keyFactory.generatePrivate(privateKeySpec) as RSAPrivateKey
 
         //get public key from file
-        val privateKeyFile = File("traveler_service/src/main/resources/rsa.public")
-        val publicRsaKey = getPublicKey(privateKeyFile) as RSAPublicKey
+        val publicKeyFile = File("traveler_service/src/main/resources/rsa.public")
+        val publicRsaKey = getPublicKey(publicKeyFile) as RSAPublicKey
+
 
         //generate jwt claims
         val claimSet = JWTClaimsSet.Builder().claim("secret", jwtSecretTicket)
         val header = JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128GCM)
-        val jwt = EncryptedJWT(header, claimSet.build())
+        var jwt = EncryptedJWT(header, claimSet.build())
 
         //Create an RSA encrypted with the specified public RSA key
         val encrypter = RSAEncrypter(publicRsaKey)
         jwt.encrypt(encrypter)
+
+        //decrypt jwt string value to check if Turnstail can correctly decrypt
+        jwt = EncryptedJWT.parse(jwt.serialize())
+//        val decrypter = RSADecrypter(privateRsaKey)
+//        println(jwt.decrypt(decrypter))
 
         return  jwt.serialize()
 
