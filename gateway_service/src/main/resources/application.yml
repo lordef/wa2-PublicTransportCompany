@@ -15,7 +15,7 @@ spring:
         - id: loginModule
           uri: lb://LOGIN-SERVICE
           predicates:
-                - Path=/login/**
+            - Path=/login/**
         - id: paymentModule
           uri: lb://PAYMENT-SERVICE
           predicates:
@@ -23,8 +23,9 @@ spring:
         - id: travelerModule
           uri: lb://TRAVELER-SERVICE
           predicates:
-            - Path=/ticketCatalogue/**
+            - Path=/traveler/**
         - id: travelerModule
           uri: lb://TICKET-CATALOGUE-SERVICE
           predicates:
             - Path=/ticketCatalogue/**
+

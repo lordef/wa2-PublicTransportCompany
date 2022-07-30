@@ -1,7 +1,5 @@
 package it.polito.wa2.login_service.controllers
 
-import com.netflix.discovery.EurekaClient
-import com.netflix.discovery.shared.Applications
 import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.LoginRequestDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
@@ -38,14 +36,6 @@ class RegistrationController() {
 
     @Autowired
     lateinit var authenticationManager: AuthenticationManager
-
-
-    @Autowired
-    lateinit var t: EurekaClient
-    @GetMapping("/prova")
-    fun prova(): Applications? {
-        return t.getApplications()
-    }
 
     @PostMapping("/user/register")
     @ResponseBody
