@@ -6,6 +6,12 @@ import com.google.zxing.client.j2se.MatrixToImageConfig
 import com.google.zxing.client.j2se.MatrixToImageWriter
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
+import com.nimbusds.jose.EncryptionMethod
+import com.nimbusds.jose.JWEAlgorithm
+import com.nimbusds.jose.JWEHeader
+import com.nimbusds.jose.crypto.RSAEncrypter
+import com.nimbusds.jwt.EncryptedJWT
+import com.nimbusds.jwt.JWTClaimsSet
 import it.polito.wa2.traveler_service.dtos.*
 import it.polito.wa2.traveler_service.exceptions.BadRequestException
 import it.polito.wa2.traveler_service.services.AdminReportsService
@@ -13,6 +19,7 @@ import it.polito.wa2.traveler_service.services.impl.AdminReportsServiceImpl
 import it.polito.wa2.traveler_service.services.impl.TransitServiceImpl
 import it.polito.wa2.traveler_service.services.impl.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
@@ -20,6 +27,17 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.annotation.*
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.security.KeyFactory
+import java.security.KeyPairGenerator
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.RSAPrivateKeySpec
+import java.security.spec.RSAPublicKeySpec
+import java.security.spec.X509EncodedKeySpec
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.validation.Valid
@@ -36,6 +54,9 @@ class TravelerController {
 
     @Autowired
     lateinit var adminReportsService: AdminReportsServiceImpl
+
+    @Value("\${application.jwt.jwtSecretTicket}")
+    private lateinit var jwtSecretTicket: String
 
     @GetMapping("/my/profile")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
@@ -217,6 +238,43 @@ class TravelerController {
         transitService.postTransit(transitDTO)
     }
 
+    @GetMapping("/embedded/secret")
+    @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).EMBEDDED_SYSTEM)")
+    @ResponseBody
+    fun getSecret(): String {
+
+//        val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
+//        //initialize key size
+//        keyPairGenerator.initialize(2048)
+//        //generate the key pair
+//        val keyPair = keyPairGenerator.genKeyPair()
+//
+//        //create key factory and RSA key spec
+//        val keyFactory = KeyFactory.getInstance("RSA")
+//        val publicKeySpec = keyFactory.getKeySpec(keyPair.public, RSAPublicKeySpec::class.java)
+//        val privateKeySpec = keyFactory.getKeySpec(keyPair.private, RSAPrivateKeySpec::class.java)
+//
+//        //generate RSA keys from the keyfactory using key speccs
+//        val publicRsaKey = keyFactory.generatePublic(publicKeySpec) as RSAPublicKey
+//        val privateRsaKey = keyFactory.generatePrivate(privateKeySpec) as RSAPrivateKey
+
+        //get public key from file
+        val privateKeyFile = File("traveler_service/src/main/resources/rsa.public")
+        val publicRsaKey = getPublicKey(privateKeyFile) as RSAPublicKey
+
+        //generate jwt claims
+        val claimSet = JWTClaimsSet.Builder().claim("secret", jwtSecretTicket)
+        val header = JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128GCM)
+        val jwt = EncryptedJWT(header, claimSet.build())
+
+        //Create an RSA encrypted with the specified public RSA key
+        val encrypter = RSAEncrypter(publicRsaKey)
+        jwt.encrypt(encrypter)
+
+        return  jwt.serialize()
+
+    }
+
     //the only valid format is dd-MM-yyyy
     private fun validDate(date: String): Boolean {
         val stringParsed = date.split("-")
@@ -275,6 +333,29 @@ class TravelerController {
         if (date.compareTo(formatter.parse(formatter.format(Date()))) <= 0)
             return true
         else return false
+    }
+
+    private fun getPublicKey(file: File): PublicKey {
+        var bytes: ByteArray = getKeyFromFile(file)
+
+        bytes = Base64.getDecoder().decode(bytes)
+        val spec = X509EncodedKeySpec(bytes)
+        val factory = KeyFactory.getInstance("RSA")
+        return factory.generatePublic(spec)
+    }
+
+    private fun getKeyFromFile(file: File): ByteArray {
+        var fileContent = file.readText()
+
+        // Convert key file to string of Base64 characters:
+        // exclusion of "-----BEGIN/END ... KEY-----"
+        // exclusion of newlines
+
+        val re = Regex("-----[^-]*-----")
+        fileContent = re.replace(fileContent, "")
+        fileContent = fileContent.replace("\r", "").replace("\n", "")
+
+        return fileContent.toByteArray()
     }
 
 }
