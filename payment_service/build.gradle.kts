@@ -58,6 +58,7 @@ dependencies {
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation ("org.testcontainers:kafka:1.17.2")
 
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.3")
 
 }
 

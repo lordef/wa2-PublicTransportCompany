@@ -53,6 +53,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.3")
+
 }
 
 tasks.withType<KotlinCompile> {
