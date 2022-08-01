@@ -51,6 +51,10 @@ dependencies {
     // dependencies for QRcode writer
     implementation("com.google.zxing:core:3.3.1")
     implementation("com.google.zxing:javase:3.3.0")
+
+
+    implementation("org.springframework.kafka:spring-kafka")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
 }
 
 tasks.withType<KotlinCompile> {
