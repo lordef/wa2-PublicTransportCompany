@@ -11,9 +11,8 @@ import org.springframework.kafka.core.KafkaAdmin
 class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
-
     @Value("\${kafka.topics.customer_check_answer}")
-    private val topicTraveler: String
+    private val topic: String
 ) {
 
     @Bean
@@ -23,10 +22,8 @@ class KafkaConfig(
         return KafkaAdmin(configs)
     }
 
-
-
     @Bean
-    fun newtopicTraveler(): NewTopic {
-        return NewTopic(topicTraveler, 1, 1.toShort())
+    fun newtopic(): NewTopic {
+        return NewTopic(topic, 1, 1.toShort())
     }
 }

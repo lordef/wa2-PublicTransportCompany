@@ -36,7 +36,7 @@ class KafkaProducerConfig(
     }
 
 
-    /** ---------------- Traveler Kafka Producer ------------------- **/
+    /** ---------------- Traveler Kafka Producer -------------------**/
     @Bean
     fun producerFactoryTraveler(): ProducerFactory<String, Any> {
         val configProps: MutableMap<String, Any> = HashMap()

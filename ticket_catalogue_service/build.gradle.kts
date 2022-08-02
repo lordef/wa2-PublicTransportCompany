@@ -59,6 +59,13 @@ dependencies {
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation("org.testcontainers:postgresql:1.16.3")
 
+
+
+
+
+
+    implementation("ch.qos.logback:logback-core:1.3.0-alpha16")
+
 }
 
 dependencyManagement {

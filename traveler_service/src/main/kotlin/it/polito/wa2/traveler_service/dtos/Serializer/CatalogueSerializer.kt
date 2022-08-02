@@ -23,6 +23,7 @@ class CatalogueSerializer : Serializer<UserDetailsDTO2> {
 
 data class UserDetailsDTO2(
     var orderId: Long,
+    val existing: Boolean,
     var username: String,
     var name: String?,
     var address: String?,

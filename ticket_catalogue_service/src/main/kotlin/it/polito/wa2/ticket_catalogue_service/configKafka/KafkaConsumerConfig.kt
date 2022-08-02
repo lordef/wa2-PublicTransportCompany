@@ -1,4 +1,4 @@
-package it.polito.wa2.ticket_catalogue_service.configKafka
+package it.polito.wa2.ticket_catalogue_service.config
 
 import it.polito.wa2.ticket_catalogue_service.dtos.deserializer.PaymentAnswerDeserializer
 import it.polito.wa2.ticket_catalogue_service.dtos.deserializer.TravelerAnswerDeserializer
@@ -20,9 +20,8 @@ class KafkaConsumerConfig(
     private val servers: String
 ) {
 
-    /** ---------------- Payment Kafka Consumer ------------------- **/
     @Bean
-    fun consumerFactoryConsumer(): ConsumerFactory<String?, Any?> {
+    fun consumerFactory(): ConsumerFactory<String?, Any?> {
         val props: MutableMap<String, Any> = HashMap()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         props[ConsumerConfig.GROUP_ID_CONFIG] = "pbca"
@@ -33,15 +32,16 @@ class KafkaConsumerConfig(
     }
 
     @Bean
-    fun kafkaListenerContainerFactoryConsumer(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
         val factory = ConcurrentKafkaListenerContainerFactory<String, Any>()
-        factory.consumerFactory = consumerFactoryConsumer()
+        factory.consumerFactory = consumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         factory.containerProperties.isSyncCommits = true
         return factory
     }
 
-    /** ---------------- Traveler Kafka Consumer ------------------- **/
+
+
 
     @Bean
     fun consumerFactoryTraveler(): ConsumerFactory<String?, Any?> {
@@ -62,12 +62,4 @@ class KafkaConsumerConfig(
         factory.containerProperties.isSyncCommits = true
         return factory
     }
-
-
-
-
-
-
-
-
 }

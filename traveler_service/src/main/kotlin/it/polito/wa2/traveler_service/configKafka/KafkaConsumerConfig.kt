@@ -1,5 +1,6 @@
 package it.polito.wa2.traveler_service.configKafka
 
+
 import it.polito.wa2.traveler_service.dtos.Deserializer.CatalogueDeserializer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -19,9 +20,8 @@ class KafkaConsumerConfig(
     private val servers: String
 ) {
 
-    /** ---------------- Catalogue Kafka Consumer ------------------- **/
     @Bean
-    fun consumerFactoryConsumer(): ConsumerFactory<String?, Any?> {
+    fun consumerFactory(): ConsumerFactory<String?, Any?> {
         val props: MutableMap<String, Any> = HashMap()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         props[ConsumerConfig.GROUP_ID_CONFIG] = "tc"
@@ -32,9 +32,9 @@ class KafkaConsumerConfig(
     }
 
     @Bean
-    fun kafkaListenerContainerFactoryConsumer(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
         val factory = ConcurrentKafkaListenerContainerFactory<String, Any>()
-        factory.consumerFactory = consumerFactoryConsumer()
+        factory.consumerFactory = consumerFactory()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         factory.containerProperties.isSyncCommits = true
         return factory

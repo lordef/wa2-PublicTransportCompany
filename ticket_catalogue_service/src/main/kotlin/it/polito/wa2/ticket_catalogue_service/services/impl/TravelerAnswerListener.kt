@@ -1,8 +1,6 @@
 package it.polito.wa2.ticket_catalogue_service.services.impl
 
-import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoAnswerDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoDTO
-import it.polito.wa2.ticket_catalogue_service.dtos.PurchaseTicketDTO
 import it.polito.wa2.ticket_catalogue_service.dtos.UserDetailsDTO
 import it.polito.wa2.ticket_catalogue_service.entities.Order
 import it.polito.wa2.ticket_catalogue_service.entities.PaymentInfo
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.core.KafkaTemplate
@@ -28,14 +25,14 @@ import org.springframework.kafka.support.KafkaHeaders
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
 import org.springframework.messaging.Message
-import reactor.core.publisher.Mono
 import java.time.LocalDate
 import java.time.Period
-import java.util.*
 
 @Component
 class TravelerAnswerListener(
-    @Value("\${kafka.topics.bank_check}") val topicPayment: String,
+    @Value("\${kafka.topics.customer_check}")
+    val topicTraveler: String,
+
 
     @Autowired
     private val kafkaTemplatePayment: KafkaTemplate<String, Any>
@@ -163,7 +160,7 @@ class TravelerAnswerListener(
             log.info("Sending message to Kafka {}", request)
             val message: Message<PaymentInfoDTO> = MessageBuilder
                 .withPayload(request)
-                .setHeader(KafkaHeaders.TOPIC, topicPayment)
+                .setHeader(KafkaHeaders.TOPIC, topicTraveler)
                 .setHeader("X-Custom-Header", "Custom header here")
                 .build()
             kafkaTemplatePayment.send(message)

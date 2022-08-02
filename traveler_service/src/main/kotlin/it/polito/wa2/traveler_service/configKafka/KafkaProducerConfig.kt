@@ -1,5 +1,7 @@
 package it.polito.wa2.traveler_service.configKafka
 
+
+
 import it.polito.wa2.traveler_service.dtos.Serializer.CatalogueSerializer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
@@ -15,12 +17,8 @@ class KafkaProducerConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String
 ) {
-
-
-
-    /** ---------------- Traveler Kafka Producer ------------------- **/
     @Bean
-    fun producerFactoryTraveler(): ProducerFactory<String, Any> {
+    fun producerFactory(): ProducerFactory<String, Any> {
         val configProps: MutableMap<String, Any> = HashMap()
         configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
@@ -29,8 +27,7 @@ class KafkaProducerConfig(
     }
 
     @Bean
-    fun kafkaTemplateTraveler(): KafkaTemplate<String, Any> {
-        return KafkaTemplate(producerFactoryTraveler())
+    fun kafkaTemplate(): KafkaTemplate<String, Any> {
+        return KafkaTemplate(producerFactory())
     }
 }
-
