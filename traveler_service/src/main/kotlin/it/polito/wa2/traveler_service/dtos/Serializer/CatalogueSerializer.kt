@@ -1,5 +1,6 @@
 package it.polito.wa2.traveler_service.dtos.Serializer
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Serializer
@@ -22,11 +23,18 @@ class CatalogueSerializer : Serializer<UserDetailsDTO2> {
 
 
 data class UserDetailsDTO2(
+    @JsonProperty("orderId")
     var orderId: Long,
+    @JsonProperty("existing")
     val existing: Boolean,
+    @JsonProperty("username")
     var username: String,
+    @JsonProperty("name")
     var name: String?,
+    @JsonProperty("address")
     var address: String?,
+    @JsonProperty("telephone_number")
     var telephone_number: String?,
+    @JsonProperty("date_of_bith")
     var date_of_birth: String?
 )

@@ -19,6 +19,7 @@ class KafkaConsumerConfig(
     private val servers: String
 ) {
 
+    /**  Catalogue Service Listener **/
     @Bean
     fun consumerFactory(): ConsumerFactory<String?, Any?> {
         val props: MutableMap<String, Any> = HashMap()
@@ -38,4 +39,6 @@ class KafkaConsumerConfig(
         factory.containerProperties.isSyncCommits = true
         return factory
     }
+
+    /**  Traveler Service Listener **/
 }

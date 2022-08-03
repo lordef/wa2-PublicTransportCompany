@@ -46,7 +46,7 @@ class PaymentAnswerListener {
 
 
 
-    @KafkaListener(topics = ["\${kafka.topics.bank_check_answer}"], groupId = "pbca")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryPayment",topics = ["\${kafka.topics.bank_check_answer}"], groupId = "pbca")
     fun listenGroupFoo(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
@@ -80,6 +80,10 @@ class PaymentAnswerListener {
             //generating jwt for the authentication with Traveler Service
             val jwt = jwtUtils.generateJwt(orderEntity.userId, Date(), Date(Date().time+jwtExpirationMs))
 
+
+
+
+            /*
             runBlocking {
                 val tickets = webClient.post().uri("/my/tickets")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -96,8 +100,8 @@ class PaymentAnswerListener {
                             println(response.statusCode())
                             Mono.empty()
                         }
-                    }.awaitSingleOrNull()
-            }
+                    }.awaitSingleOrNull()*/
+           // }
 
         }
 

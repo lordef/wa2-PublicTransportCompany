@@ -40,6 +40,7 @@ class UserCheckListener(
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
 
+
         val message = consumerRecord.value() as UsernameDTO
         println(message)
 
@@ -48,7 +49,7 @@ class UserCheckListener(
         val answer: UserDetailsDTO2
 
         if (user == null)
-            answer = UserDetailsDTO2(message.orderId,false,"","","","","")
+            answer = UserDetailsDTO2(message.orderId,false,"null","null","null","null","null")
         else
             answer = UserDetailsDTO2(message.orderId,true,user.username!!,user.name!!,"","",user.date_of_birth.toString())
 

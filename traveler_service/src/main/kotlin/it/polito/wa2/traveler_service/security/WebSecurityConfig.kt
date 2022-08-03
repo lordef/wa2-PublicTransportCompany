@@ -31,6 +31,7 @@ class WebSecurityConfig: WebSecurityConfigurerAdapter() {
 
         http.csrf().disable() // disable csrf
 
+
         http.cors()
 
 

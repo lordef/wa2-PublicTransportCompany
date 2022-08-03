@@ -85,23 +85,7 @@ class TicketCatalogueServiceImpl(
         if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
             throw BadRequestException("Invalid duration")
 
-        /*
-        //generating jwt for the authentication with Traveler Service
-        val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time + jwtExpirationMs))
 
-
-        val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
-            .header("Authorization", "Bearer " + jwt)
-            .accept(MediaType.APPLICATION_JSON)
-            .exchangeToMono { response ->
-
-                if (response.statusCode() == HttpStatus.OK) {
-                    response.bodyToMono(UserDetailsDTO::class.java)
-                } else {
-                    println(response.statusCode())
-                    throw BadRequestException("User is not present in User Details")
-                }
-            }.awaitSingleOrNull()*/
 
 
         val totalAmount = (ticket.price * purchaseTicketsRequestDTO.quantity)

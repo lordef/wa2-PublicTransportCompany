@@ -37,13 +37,13 @@ create table if not exists  orders (
 
 create table if not exists  payment_infos (
                                        order_id BIGINT,
-                                       creditCardNumber VARCHAR(255) NOT NULL,
+                                       credit_card_number VARCHAR(255) NOT NULL,
 
-                                       expirationDate VARCHAR(255) NOT NULL,
+                                       expiration_date VARCHAR(255) NOT NULL,
 
                                        cvv VARCHAR(255) NOT NULL,
 
-                                       cardHolder VARCHAR(255) NOT NULL,
+                                       card_holder VARCHAR(255) NOT NULL,
 
                                     PRIMARY KEY (order_id)
 

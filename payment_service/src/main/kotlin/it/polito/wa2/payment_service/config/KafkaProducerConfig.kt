@@ -16,6 +16,9 @@ class KafkaProducerConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String
 ) {
+
+    /**  Catalogue Service Listener **/
+
     @Bean
     fun producerFactory(): ProducerFactory<String, Any> {
         val configProps: MutableMap<String, Any> = HashMap()
@@ -28,5 +31,22 @@ class KafkaProducerConfig(
     @Bean
     fun kafkaTemplate(): KafkaTemplate<String, Any> {
         return KafkaTemplate(producerFactory())
+    }
+
+
+    /**  Traveler Service Listener **/
+
+    @Bean
+    fun producerFactoryGenTicket(): ProducerFactory<String, Any> {
+        val configProps: MutableMap<String, Any> = HashMap()
+        configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
+        configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = PaymentAnswerSerializer::class.java
+        return DefaultKafkaProducerFactory(configProps)
+    }
+
+    @Bean
+    fun kafkaTemplateGenTicket(): KafkaTemplate<String, Any> {
+        return KafkaTemplate(producerFactoryGenTicket())
     }
 }

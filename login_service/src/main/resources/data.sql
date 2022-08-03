@@ -10,7 +10,8 @@ INSERT INTO roles (id, name) VALUES (4, 'EMBEDDED_SYSTEM');
 
 INSERT INTO users (id, active, email, nickname, password) VALUES (9223372036854775807, true, 'admin@gmail.com', 'startup_admin', '$2a$10$tF89eHwXEblVRSeeIUB79e8pcTr5euSFSq8MOz.u0jZmgcToGz8Ha');
 INSERT INTO user_role (user_id, role_id) VALUES (9223372036854775807, 3);
-
+INSERT INTO user_role (user_id, role_id) VALUES (9223372036854775807, 1);
+INSERT INTO user_role (user_id, role_id) VALUES (9223372036854775807, 2);
 
 /* INSERT STARTUP EMBEDDED IN USER
     nickname: "embedded_system"

@@ -11,8 +11,12 @@ import org.springframework.kafka.core.KafkaAdmin
 class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
+
     @Value("\${kafka.topics.bank_check_answer}")
-    private val topic: String
+    private val topicBankCheckAnswer: String,
+
+    @Value("\${kafka.topics.generate_ticket}")
+    private val topicGenerateTicket: String,
 ) {
 
     @Bean
@@ -24,6 +28,11 @@ class KafkaConfig(
 
     @Bean
     fun newtopic(): NewTopic {
-        return NewTopic(topic, 1, 1.toShort())
+        return NewTopic(topicBankCheckAnswer, 1, 1.toShort())
+    }
+
+    @Bean
+    fun newtopicGenerateTicket(): NewTopic {
+        return NewTopic(topicGenerateTicket, 1, 1.toShort())
     }
 }

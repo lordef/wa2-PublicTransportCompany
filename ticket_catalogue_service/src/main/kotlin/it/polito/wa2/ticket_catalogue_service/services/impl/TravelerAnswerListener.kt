@@ -30,8 +30,8 @@ import java.time.Period
 
 @Component
 class TravelerAnswerListener(
-    @Value("\${kafka.topics.customer_check}")
-    val topicTraveler: String,
+    @Value("\${kafka.topics.bank_check}")
+    val topicPayment: String,
 
 
     @Autowired
@@ -54,8 +54,8 @@ class TravelerAnswerListener(
 
 
 
-    @KafkaListener(topics = ["\${kafka.topics.customer_check_answer}"], groupId = "tca")
-    fun listenGroupFoo(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryTraveler",topics = ["\${kafka.topics.customer_check_answer}"], groupId = "tca")
+    fun listenGroupFoo2(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
 
@@ -67,6 +67,7 @@ class TravelerAnswerListener(
 
         val paymentInfo: PaymentInfo?
 
+
         runBlocking {
             orderEntity = orderRepository.findById(userInfo.orderId)
         }
@@ -74,26 +75,41 @@ class TravelerAnswerListener(
         if (orderEntity == null)
             throw BadRequestException("Not Existing Order")
 
-        orderEntity.status = Status.USER_CHECKED
+        if(!userInfo.existing) {
+            orderEntity.status = Status.DENIED
 
-        runBlocking {
-            orderRepository.save(orderEntity)
-        }
+            runBlocking {
+                orderRepository.save(orderEntity)
+            }
 
-        runBlocking {
-            ticket = ticketRepository.findById(orderEntity.ticketType)
-        }
+            runBlocking {
+                paymentRepository.deleteByOrderId(userInfo.orderId)
+            }
+        }else {
+            runBlocking {
+                ticket = ticketRepository.findById(orderEntity.ticketType)
+            }
+
+            orderEntity.status = Status.USER_CHECKED
+
+            //se è necessario controllare l'età...
+            if (ticket!!.maxAge != null || ticket!!.minAge != null) {
+                //throw an exception if age constraints are not satisfied
+                val valid = checkAgeConstraints(userInfo, ticket)
+                if(!valid)
+                    orderEntity.status = Status.DENIED
+
+            }
+
+            runBlocking {
+                orderRepository.save(orderEntity)
+            }
 
 
-        //se è necessario controllare l'età...
-        if (ticket!!.maxAge != null || ticket!!.minAge != null) {
-            //throw an exception if age constraints are not satisfied
-            checkAgeConstraints(userInfo, ticket)
-        }
 
-        runBlocking {
-            paymentInfo = paymentRepository.findByOrderId(userInfo.orderId)
-        }
+            runBlocking {
+                paymentInfo = paymentRepository.findByOrderId(userInfo.orderId)
+            }
 
 
 
@@ -117,6 +133,9 @@ class TravelerAnswerListener(
         }
 
 
+    }
+
+
 
 
 
@@ -128,11 +147,12 @@ class TravelerAnswerListener(
         }
     }
 
-    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket) {
+    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket): Boolean {
 
 
         if (userInfo!!.date_of_birth == null)
-            throw BadRequestException("Date of Birth is not available")
+            return false
+            // throw BadRequestException("Date of Birth is not available")
 
         val date = (userInfo.date_of_birth as String).split("-")
         val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
@@ -141,16 +161,24 @@ class TravelerAnswerListener(
 
         val currentNumberOfYears = calculateAge(userLocalDate, currentDate)
 
-        if (currentNumberOfYears == 0)
-            throw BadRequestException("Invalid Age for this ticket type")
+        if (currentNumberOfYears == 0) {
+            return false
+            //throw BadRequestException("Invalid Age for this ticket type")
+        }
 
         if (ticket.maxAge != null)
-            if (currentNumberOfYears > ticket.maxAge)
-                throw BadRequestException("Invalid Age for this ticket type")
+            if (currentNumberOfYears > ticket.maxAge) {
+                return false
+                //throw BadRequestException("Invalid Age for this ticket type")
+            }
 
         if (ticket.minAge != null)
-            if (currentNumberOfYears < ticket.minAge)
-                throw BadRequestException("Invalid Age for this ticket type")
+            if (currentNumberOfYears < ticket.minAge) {
+                return false
+                //throw BadRequestException("Invalid Age for this ticket type")
+            }
+
+        return true
     }
 
 
@@ -160,7 +188,7 @@ class TravelerAnswerListener(
             log.info("Sending message to Kafka {}", request)
             val message: Message<PaymentInfoDTO> = MessageBuilder
                 .withPayload(request)
-                .setHeader(KafkaHeaders.TOPIC, topicTraveler)
+                .setHeader(KafkaHeaders.TOPIC, topicPayment)
                 .setHeader("X-Custom-Header", "Custom header here")
                 .build()
             kafkaTemplatePayment.send(message)

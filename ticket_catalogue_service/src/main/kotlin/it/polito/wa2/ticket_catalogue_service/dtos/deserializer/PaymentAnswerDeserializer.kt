@@ -11,7 +11,7 @@ class PaymentAnswerDeserializer : Deserializer<PaymentInfoAnswerDTO> {
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun deserialize(topic: String?, data: ByteArray?): PaymentInfoAnswerDTO? {
-        log.info("Deserializing...")
+        log.info("Deserializing payment...")
         return objectMapper.readValue(
             String(
                 data ?: throw SerializationException("Error when deserializing byte[] to Product"), Charsets.UTF_8
