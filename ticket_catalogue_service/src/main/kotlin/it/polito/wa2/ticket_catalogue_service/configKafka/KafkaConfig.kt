@@ -11,7 +11,7 @@ import org.springframework.kafka.core.KafkaAdmin
 class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
-    @Value("\${kafka.topics.bank_check}")
+    @Value("\${kafka.topics.payment}")
     private val topic: String,
     @Value("\${kafka.topics.customer_check}")
     private val topicTraveler: String

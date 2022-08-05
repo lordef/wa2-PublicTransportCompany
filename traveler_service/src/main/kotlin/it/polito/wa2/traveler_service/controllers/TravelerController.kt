@@ -81,7 +81,7 @@ class TravelerController {
     fun getMyTickets(): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(SecurityContextHolder.getContext().authentication.name)
     }
-
+/*
     @PostMapping("/my/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).SERVICE)")
     @ResponseBody
@@ -99,7 +99,7 @@ class TravelerController {
             SecurityContextHolder.getContext().authentication.name,
             purchaseTicketDTO
         )
-    }
+    }*/
 
     @GetMapping(path = ["/single-ticket"], produces = [MediaType.IMAGE_PNG_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")

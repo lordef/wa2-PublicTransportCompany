@@ -58,6 +58,8 @@ dependencies {
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation ("org.testcontainers:kafka:1.17.2")
 
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
 }
 

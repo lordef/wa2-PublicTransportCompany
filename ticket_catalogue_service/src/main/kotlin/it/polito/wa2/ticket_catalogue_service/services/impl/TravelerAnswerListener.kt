@@ -30,7 +30,7 @@ import java.time.Period
 
 @Component
 class TravelerAnswerListener(
-    @Value("\${kafka.topics.bank_check}")
+    @Value("\${kafka.topics.payment}")
     val topicPayment: String,
 
 
@@ -121,7 +121,11 @@ class TravelerAnswerListener(
                 paymentInfo!!.cvv,
                 paymentInfo!!.cardHolder,
                 orderEntity.userId,
-                orderEntity.orderId as Long
+                orderEntity.orderId as Long,
+                ticket,
+                orderEntity.notBefore.toString(),
+                orderEntity.quantity,
+                orderEntity.zoneId
             )
 
             contactPaymentService(request)

@@ -55,6 +55,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.hibernate.validator:hibernate-validator")
 
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+
     // dependencies for testcontainers implementation
     testImplementation ("org.testcontainers:junit-jupiter:1.16.3")
     testImplementation("org.testcontainers:postgresql:1.16.3")

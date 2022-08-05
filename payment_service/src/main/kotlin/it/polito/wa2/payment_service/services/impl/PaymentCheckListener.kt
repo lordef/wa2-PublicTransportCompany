@@ -1,5 +1,6 @@
 package it.polito.wa2.payment_service.services.impl
 
+import it.polito.wa2.payment_service.dtos.GenTicketRequestDTO
 import it.polito.wa2.payment_service.dtos.PaymentInfoAnswerDTO
 import it.polito.wa2.payment_service.dtos.PaymentInfoDTO
 import it.polito.wa2.payment_service.entities.Status
@@ -25,10 +26,19 @@ import javax.validation.Valid
 
 @Component
 class PaymentCheckListener(
-    @Value("\${kafka.topics.bank_check_answer}")
-    val answerTopic: String,
+    @Value("\${kafka.topics.generate_ticket}")
+    val genTicketTopic: String,
+
+    @Value("\${kafka.topics.payment_answer}")
+    val rollbackTopic: String,
+
     @Autowired
-    private val kafkaTemplate: KafkaTemplate<String, Any>
+    private val kafkaTemplateCatalogue: KafkaTemplate<String, Any>,
+
+    @Autowired
+    private val kafkaTemplateGenTicket: KafkaTemplate<String, Any>
+
+
 ) {
 
     @Autowired
@@ -37,7 +47,7 @@ class PaymentCheckListener(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @KafkaListener(topics = ["\${kafka.topics.bank_check}"], groupId = "pbc")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryCatalogue" ,topics = ["\${kafka.topics.payment}"], groupId = "pbc")
     fun listenGroupFoo(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
@@ -47,21 +57,28 @@ class PaymentCheckListener(
 
         val bodyResult = manageBankTransaction(message)
 
-        contactCatalogueService(bodyResult)
+        val req: GenTicketRequestDTO
+
+        if(bodyResult.status==Status.ACCEPTED) {
+            req = GenTicketRequestDTO(message.username, message.orderId,message.ticket,message.validFrom, message.quantity, message.zone)
+            contactGenTicket(req)
+        }
+        else
+            rollback(bodyResult)
     }
 
 
 
-private fun contactCatalogueService(answer: PaymentInfoAnswerDTO) {
+private fun contactGenTicket(request: GenTicketRequestDTO) {
     try {
         logger.info("Receiving product request")
-        logger.info("Sending message to Kafka {}", answer)
-        val message: Message<PaymentInfoAnswerDTO> = MessageBuilder
-            .withPayload(answer)
-            .setHeader(KafkaHeaders.TOPIC, answerTopic)
+        logger.info("Sending message to Kafka {}", request)
+        val message: Message<GenTicketRequestDTO> = MessageBuilder
+            .withPayload(request)
+            .setHeader(KafkaHeaders.TOPIC, genTicketTopic)
             .setHeader("X-Custom-Header", "Custom header here")
             .build()
-        kafkaTemplate.send(message)
+        kafkaTemplateGenTicket.send(message)
         logger.info("Message sent with success")
         //ResponseEntity.ok().build()
     } catch (e: Exception) {
@@ -69,6 +86,25 @@ private fun contactCatalogueService(answer: PaymentInfoAnswerDTO) {
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
     }
 }
+
+
+    private fun rollback(request: PaymentInfoAnswerDTO) {
+        try {
+            logger.info("Receiving product request")
+            logger.info("Sending message to Kafka {}", request)
+            val message: Message<PaymentInfoAnswerDTO> = MessageBuilder
+                .withPayload(request)
+                .setHeader(KafkaHeaders.TOPIC, rollbackTopic)
+                .setHeader("X-Custom-Header", "Custom header here")
+                .build()
+            kafkaTemplateCatalogue.send(message)
+            logger.info("Message sent with success")
+            //ResponseEntity.ok().build()
+        } catch (e: Exception) {
+            logger.error("Exception: {}", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
+        }
+    }
 
     private fun manageBankTransaction(@Valid message: PaymentInfoDTO) : PaymentInfoAnswerDTO{
 

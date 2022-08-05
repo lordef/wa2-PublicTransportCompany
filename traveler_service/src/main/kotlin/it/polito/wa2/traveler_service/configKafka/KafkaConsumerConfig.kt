@@ -2,6 +2,7 @@ package it.polito.wa2.traveler_service.configKafka
 
 
 import it.polito.wa2.traveler_service.dtos.Deserializer.CatalogueDeserializer
+import it.polito.wa2.traveler_service.dtos.Deserializer.PaymentDeserializer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.springframework.beans.factory.annotation.Value
@@ -20,8 +21,9 @@ class KafkaConsumerConfig(
     private val servers: String
 ) {
 
+    /** Catalogue Service **/
     @Bean
-    fun consumerFactory(): ConsumerFactory<String?, Any?> {
+    fun consumerFactoryCatalogue(): ConsumerFactory<String?, Any?> {
         val props: MutableMap<String, Any> = HashMap()
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         props[ConsumerConfig.GROUP_ID_CONFIG] = "tc"
@@ -32,9 +34,31 @@ class KafkaConsumerConfig(
     }
 
     @Bean
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
+    fun kafkaListenerContainerFactoryCatalogue(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
         val factory = ConcurrentKafkaListenerContainerFactory<String, Any>()
-        factory.consumerFactory = consumerFactory()
+        factory.consumerFactory = consumerFactoryCatalogue()
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
+        factory.containerProperties.isSyncCommits = true
+        return factory
+    }
+
+
+    /** Payment Service **/
+    @Bean
+    fun consumerFactoryPayment(): ConsumerFactory<String?, Any?> {
+        val props: MutableMap<String, Any> = HashMap()
+        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
+        props[ConsumerConfig.GROUP_ID_CONFIG] = "gt"
+        props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+        props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = PaymentDeserializer::class.java
+        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        return DefaultKafkaConsumerFactory(props)
+    }
+
+    @Bean
+    fun kafkaListenerContainerFactoryPayment(): ConcurrentKafkaListenerContainerFactory<String, Any>? {
+        val factory = ConcurrentKafkaListenerContainerFactory<String, Any>()
+        factory.consumerFactory = consumerFactoryPayment()
         factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL_IMMEDIATE
         factory.containerProperties.isSyncCommits = true
         return factory

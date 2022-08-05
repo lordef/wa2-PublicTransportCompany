@@ -12,7 +12,9 @@ class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
     @Value("\${kafka.topics.customer_check_answer}")
-    private val topic: String
+    private val topic: String,
+    @Value("\${kafka.topics.generate_ticket_answer}")
+    private val topic2: String
 ) {
 
     @Bean
@@ -25,5 +27,10 @@ class KafkaConfig(
     @Bean
     fun newtopic(): NewTopic {
         return NewTopic(topic, 1, 1.toShort())
+    }
+
+    @Bean
+    fun newtopic2(): NewTopic {
+        return NewTopic(topic2, 1, 1.toShort())
     }
 }

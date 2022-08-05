@@ -46,7 +46,7 @@ class PaymentAnswerListener {
 
 
 
-    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryPayment",topics = ["\${kafka.topics.bank_check_answer}"], groupId = "pbca")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryPayment",topics = ["\${kafka.topics.payment_answer}"], groupId = "pbca")
     fun listenGroupFoo(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()

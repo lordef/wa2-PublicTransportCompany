@@ -12,7 +12,7 @@ class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
 
-    @Value("\${kafka.topics.bank_check_answer}")
+    @Value("\${kafka.topics.payment_answer}")
     private val topicBankCheckAnswer: String,
 
     @Value("\${kafka.topics.generate_ticket}")

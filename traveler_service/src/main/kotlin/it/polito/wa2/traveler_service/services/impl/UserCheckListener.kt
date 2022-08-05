@@ -27,7 +27,7 @@ class UserCheckListener(
     @Value("\${kafka.topics.customer_check_answer}")
     val answerTopic: String,
     @Autowired
-    private val kafkaTemplate: KafkaTemplate<String, Any>
+    private val kafkaTemplateCatalogue: KafkaTemplate<String, Any>
 ) {
 
     @Autowired
@@ -35,7 +35,7 @@ class UserCheckListener(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @KafkaListener(topics = ["\${kafka.topics.customer_check}"], groupId = "tc")
+    @KafkaListener(containerFactory = "kafkaListenerContainerFactoryCatalogue" ,topics = ["\${kafka.topics.customer_check}"], groupId = "tc")
     fun listenGroupFoo(consumerRecord: ConsumerRecord<Any, Any>, ack: Acknowledgment) {
         logger.info("Message received {}", consumerRecord)
         ack.acknowledge()
@@ -67,7 +67,7 @@ class UserCheckListener(
                 .setHeader(KafkaHeaders.TOPIC, answerTopic)
                 .setHeader("X-Custom-Header", "Custom header here")
                 .build()
-            kafkaTemplate.send(message)
+            kafkaTemplateCatalogue.send(message)
             logger.info("Message sent with success")
             //ResponseEntity.ok().build()
         } catch (e: Exception) {
