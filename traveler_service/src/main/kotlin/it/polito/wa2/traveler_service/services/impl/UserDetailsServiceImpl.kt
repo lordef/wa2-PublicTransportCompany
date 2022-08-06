@@ -89,10 +89,6 @@ class UserDetailsServiceImpl : UserDetailsService {
         return ticket
     }
 
-    override fun postUserTickets(username: String, purchasedTicketDTO: PurchaseTicketDTO)/*: List<TicketAcquiredDTO> */{
-
-
-    }
 
     override fun getTravelers(): List<String> {
         return userDetailsRepository.findUsernames()

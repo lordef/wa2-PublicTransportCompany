@@ -82,8 +82,8 @@ class TicketCatalogueServiceImpl(
 
 
         checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(), ticket)
-        if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
-            throw BadRequestException("Invalid duration")
+        /*if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
+            throw BadRequestException("Invalid duration")*/
 
 
 
@@ -241,7 +241,7 @@ class TicketCatalogueServiceImpl(
 
     private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String, ticket: Ticket) {
 
-        val formatter = SimpleDateFormat("dd-MM-yyyy")
+        val formatter = SimpleDateFormat("yyyy-MM-dd")
 
         if (type == "ordinal") {
 

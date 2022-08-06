@@ -92,10 +92,12 @@ class TravelerAnswerListener(
 
             orderEntity.status = Status.USER_CHECKED
 
+            var valid = true
+
             //se è necessario controllare l'età...
             if (ticket!!.maxAge != null || ticket!!.minAge != null) {
                 //throw an exception if age constraints are not satisfied
-                val valid = checkAgeConstraints(userInfo, ticket)
+                valid = checkAgeConstraints(userInfo, ticket)
                 if(!valid)
                     orderEntity.status = Status.DENIED
 
@@ -128,7 +130,8 @@ class TravelerAnswerListener(
                 orderEntity.zoneId
             )
 
-            contactPaymentService(request)
+            if(valid)
+                contactPaymentService(request)
 
             runBlocking {
                 paymentRepository.deleteByOrderId(userInfo.orderId)
@@ -154,12 +157,14 @@ class TravelerAnswerListener(
     private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket): Boolean {
 
 
+
         if (userInfo!!.date_of_birth == null)
             return false
             // throw BadRequestException("Date of Birth is not available")
 
+
         val date = (userInfo.date_of_birth as String).split("-")
-        val userLocalDate = LocalDate.of(date[2].toInt(), date[1].toInt(), date[0].toInt())
+        val userLocalDate = LocalDate.of(date[0].toInt(), date[1].toInt(), date[2].toInt())
 
         val currentDate = LocalDate.now()
 
@@ -169,6 +174,8 @@ class TravelerAnswerListener(
             return false
             //throw BadRequestException("Invalid Age for this ticket type")
         }
+
+        println(currentNumberOfYears)
 
         if (ticket.maxAge != null)
             if (currentNumberOfYears > ticket.maxAge) {

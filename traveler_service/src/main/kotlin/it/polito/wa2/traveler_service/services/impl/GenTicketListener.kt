@@ -64,7 +64,7 @@ class GenTicketListener(
             logger.info("Message received {}", consumerRecord)
             ack.acknowledge()
 
-            throw Exception("ciao")
+            //throw Exception("ciao")
 
 
 
@@ -148,7 +148,7 @@ class GenTicketListener(
         val name=purchasedTicketDTO.ticket.name
         val validFrom=purchasedTicketDTO.validFrom
 
-        val formatter = SimpleDateFormat("dd-MM-yyyy")
+        val formatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm")
 
         val iat: Long
         var exp: Long

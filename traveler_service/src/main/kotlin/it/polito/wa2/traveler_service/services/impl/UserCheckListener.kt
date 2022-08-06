@@ -51,7 +51,7 @@ class UserCheckListener(
         if (user == null)
             answer = UserDetailsDTO2(message.orderId,false,"null","null","null","null","null")
         else
-            answer = UserDetailsDTO2(message.orderId,true,user.username!!,user.name!!,"","",user.date_of_birth.toString())
+            answer = UserDetailsDTO2(message.orderId,true,user.username!!,user.name!!,"","",user.date_of_birth.toString().split(" ")[0])
 
         contactCatalogueService(answer)
     }
