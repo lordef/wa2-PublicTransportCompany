@@ -1,6 +1,7 @@
 package it.polito.wa2.ticket_catalogue_service.services.impl
 
 import it.polito.wa2.ticket_catalogue_service.dtos.PaymentInfoDTO
+import it.polito.wa2.ticket_catalogue_service.dtos.Ticket2
 import it.polito.wa2.ticket_catalogue_service.dtos.UserDetailsDTO
 import it.polito.wa2.ticket_catalogue_service.entities.Order
 import it.polito.wa2.ticket_catalogue_service.entities.PaymentInfo
@@ -65,6 +66,8 @@ class TravelerAnswerListener(
 
         val ticket: Ticket?
 
+        val ticket2: Ticket2?
+
         val paymentInfo: PaymentInfo?
 
 
@@ -89,6 +92,9 @@ class TravelerAnswerListener(
             runBlocking {
                 ticket = ticketRepository.findById(orderEntity.ticketType)
             }
+
+            ticket2 = Ticket2(ticket!!.ticketId,ticket!!.price,ticket!!.type, ticket!!.name, ticket!!.minAge, ticket!!.maxAge, ticket!!.start_period.toString(), ticket!!.end_period.toString(), ticket!!.duration)
+
 
             orderEntity.status = Status.USER_CHECKED
 
@@ -124,7 +130,7 @@ class TravelerAnswerListener(
                 paymentInfo!!.cardHolder,
                 orderEntity.userId,
                 orderEntity.orderId as Long,
-                ticket,
+                ticket2,
                 orderEntity.notBefore.toString(),
                 orderEntity.quantity,
                 orderEntity.zoneId

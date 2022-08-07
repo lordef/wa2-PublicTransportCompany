@@ -35,7 +35,7 @@ data class PaymentInfoDTO(
     val orderId: Long,
 
     @JsonProperty("ticket")
-    val ticket : Ticket,
+    val ticket : Ticket2,
 
     @JsonProperty("validFrom")
     val validFrom: String,//LocalDateTime,
@@ -45,4 +45,25 @@ data class PaymentInfoDTO(
 
     @JsonProperty("zone")
     val zone: String
+)
+
+data class Ticket2(
+    @JsonProperty("ticketId")
+    val ticketId: Long?,
+    @JsonProperty("price")
+    val price : Float,
+    @JsonProperty("type")
+    val type : String,
+    @JsonProperty("name")
+    val name : String,
+    @JsonProperty("minAge")
+    val minAge: Int?,
+    @JsonProperty("maxAge")
+    val maxAge: Int?,
+    @JsonProperty("start_period")
+    val start_period: String?,//LocalDateTime?,
+    @JsonProperty("end_period")
+    val end_period: String?,//LocalDateTime?,
+    @JsonProperty("duration")
+    val duration: Long? = null
 )

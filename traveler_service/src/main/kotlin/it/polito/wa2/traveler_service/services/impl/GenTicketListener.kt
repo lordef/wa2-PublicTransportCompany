@@ -319,7 +319,8 @@ class GenTicketListener(
             iat = Date().time
 
 
-            val format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+            val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
+
             val dateTime = LocalDateTime.parse(validFrom, format)
 
             nbfSeasonal = dateTime
