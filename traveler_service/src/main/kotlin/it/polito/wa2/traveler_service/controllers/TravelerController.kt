@@ -101,24 +101,36 @@ class TravelerController {
         )
     }*/
 
-    @GetMapping(path = ["/single-ticket"], produces = [MediaType.IMAGE_PNG_VALUE])
+    @GetMapping(path = ["/my/tickets/{ticketId}"], produces = [MediaType.IMAGE_PNG_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
-    fun generateQRCodeImage(@RequestParam ticketId: String): ByteArray? {
+    fun generateQRCodeImage(@PathVariable("ticketId") ticketId: String): ByteArray? {
 
-        val userName = SecurityContextHolder.getContext().authentication.name
+        try {
 
-        //QRcode generator logic
-        val qrCodeWriter = QRCodeWriter()
-        val ticketDTO = userDetailsService.getTicketById(ticketId.toLong(), userName)
-        val bitMatrix: BitMatrix = qrCodeWriter.encode(ticketDTO.jws, BarcodeFormat.QR_CODE, 250, 250)
+            val userName = SecurityContextHolder.getContext().authentication.name
 
-        val pngOutputStream = ByteArrayOutputStream()
-        val con = MatrixToImageConfig(-0xfffffe, -0x3fbf)
+            println(ticketId)
 
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream, con)
-        val pngData: ByteArray = pngOutputStream.toByteArray()
+            //QRcode generator logic
+            val qrCodeWriter = QRCodeWriter()
+            val ticketDTO = userDetailsService.getTicketById(ticketId.toLong(), userName)
 
-        return pngData
+            if (ticketDTO == null)
+                throw BadRequestException("Invalid ticketId")
+
+            val bitMatrix: BitMatrix = qrCodeWriter.encode(ticketDTO.jws, BarcodeFormat.QR_CODE, 250, 250)
+
+            val pngOutputStream = ByteArrayOutputStream()
+            val con = MatrixToImageConfig(-0xfffffe, -0x3fbf)
+
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream, con)
+            val pngData: ByteArray = pngOutputStream.toByteArray()
+            return pngData
+        }catch(ex: Exception) {
+            throw BadRequestException("Invalid ticketId")
+        }
+
+
     }
 
     @GetMapping("/admin/travelers")
