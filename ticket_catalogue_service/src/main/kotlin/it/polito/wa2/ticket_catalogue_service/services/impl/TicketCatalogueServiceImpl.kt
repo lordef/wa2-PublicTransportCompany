@@ -3,10 +3,12 @@ package it.polito.wa2.ticket_catalogue_service.services.impl
 
 import it.polito.wa2.ticket_catalogue_service.dtos.*
 import it.polito.wa2.ticket_catalogue_service.entities.Order
+import it.polito.wa2.ticket_catalogue_service.entities.PaymentInfo
 import it.polito.wa2.ticket_catalogue_service.entities.Status
 import it.polito.wa2.ticket_catalogue_service.entities.Ticket
 import it.polito.wa2.ticket_catalogue_service.exceptions.BadRequestException
 import it.polito.wa2.ticket_catalogue_service.repositories.OrderRepository
+import it.polito.wa2.ticket_catalogue_service.repositories.TemporaryPaymentRepository
 import it.polito.wa2.ticket_catalogue_service.repositories.TicketRepository
 import it.polito.wa2.ticket_catalogue_service.security.JwtUtils
 import it.polito.wa2.ticket_catalogue_service.services.TicketCatalogueService
@@ -30,7 +32,6 @@ import reactor.core.publisher.Mono
 import java.text.SimpleDateFormat
 
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -39,9 +40,11 @@ import java.util.*
 @Service
 @Transactional
 class TicketCatalogueServiceImpl(
-    @Value("\${kafka.topics.bank_check}") val topic: String,
+    //@Value("\${kafka.topics.bank_check}") val topicPayment: String,
+    @Value("\${kafka.topics.customer_check}") val topicTraveler: String,
+
     @Autowired
-    private val kafkaTemplate: KafkaTemplate<String, Any>
+    private val kafkaTemplateTraveler: KafkaTemplate<String, Any>
 ) : TicketCatalogueService {
 
 
@@ -53,6 +56,9 @@ class TicketCatalogueServiceImpl(
 
     @Autowired
     private lateinit var orderRepository: OrderRepository
+
+    @Autowired
+    private lateinit var paymentRepository: TemporaryPaymentRepository
 
     @Value("\${application.jwt.jwtExpirationMs}")
     var jwtExpirationMs: Long = -1
@@ -76,51 +82,20 @@ class TicketCatalogueServiceImpl(
         if (ticket == null)
             throw BadRequestException("Invalid ticketID")
 
-        checkValidityOfValidFrom(
-            ticket.type,
-            ticket.name,
-            purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(),
-            ticket
-        )
 
-        //TODO: @alessiodongio: check start/end period mechanism
+        checkValidityOfValidFrom(ticket.type, ticket.name, purchaseTicketsRequestDTO.notBefore.toLocalDate().toString(), ticket)
+        /*if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
+            throw BadRequestException("Invalid duration")*/
 
 
-        /*
-            if (ticket.type == "seasonal" && (ticket.duration == null || ticket.duration < 1))
-                throw BadRequestException("Invalid duration")
-         */
 
-        //generating jwt for the authentication with Traveler Service
-        val jwt = jwtUtils.generateJwt(principal, Date(), Date(Date().time + jwtExpirationMs))
-
-
-        val userInfo = webClient.get().uri("/admin/traveler/${principal}/profile")
-            .header("Authorization", "Bearer " + jwt)
-            .accept(MediaType.APPLICATION_JSON)
-            .exchangeToMono { response ->
-
-                if (response.statusCode() == HttpStatus.OK) {
-                    response.bodyToMono(UserDetailsDTO::class.java)
-                } else {
-                    println(response.statusCode())
-                    throw BadRequestException("User is not present in User Details")
-                }
-            }.awaitSingleOrNull()
-
-
-        //Check age if necessary.
-        if (ticket.maxAge != null || ticket.minAge != null) {
-            //throw an exception if age constraints are not satisfied
-            checkAgeConstraints(userInfo, ticket)
-        }
 
         val totalAmount = (ticket.price * purchaseTicketsRequestDTO.quantity)
 
         //Save Pending Order
         val order = Order(
             null,
-            Status.PENDING,
+            Status.CREATED,
             purchaseTicketsRequestDTO.ticketId,
             purchaseTicketsRequestDTO.notBefore,
             purchaseTicketsRequestDTO.quantity,
@@ -130,18 +105,11 @@ class TicketCatalogueServiceImpl(
         )
         orderRepository.save(order)
 
+        val paymentInfo = PaymentInfo(order.orderId!!,purchaseTicketsRequestDTO.creditCardNumber,purchaseTicketsRequestDTO.expirationDate,purchaseTicketsRequestDTO.cvv,purchaseTicketsRequestDTO.cardHolder)
+        paymentRepository.save(paymentInfo)
 
-        //Contacting Payment Service
-        val request = PaymentInfoDTO(
-            totalAmount,
-            purchaseTicketsRequestDTO.creditCardNumber,
-            purchaseTicketsRequestDTO.expirationDate,
-            purchaseTicketsRequestDTO.cvv,
-            purchaseTicketsRequestDTO.cardHolder,
-            principal,
-            order.orderId as Long
-        )
-        contactPaymentService(request)
+        val username = UsernameDTO(principal,order.orderId!!);
+        contactTravelerService(username)
 
         return Mono.just(order.orderId as Long)
 
@@ -243,7 +211,7 @@ class TicketCatalogueServiceImpl(
         }
     }
 
-    private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket) {
+    /*private fun checkAgeConstraints(userInfo: UserDetailsDTO?, ticket: Ticket) {
 
 
         if (userInfo!!.date_of_birth == null)
@@ -266,6 +234,7 @@ class TicketCatalogueServiceImpl(
         if (ticket.minAge != null)
             if (currentNumberOfYears < ticket.minAge)
                 throw BadRequestException("Invalid Age for this ticket type")
+
     }
 
     private fun contactPaymentService(request: PaymentInfoDTO) {
@@ -274,7 +243,7 @@ class TicketCatalogueServiceImpl(
             log.info("Sending message to Kafka {}", request)
             val message: Message<PaymentInfoDTO> = MessageBuilder
                 .withPayload(request)
-                .setHeader(KafkaHeaders.TOPIC, topic)
+                .setHeader(KafkaHeaders.TOPIC, topicPayment)
                 .setHeader("X-Custom-Header", "Custom header here")
                 .build()
             kafkaTemplate.send(message)
@@ -284,11 +253,30 @@ class TicketCatalogueServiceImpl(
             log.error("Exception: {}", e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
         }
+    }*/
+
+    private fun contactTravelerService(request: UsernameDTO) {
+        try {
+            log.info("Receiving product request")
+            log.info("Sending message to Kafka {}", request)
+            val message: Message<UsernameDTO> = MessageBuilder
+                .withPayload(request)
+                .setHeader(KafkaHeaders.TOPIC, topicTraveler)
+                .setHeader("X-Custom-Header", "Custom header here")
+                .build()
+            kafkaTemplateTraveler.send(message)
+            log.info("Message sent with success")
+            //ResponseEntity.ok().build()
+        } catch (e: Exception) {
+            log.error("Exception: {}", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error to send message")
+        }
     }
+
 
     private fun checkValidityOfValidFrom(type: String, name: String, validFrom: String, ticket: Ticket) {
 
-        val formatter = SimpleDateFormat("dd-MM-yyyy")
+        val formatter = SimpleDateFormat("yyyy-MM-dd")
 
         if (type == "ordinal") {
 
@@ -389,10 +377,3 @@ class TicketCatalogueServiceImpl(
     }
 }
 
-data class UserDetailsDTO(
-    var username: String,
-    var name: String?,
-    var address: String?,
-    var telephone_number: String?,
-    var date_of_birth: String?
-)

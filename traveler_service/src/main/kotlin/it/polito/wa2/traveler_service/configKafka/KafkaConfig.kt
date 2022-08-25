@@ -1,4 +1,4 @@
-package it.polito.wa2.payment_service.config
+package it.polito.wa2.traveler_service.configKafka
 
 import org.apache.kafka.clients.admin.AdminClientConfig
 import org.apache.kafka.clients.admin.NewTopic
@@ -11,12 +11,10 @@ import org.springframework.kafka.core.KafkaAdmin
 class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
-
-    @Value("\${kafka.topics.payment_answer}")
-    private val topicBankCheckAnswer: String,
-
-    @Value("\${kafka.topics.generate_ticket}")
-    private val topicGenerateTicket: String,
+    @Value("\${kafka.topics.customer_check_answer}")
+    private val topic: String,
+    @Value("\${kafka.topics.generate_ticket_answer}")
+    private val topic2: String
 ) {
 
     @Bean
@@ -28,11 +26,11 @@ class KafkaConfig(
 
     @Bean
     fun newtopic(): NewTopic {
-        return NewTopic(topicBankCheckAnswer, 1, 1.toShort())
+        return NewTopic(topic, 1, 1.toShort())
     }
 
     @Bean
-    fun newtopicGenerateTicket(): NewTopic {
-        return NewTopic(topicGenerateTicket, 1, 1.toShort())
+    fun newtopic2(): NewTopic {
+        return NewTopic(topic2, 1, 1.toShort())
     }
 }

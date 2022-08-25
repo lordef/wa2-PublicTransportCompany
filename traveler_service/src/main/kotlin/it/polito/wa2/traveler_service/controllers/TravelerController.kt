@@ -103,7 +103,7 @@ class TravelerController {
     fun getMyTickets(): List<TicketAcquiredDTO> {
         return userDetailsService.getUserTickets(SecurityContextHolder.getContext().authentication.name)
     }
-
+/*
     @PostMapping("/my/tickets")
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).SERVICE)")
     @ResponseBody
@@ -121,7 +121,7 @@ class TravelerController {
             SecurityContextHolder.getContext().authentication.name,
             purchaseTicketDTO
         )
-    }
+    }*/
 
     @GetMapping(path = ["my/tickets/{ticketId}"], produces = [MediaType.IMAGE_PNG_VALUE])
     @PreAuthorize("hasAuthority(T(it.polito.wa2.traveler_service.dtos.Role).CUSTOMER)")
@@ -129,20 +129,31 @@ class TravelerController {
         @PathVariable("ticketId") ticketId: String
     ): ByteArray? {
 
-        val userName = SecurityContextHolder.getContext().authentication.name
+        try {
+            val userName = SecurityContextHolder.getContext().authentication.name
 
-        //QRcode generator logic
-        val qrCodeWriter = QRCodeWriter()
-        val ticketDTO = userDetailsService.getTicketById(ticketId.toLong(), userName)
-        val bitMatrix: BitMatrix = qrCodeWriter.encode(ticketDTO.jws, BarcodeFormat.QR_CODE, 250, 250)
+            println(ticketId)
 
-        val pngOutputStream = ByteArrayOutputStream()
-        val con = MatrixToImageConfig(-0xfffffe, -0x3fbf)
+            //QRcode generator logic
+            val qrCodeWriter = QRCodeWriter()
+            val ticketDTO = userDetailsService.getTicketById(ticketId.toLong(), userName)
 
-        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream, con)
-        val pngData: ByteArray = pngOutputStream.toByteArray()
+            if (ticketDTO == null)
+                throw BadRequestException("Invalid ticketId")
 
-        return pngData
+            val bitMatrix: BitMatrix = qrCodeWriter.encode(ticketDTO.jws, BarcodeFormat.QR_CODE, 250, 250)
+
+            val pngOutputStream = ByteArrayOutputStream()
+            val con = MatrixToImageConfig(-0xfffffe, -0x3fbf)
+
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream, con)
+            val pngData: ByteArray = pngOutputStream.toByteArray()
+            return pngData
+        }catch(ex: Exception) {
+            throw BadRequestException("Invalid ticketId")
+        }
+
+
     }
 
     @GetMapping("/admin/travelers")
@@ -179,9 +190,7 @@ class TravelerController {
 
         if (bindingResult.hasErrors())
             throw BadRequestException("Wrong json fields")
-
         println(dateRangeDTO)
-
         return adminReportsService.getTicketsAcquiredByUser(userID, dateRangeDTO)
     }
 

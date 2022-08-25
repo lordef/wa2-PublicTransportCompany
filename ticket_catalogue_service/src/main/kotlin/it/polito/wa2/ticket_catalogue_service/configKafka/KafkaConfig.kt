@@ -11,8 +11,10 @@ import org.springframework.kafka.core.KafkaAdmin
 class KafkaConfig(
     @Value("\${kafka.bootstrapAddress}")
     private val servers: String,
-    @Value("\${kafka.topics.bank_check}")
-    private val topic: String
+    @Value("\${kafka.topics.payment}")
+    private val topic: String,
+    @Value("\${kafka.topics.customer_check}")
+    private val topicTraveler: String
 ) {
 
     @Bean
@@ -25,5 +27,10 @@ class KafkaConfig(
     @Bean
     fun newtopic(): NewTopic {
         return NewTopic(topic, 1, 1.toShort())
+    }
+
+    @Bean
+    fun newtopicTraveler(): NewTopic {
+        return NewTopic(topicTraveler, 1, 1.toShort())
     }
 }

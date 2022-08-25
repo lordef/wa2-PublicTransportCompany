@@ -1,5 +1,6 @@
 package it.polito.wa2.ticket_catalogue_service.entities
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
@@ -11,13 +12,24 @@ import java.time.LocalDateTime
 @Table("tickets")
 data class Ticket(
         @Id
+        @JsonProperty("ticketId")
         val ticketId: Long?,
+        @JsonProperty("price")
         val price : Float,
+        @JsonProperty("type")
         val type : String,
+        @JsonProperty("name")
         val name : String,
+        @JsonProperty("minAge")
         val minAge: Int?,
+        @JsonProperty("maxAge")
         val maxAge: Int?,
+        @JsonProperty("start_period")
         val start_period: LocalDateTime?,
+        @JsonProperty("end_period")
         val end_period: LocalDateTime?,
+        @JsonProperty("duration")
         val duration: Long? = null
 )
+
+

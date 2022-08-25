@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository
 interface TransactionRepository: CoroutineCrudRepository<Transaction,Long> {
 
     fun findTransactionsByCustomer(customer: String): Flow<Transaction>
+
+    suspend fun findTransactionsByOrderId(orderId: Long): Transaction?
 }

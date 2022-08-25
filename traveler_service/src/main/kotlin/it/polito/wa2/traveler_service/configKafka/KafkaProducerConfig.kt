@@ -1,8 +1,9 @@
-package it.polito.wa2.payment_service.config
+package it.polito.wa2.traveler_service.configKafka
 
 
-import it.polito.wa2.payment_service.dtos.serializer.GenTicketSerializer
-import it.polito.wa2.payment_service.dtos.serializer.PaymentAnswerSerializer
+
+import it.polito.wa2.traveler_service.dtos.Serializer.CatalogueSerializer
+import it.polito.wa2.traveler_service.dtos.Serializer.PaymentSerializer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
+import org.springframework.stereotype.Component
 
 @Configuration
 class KafkaProducerConfig(
@@ -18,14 +20,30 @@ class KafkaProducerConfig(
     private val servers: String
 ) {
 
-    /** ---------------- Catalogue Kafka Producer ------------------- **/
+    /** ---------------- Payment Kafka Producer ------------------- **/
 
+    @Bean
+    fun producerFactoryPayment(): ProducerFactory<String, Any> {
+        val configProps: MutableMap<String, Any> = HashMap()
+        configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
+        configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = PaymentSerializer::class.java
+        return DefaultKafkaProducerFactory(configProps)
+    }
+
+    @Bean
+    fun kafkaTemplatePayment(): KafkaTemplate<String, Any> {
+        return KafkaTemplate(producerFactoryPayment())
+    }
+
+
+    /** ---------------- Catalogue Kafka Producer -------------------**/
     @Bean
     fun producerFactoryCatalogue(): ProducerFactory<String, Any> {
         val configProps: MutableMap<String, Any> = HashMap()
         configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
         configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = PaymentAnswerSerializer::class.java
+        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = CatalogueSerializer::class.java
         return DefaultKafkaProducerFactory(configProps)
     }
 
@@ -34,19 +52,4 @@ class KafkaProducerConfig(
         return KafkaTemplate(producerFactoryCatalogue())
     }
 
-
-    /** ---------------- Traveler Kafka Producer -------------------**/
-    @Bean
-    fun producerFactoryGenTicket(): ProducerFactory<String, Any> {
-        val configProps: MutableMap<String, Any> = HashMap()
-        configProps[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = servers
-        configProps[ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
-        configProps[ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG] = GenTicketSerializer::class.java
-        return DefaultKafkaProducerFactory(configProps)
-    }
-
-    @Bean
-    fun kafkaTemplateGenTicket(): KafkaTemplate<String, Any> {
-        return KafkaTemplate(producerFactoryGenTicket())
-    }
 }

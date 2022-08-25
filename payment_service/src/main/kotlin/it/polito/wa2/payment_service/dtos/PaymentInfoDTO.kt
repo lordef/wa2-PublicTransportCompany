@@ -1,10 +1,13 @@
 package it.polito.wa2.payment_service.dtos
 
 import com.fasterxml.jackson.annotation.JsonProperty
+
+import java.time.LocalDateTime
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Pattern
 import javax.validation.constraints.Size
+
 
 
 data class PaymentInfoDTO(
@@ -31,5 +34,17 @@ data class PaymentInfoDTO(
     @JsonProperty("username")
     val username: String,
     @JsonProperty("orderId")
-    val orderId: Long
+    val orderId: Long,
+
+    @JsonProperty("ticket")
+    val ticket : Ticket,
+
+    @JsonProperty("validFrom")
+    val validFrom: String,//LocalDateTime,
+
+    @JsonProperty("quantity")
+    val quantity: Long,
+
+    @JsonProperty("zone")
+    val zone: String
 )
