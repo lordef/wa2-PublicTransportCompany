@@ -39,7 +39,6 @@ set of embedded systems
 ## TODO: read below, do more readable and short this part and use a suitable title
 
 
-![tickets_table.png](z_readme/img/tickets_table.png)
 
 
 NOTE: before to shop tickets, be sure to have injected inside the User Details table the specific user record (and
@@ -93,6 +92,10 @@ Tickets was thought as follow :
 }
   ````
 
+
+![tickets_table.png](z_readme/img/tickets_table.png)
+
+
 - if the purchased ticket is an ordinal one, duration is neither necessary nor useful; instead, for seasonal ones it is
   required.
 
@@ -133,7 +136,12 @@ Tickets was thought as follow :
   time (nbf=iat) until the specified minutes added to the current time (exp = iat + duration = nbf + duration)
 
 ## Requests
-TODO: list here requests as in the previous year final project
+![login_service_apis.png](z_readme/img/login_service_apis.png)
+![tickets_table.png](z_readme/img/ts_apis.png)
+![ticket_c_s_apis.png](z_readme/img/ticket_c_s_apis.png)
+![payment_service_apis.png](z_readme/img/payment_service_apis.png)
+
+
 
 
 ------------------------------------------------------
