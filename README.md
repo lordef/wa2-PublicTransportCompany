@@ -18,29 +18,29 @@ TODO: update with the new architecture idea (API Gateway, etc.)
 
 ## Scalability & Availability
 
-### Kafka
-### Saga
+### - Kafka
+### - Saga
 Involved transaction
 ![sagas_transaction.png](z_readme/img/sagas_transaction.png)
 
 
-TODO: explation of why a sort of Saga Choreography
-
-### Eureka Server
-### API Gateway
+### - Eureka Server
+### - API Gateway
 
 
 ---------------------------------------------------
 ## Business Logic
 
 ## User types
-TODO: LIST: human users, travelers and administrators, as well as a
-set of embedded systems
-## TODO: read below, do more readable and short this part and use a suitable title
+1) Admin
+2) Admin_E
+3) User
+4) Turnstile/Embedded_system
 
 
 
 
+README.md
 NOTE: before to shop tickets, be sure to have injected inside the User Details table the specific user record (and
 eventually the date of birth, if the purchased ticket has age restriction)
 
