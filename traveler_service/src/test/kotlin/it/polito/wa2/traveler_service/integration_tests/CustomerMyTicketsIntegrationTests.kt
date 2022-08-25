@@ -136,7 +136,8 @@ class CustomerMyTicketsIntegrationTests {
     }
 
     /**    4) POST /my/tickets **/
-    @Test
+//    @Test
+/*
     fun validPutMyTicketTest() {
         val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
         val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
@@ -158,8 +159,9 @@ class CustomerMyTicketsIntegrationTests {
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
 
     }
+*/
 
-    @Test
+   /* @Test
     fun invalidCmdInjsonPutMyTicketTest() {
         val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
         val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
@@ -180,9 +182,9 @@ class CustomerMyTicketsIntegrationTests {
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
 
-    }
+    }*/
 
-    @Test
+    /*@Test
     fun noUserDetailsPutMyTicketTest() {
         val purchaseTicketDTO = PurchaseTicketDTO("buy_tickets", "ordinal", "daily", Date().toString(), 3, 360000, "ABC")
 
@@ -199,9 +201,9 @@ class CustomerMyTicketsIntegrationTests {
 
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.statusCode)
 
-    }
+    }*/
 
-    @Test
+/*    @Test
     fun invalidQuantityPutMyTicketTest() {
         val userDetailsDTO = UserDetailsDTO("customer1", "name", "address")
         val userDetails = UserDetails(userDetailsDTO.username, userDetailsDTO.name, userDetailsDTO.address)
@@ -223,7 +225,7 @@ class CustomerMyTicketsIntegrationTests {
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
 
-    }
+    }*/
 
 
 }
