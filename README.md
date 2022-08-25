@@ -38,6 +38,10 @@ TODO: LIST: human users, travelers and administrators, as well as a
 set of embedded systems
 ## TODO: read below, do more readable and short this part and use a suitable title
 
+
+![tickets_table.png](z_readme/img/tickets_table.png)
+
+
 NOTE: before to shop tickets, be sure to have injected inside the User Details table the specific user record (and
 eventually the date of birth, if the purchased ticket has age restriction)
 
