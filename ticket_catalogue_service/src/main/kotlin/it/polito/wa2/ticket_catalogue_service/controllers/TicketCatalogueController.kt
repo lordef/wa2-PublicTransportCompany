@@ -20,6 +20,7 @@ import javax.validation.Valid
 
 
 @RestController
+@RequestMapping("/ticketCatalogue")
 class TicketCatalogueController {
 
     @Autowired

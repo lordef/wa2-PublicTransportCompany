@@ -59,6 +59,9 @@ dependencies {
 
     implementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
+
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.3")
+
 }
 
 tasks.withType<KotlinCompile> {

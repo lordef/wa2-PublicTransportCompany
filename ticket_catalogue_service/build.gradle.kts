@@ -68,6 +68,9 @@ dependencies {
 
     implementation("ch.qos.logback:logback-core:1.3.0-alpha16")
 
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.3")
+
+
 }
 
 dependencyManagement {

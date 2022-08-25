@@ -4,7 +4,6 @@ import it.polito.wa2.login_service.dtos.ActivationDTO
 import it.polito.wa2.login_service.dtos.LoginRequestDTO
 import it.polito.wa2.login_service.dtos.RegistrationRequestDTO
 import it.polito.wa2.login_service.dtos.UserRoleDTO
-import it.polito.wa2.login_service.entities.ERole
 import it.polito.wa2.login_service.exceptions.BadRequestException
 import it.polito.wa2.login_service.security.Jwt
 import it.polito.wa2.login_service.services.impl.UserServiceImpl
@@ -23,6 +22,7 @@ import javax.validation.Valid
 
 
 @RestController
+@RequestMapping("/login")
 class RegistrationController() {
 
     @Value("\${application.jwt.jwtHeaderStart}")
@@ -36,7 +36,6 @@ class RegistrationController() {
 
     @Autowired
     lateinit var authenticationManager: AuthenticationManager
-
 
     @PostMapping("/user/register")
     @ResponseBody
