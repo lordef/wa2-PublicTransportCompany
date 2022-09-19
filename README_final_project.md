@@ -17,8 +17,8 @@
 ## Scalability & Availability
 
 ### - Kafka
-### - Saga
-Involved transaction
+### - Saga Choreography
+Involved transaction: purchasing tickets
 ![sagas_transaction.png](z_readme/img/sagas_transaction.png)
 
 
