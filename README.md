@@ -2,8 +2,8 @@
 
 ## Team name: Group04
 Team members:
-* [alessiodongio](https://github.com/orgs/WA2-2022-G04/people/alessiodongio)
-* [davide-leone96](https://github.com/orgs/WA2-2022-G04/people/davide-leone96)
+* [alessiodongio](https://github.com/alessiodongio)
+* [davide-leone96](https://github.com/davide-leone96)
 * [fermic98](https://github.com/fermic98)
 * [lordef](https://github.com/lordef)
 
